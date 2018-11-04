@@ -10,11 +10,6 @@
 
 using namespace std;
 
-void Mapper::stall(int seed)
-{
-    int max_lim = seed*9999;
-    for(int i=0; i<max_lim; i++){}
-}
 
 int Mapper::initiate_word_count_request(string mapper_ip, int mapper_port, string job_id, string file_path, off_t offset, size_t piece_size)
 {
@@ -44,7 +39,7 @@ int Mapper::initiate_word_count_request(string mapper_ip, int mapper_port, strin
     char req_string[255];
     string repl_string;
     bzero(req_string, 255);
-    write(sock, "initiate_word_count", 10);
+    write(sock, "initiate_word_count", 19);
     read(sock, req_string, 255);
     repl_string = req_string;
 

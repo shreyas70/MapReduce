@@ -4,7 +4,7 @@
 class MapperServer
 {
     private:
-
+    
     void process_map_request(int sock_desc);
     
     public:

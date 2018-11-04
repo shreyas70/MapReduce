@@ -5,9 +5,7 @@
 
 class Mapper
 {
-    private:
-    void stall(int seed);
-
+    
     public:
     int initiate_word_count_request(std::string mapper_ip, int mapper_port, std::string job_id, std::string file_path, off_t file_offset, size_t piece_size);
 
