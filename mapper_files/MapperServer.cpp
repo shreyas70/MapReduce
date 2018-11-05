@@ -12,12 +12,40 @@
 
 using namespace std;
 
+bool MapperServer::take_slot()
+{
+    lock_guard<mutex> lock(slot_lock);
+    cout<<"\nThread "<<this_thread::get_id()<<" Obtained lock on slot variable!"<<endl;
+    cout<<"\nThread "<<this_thread::get_id()<<" Current value of slots = "<<slots<<endl;
+    if(slots<=0)
+    {
+        return false;
+    }
+    slots--;
+    cout<<"\nThread "<<this_thread::get_id()<<" Slots value changed to = "<<slots<<endl;
+    return true;
+}
+
+void MapperServer::release_slot()
+{
+    lock_guard<mutex> lock(slot_lock);
+    cout<<"\nThread "<<this_thread::get_id()<<" Obtained lock on slot variable!"<<endl;
+    cout<<"\nThread "<<this_thread::get_id()<<" Current value of slots = "<<slots<<endl;
+    slots++;
+    cout<<"\nThread "<<this_thread::get_id()<<" Slots value changed to = "<<slots<<endl;
+}
+
 
 void MapperServer::process_map_request(int sock_desc)
 {
     int client_socket = sock_desc;
     char req_string[255];
     string connection_status = "open";
+    if(!take_slot())
+    {
+        cout<<"\nSlots unavailable!\n";
+        return;
+    }
     while(!connection_status.compare("open"))
     {
         bzero(req_string, 255);
@@ -66,6 +94,7 @@ void MapperServer::process_map_request(int sock_desc)
         }
         connection_status = "close";
     }
+    release_slot();
     
 }
 
@@ -89,10 +118,11 @@ void MapperServer::start_mapper_server(int port_number)
         cout<<"Process: "<<getpid()<<" "<<"Unable to bind to file server address!\n";
         exit(1);
     }
-    listen(init_socket,5);
+    listen(init_socket,10);
     file_client_length = sizeof(mapper_client_address);
     int thread_count = 0;
     thread all_threads[50];
+    slots = 3;
     while( (client_socket = accept(init_socket, (struct sockaddr *) &mapper_client_address, &file_client_length)) )
     {
         cout<<"\n\nNew connection received\n\n";
@@ -106,6 +136,5 @@ void MapperServer::start_mapper_server(int port_number)
     }
     
     close(init_socket);
-    //close(client_socket);
     cout<<"\n\n"<<getpid()<<" exiting peacefully\n"<<"\n\n";
 }
