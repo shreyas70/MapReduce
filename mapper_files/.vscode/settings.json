@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "atomic": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "*.tcc": "cpp"
     }
 }

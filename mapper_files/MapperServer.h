@@ -7,12 +7,12 @@ class MapperServer
 {
     private:
 
-    // std::atomic<int> slots;
-    // std::atomic<bool> slot_var_locked;
     std::mutex slot_lock;
     int slots;
     bool take_slot();
     void release_slot();
+    int available_slots();
+    void give_heart_beats(int sock_desc);
     void process_map_request(int sock_desc);
     
     public:

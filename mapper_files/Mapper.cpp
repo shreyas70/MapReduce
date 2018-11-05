@@ -6,12 +6,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <thread>
 #include "Mapper.h"
 
 using namespace std;
 
-
-int Mapper::initiate_word_count_request(string mapper_ip, int mapper_port, string job_id, string file_path, off_t offset, size_t piece_size)
+int Mapper::initiate_heart_beats(string mapper_ip, int mapper_port)
 {
     struct sockaddr_in server_ip;
     struct hostent * server;
@@ -36,6 +36,53 @@ int Mapper::initiate_word_count_request(string mapper_ip, int mapper_port, strin
         cout<<"\nConnection to server failed\n";
         return -1;
     }
+    write(sock, "initiate_heart_beats", 20);
+    return sock;
+}
+
+MapperConnection Mapper::connect_to_mapper(string mapper_ip, int mapper_port)
+{
+    struct sockaddr_in server_ip;
+    struct hostent * server;
+    int sock = socket(AF_INET,SOCK_STREAM,0);
+    if(sock < 0)
+    {
+        cout<<"\nError while creating socket\n";
+        MapperConnection mc;
+        mc.heart_beat_socket = -1;
+        mc.mapper_socket = -1;
+        return mc;
+    }
+    server = gethostbyname(mapper_ip.c_str());
+    if(server==NULL)
+    {
+        cout<<"\nNo such host identified\n";
+        MapperConnection mc;
+        mc.heart_beat_socket = -1;
+        mc.mapper_socket = -1;
+        return mc;
+    }
+    bzero((char *) &server_ip, sizeof(server_ip));
+    server_ip.sin_family = AF_INET;
+    bcopy((char *)server->h_addr, (char *) &server_ip.sin_addr.s_addr, server->h_length);
+    server_ip.sin_port = htons(mapper_port);
+    if(connect(sock,(struct sockaddr *) &server_ip, sizeof(server_ip)) < 0)
+    {
+        cout<<"\nConnection to server failed\n";
+        MapperConnection mc;
+        mc.heart_beat_socket = -1;
+        mc.mapper_socket = -1;
+        return mc;
+    }
+    int hb_sock = initiate_heart_beats(mapper_ip, mapper_port);
+    MapperConnection mc;
+    mc.heart_beat_socket = hb_sock;
+    mc.mapper_socket = sock;
+    return mc;
+}
+
+int Mapper::initiate_word_count_request(int sock, string job_id, string file_path, off_t offset, size_t piece_size)
+{
     char req_string[255];
     string repl_string;
     bzero(req_string, 255);
@@ -123,4 +170,19 @@ int Mapper::initiate_word_count_request(string mapper_ip, int mapper_port, strin
     }
     return -1;
 
+}
+
+int Mapper::get_available_slots(int sock)
+{
+    char req_string[255];
+    string repl_string;
+    bzero(req_string, 255);
+    write(sock, "get_available_slots", 19);
+    read(sock, req_string, 255);
+    repl_string = req_string;
+
+    cout<<"Reply string : "<<repl_string<<endl;
+
+    int av_slots = stoi(repl_string);
+    return av_slots;
 }

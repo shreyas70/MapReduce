@@ -15,9 +15,9 @@ int main()
     {
         if(fork()==0)
         {
-            Mapper m;
-            int sock = m.initiate_word_count_request("127.0.0.1", 7004, "JOB1", "/etc/fdsfd.txt", 200, 4000);
-            close(sock);
+            // Mapper m;
+            // int sock = m.initiate_word_count_request("127.0.0.1", 7004, "JOB1", "/etc/fdsfd.txt", 200, 4000);
+            // close(sock);
             exit(0);
         }
     }

@@ -35,17 +35,40 @@ void MapperServer::release_slot()
     cout<<"\nThread "<<this_thread::get_id()<<" Slots value changed to = "<<slots<<endl;
 }
 
+int MapperServer::available_slots()
+{
+    lock_guard<mutex> lock(slot_lock);
+    return slots;
+}
+
+void MapperServer::give_heart_beats(int sock_desc)
+{
+    int client_socket = sock_desc;
+    while(true)
+    {
+        int av_slots = available_slots();
+        string av_slots_string = to_string(av_slots);
+        write(client_socket, av_slots_string.c_str(), av_slots_string.length());
+        char job_id[255];
+        bzero(job_id, 255);
+        read(client_socket, job_id, 255);
+
+        string job_string = job_id;
+        if(job_string.compare("NULL"))
+        {
+            /*Code to scrap off job*/
+            cout<<"JOB "<<job_id<<" scrapped off!"<<endl;   
+        }
+
+        this_thread::sleep_for(2s);
+    }
+}
 
 void MapperServer::process_map_request(int sock_desc)
 {
     int client_socket = sock_desc;
     char req_string[255];
     string connection_status = "open";
-    if(!take_slot())
-    {
-        cout<<"\nSlots unavailable!\n";
-        return;
-    }
     while(!connection_status.compare("open"))
     {
         bzero(req_string, 255);
@@ -57,6 +80,11 @@ void MapperServer::process_map_request(int sock_desc)
         bzero(req_string, 255);
         if(!req_type.compare("initiate_word_count"))
         {
+            if(!take_slot())
+            {
+                cout<<"\nSlots unavailable!\n";
+                return;
+            }
             write(client_socket, "job_id", 6);
             read(client_socket, req_string, 255);
             string job_id = req_string;
@@ -87,6 +115,18 @@ void MapperServer::process_map_request(int sock_desc)
             cout<<"\nFile size: "<<file_size<<endl;
 
             write(client_socket, "OK", 2);
+            release_slot();
+        }
+        else if(!req_type.compare("initiate_heart_beats"))
+        {
+            thread hb = thread(&MapperServer::give_heart_beats,this,client_socket);
+            hb.detach();
+        }
+        else if(!req_type.compare("get_available_slots"))
+        {
+            int av_slots = available_slots();
+            string av_slots_string = to_string(av_slots);
+            write(client_socket, av_slots_string.c_str(), av_slots_string.length());
         }
         else
         {
@@ -94,7 +134,6 @@ void MapperServer::process_map_request(int sock_desc)
         }
         connection_status = "close";
     }
-    release_slot();
     
 }
 
