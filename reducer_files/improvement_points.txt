@@ -1,0 +1,1 @@
+1) To improve the fault tolerance, we could have more than one masters running simultaneously.
