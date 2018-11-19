@@ -12,10 +12,11 @@ class Mapper
     
     public:
     Mapper(std::string mapper_ip, int mapper_port);
+    ~Mapper();
 
     std::string receive_heart_beat();
     void reply_to_heart_beat(); 
-    int initiate_word_count_request(std::string job_id, std::string file_path, off_t file_offset, size_t piece_size);
+    void initiate_word_count_request(std::string job_id, std::string file_path, off_t file_offset, size_t piece_size);
     int get_available_slots();
 };
 

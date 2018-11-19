@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include "MapperServer.h"
+#include "WordCount.h"
 
 using namespace std;
 
@@ -82,39 +83,56 @@ void MapperServer::process_map_request(int sock_desc)
         {
             if(!take_slot())
             {
-                cout<<"\nSlots unavailable!\n";
+                write(client_socket, "UNAVAILABLE", 11);
                 return;
             }
-            write(client_socket, "job_id", 6);
-            read(client_socket, req_string, 255);
-            string job_id = req_string;
-
-            cout<<"\nJOB ID: "<<job_id<<endl;
-
-            bzero(req_string, 255);
-            write(client_socket, "file_path", 9);
-            read(client_socket, req_string, 255);
-            string file_path = req_string;
-
-            cout<<"\nFile path: "<<file_path<<endl;
-
-            bzero(req_string, 255);
-            write(client_socket, "offset", 6);
-            read(client_socket, req_string, 255);
-            string file_offset_string = req_string;
-            off_t file_offset = stoi(file_offset_string);
-
-            cout<<"\nFile offset: "<<file_offset<<endl;
-
-            bzero(req_string, 255);
-            write(client_socket, "size", 4);
-            read(client_socket, req_string, 255);
-            string size_string = req_string;
-            size_t file_size = stoi(size_string);
-
-            cout<<"\nFile size: "<<file_size<<endl;
 
             write(client_socket, "OK", 2);
+            read(client_socket, req_string, 255);
+            string request_string = req_string;
+            cout<<"\n\nRequest string is : "<<request_string<<endl;
+            WordCount wc = WordCount(request_string);
+            cout<<"\nJOB ID = "<<wc.get_job_id()<<endl;
+            cout<<"\nFILE PATH = "<<wc.get_file_path()<<endl;
+            cout<<"\nOFFSET = "<<wc.get_offset()<<endl;
+            cout<<"\nPIECE SIZE = "<<wc.get_piece_size()<<endl;
+
+            write(client_socket, "OK", 2);
+
+            // write(client_socket, "job_id", 6);
+            // read(client_socket, req_string, 255);
+            // string job_id = req_string;
+
+            // cout<<"\nJOB ID: "<<job_id<<endl;
+
+            // bzero(req_string, 255);
+            // write(client_socket, "file_path", 9);
+            // read(client_socket, req_string, 255);
+            // string file_path = req_string;
+
+            // cout<<"\nFile path: "<<file_path<<endl;
+
+            // bzero(req_string, 255);
+            // write(client_socket, "offset", 6);
+            // read(client_socket, req_string, 255);
+            // string file_offset_string = req_string;
+            // off_t file_offset = stoi(file_offset_string);
+
+            // cout<<"\nFile offset: "<<file_offset<<endl;
+
+            // bzero(req_string, 255);
+            // write(client_socket, "size", 4);
+            // read(client_socket, req_string, 255);
+            // string size_string = req_string;
+            // size_t file_size = stoi(size_string);
+
+            // cout<<"\nFile size: "<<file_size<<endl;
+
+            // write(client_socket, "OK", 2);
+
+
+
+
             release_slot();
         }
         else if(!req_type.compare("initiate_heart_beats"))

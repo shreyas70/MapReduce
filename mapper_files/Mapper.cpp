@@ -89,95 +89,112 @@ void Mapper::reply_to_heart_beat()
     write(hb_sock, "NULL", 4);
 }
 
-int Mapper::initiate_word_count_request(string job_id, string file_path, off_t offset, size_t piece_size)
+void Mapper::initiate_word_count_request(string job_id, string file_path, off_t offset, size_t piece_size)
 {
     int sock = this->mapper_socket;
     char req_string[255];
     string repl_string;
-    bzero(req_string, 255);
     write(sock, "initiate_word_count", 19);
+    bzero(req_string, 255);
     read(sock, req_string, 255);
     repl_string = req_string;
 
     cout<<"Reply string : "<<repl_string<<endl;
 
-    if(!repl_string.compare("job_id"))
+    if(!repl_string.compare("OK"))
     {
-        write(sock, job_id.c_str(), job_id.length());
+        string reply_string = job_id+"$"+file_path+"$"+to_string(offset)+"$"+to_string(piece_size);
+        write(sock, reply_string.c_str(), reply_string.length());
         bzero(req_string, 255);
         read(sock, req_string, 255);
         repl_string = req_string;
-
-        cout<<"Reply string : "<<repl_string<<endl;
-
-        if(!repl_string.compare("file_path"))
+        if(repl_string.compare("OK"))
         {
-            write(sock, file_path.c_str(), file_path.length());
-            bzero(req_string, 255);
-            read(sock, req_string, 255);
-            repl_string = req_string;
-
-            cout<<"Reply string : "<<repl_string<<endl;
-
-            if(!repl_string.compare("offset"))
-            {
-                string offset_string = to_string(offset);
-                write(sock, offset_string.c_str(), offset_string.length());
-                bzero(req_string, 255);
-                read(sock, req_string, 255);
-                repl_string = req_string;
-
-                cout<<"Reply string : "<<repl_string<<endl;
-
-                if(!repl_string.compare("size"))
-                {
-                    string size_string = to_string(piece_size);
-                    write(sock, size_string.c_str(), size_string.length());
-                    bzero(req_string, 255);
-                    read(sock, req_string, 255);
-                    repl_string = req_string;
-
-                    cout<<"Reply string : "<<repl_string<<endl;
-
-                    if(!repl_string.compare("OK"))
-                    {
-                        return sock;
-                    }
-                    else
-                    {
-                        cout<<"\nFailed to initiate connection with Mapper!";
-                        close(sock);
-                        return -1;
-                    }
-                }
-                else
-                {
-                    cout<<"\nFailed to initiate connection with Mapper!";
-                    close(sock);
-                    return -1;
-                }
-            }
-            else
-            {
-                cout<<"\nFailed to initiate connection with Mapper!";
-                close(sock);
-                return -1;
-            }
-        }
-        else
-        {
-            cout<<"\nFailed to initiate connection with Mapper!";
-            close(sock);
-            return -1;
+            cout<<"\n\nFailed to initiate word count job!\n\n";
         }
     }
     else
     {
         cout<<"\nFailed to initiate connection with Mapper!";
-        close(sock);
-        return -1;
     }
-    return -1;
+
+
+    // if(!repl_string.compare("job_id"))
+    // {
+    //     write(sock, job_id.c_str(), job_id.length());
+    //     bzero(req_string, 255);
+    //     read(sock, req_string, 255);
+    //     repl_string = req_string;
+
+    //     cout<<"Reply string : "<<repl_string<<endl;
+
+    //     if(!repl_string.compare("file_path"))
+    //     {
+    //         write(sock, file_path.c_str(), file_path.length());
+    //         bzero(req_string, 255);
+    //         read(sock, req_string, 255);
+    //         repl_string = req_string;
+
+    //         cout<<"Reply string : "<<repl_string<<endl;
+
+    //         if(!repl_string.compare("offset"))
+    //         {
+    //             string offset_string = to_string(offset);
+    //             write(sock, offset_string.c_str(), offset_string.length());
+    //             bzero(req_string, 255);
+    //             read(sock, req_string, 255);
+    //             repl_string = req_string;
+
+    //             cout<<"Reply string : "<<repl_string<<endl;
+
+    //             if(!repl_string.compare("size"))
+    //             {
+    //                 string size_string = to_string(piece_size);
+    //                 write(sock, size_string.c_str(), size_string.length());
+    //                 bzero(req_string, 255);
+    //                 read(sock, req_string, 255);
+    //                 repl_string = req_string;
+
+    //                 cout<<"Reply string : "<<repl_string<<endl;
+
+    //                 if(!repl_string.compare("OK"))
+    //                 {
+    //                     return sock;
+    //                 }
+    //                 else
+    //                 {
+    //                     cout<<"\nFailed to initiate connection with Mapper!";
+    //                     close(sock);
+    //                     return -1;
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 cout<<"\nFailed to initiate connection with Mapper!";
+    //                 close(sock);
+    //                 return -1;
+    //             }
+    //         }
+    //         else
+    //         {
+    //             cout<<"\nFailed to initiate connection with Mapper!";
+    //             close(sock);
+    //             return -1;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         cout<<"\nFailed to initiate connection with Mapper!";
+    //         close(sock);
+    //         return -1;
+    //     }
+    // }
+    // else
+    // {
+    //     cout<<"\nFailed to initiate connection with Mapper!";
+    //     close(sock);
+    //     return -1;
+    // }
 
 }
 
@@ -195,4 +212,10 @@ int Mapper::get_available_slots()
 
     int av_slots = stoi(repl_string);
     return av_slots;
+}
+
+Mapper::~Mapper()
+{
+    close(this->heart_beat_socket);
+    close(this->mapper_socket);
 }
