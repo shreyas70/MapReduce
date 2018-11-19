@@ -12,15 +12,15 @@ int main()
 {
     cout<<endl;
     vector<string> words;
-    int fd = open("small_file.txt",(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    for(int i=0; i<15; i++)
+    int fd = open("word_file.txt",(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+    for(int i=0; i<1000000; i++)
     {
         int word_length = (rand() % 10) + 1;
-        string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        string alphabet = "abcdefghijklmnopqrstuvwxyz";
         string word = "";
         for(int j=0; j<word_length; j++)
         {
-            int index = rand() % 62;
+            int index = rand() % 26;
             word += alphabet[index];
         }
         words.push_back(word);

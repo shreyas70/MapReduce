@@ -172,5 +172,41 @@ void WordCount::start_job()
     {
         fclose(out_files[i]);
     }
+    FILE * sorted_file = fopen("word_file_sorted.txt", "r");
+    char buff[255];
+    bzero(buff, 255);
+    int current_count = 1;
+    string curr_word = "";
+    int out_wd = open("output.txt",(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+    if(fscanf(sorted_file, "%s", buff)!=EOF)
+    {
+        curr_word = buff;
+    }
+    bzero(buff, 255);
+    while(fscanf(sorted_file, "%s", buff)!=EOF)
+    {
+        string new_word = buff;
+        if(new_word.compare(curr_word))
+        {
+            write(out_wd, curr_word.c_str(), curr_word.length());
+            write(out_wd, " ", 1);
+            string size_string = to_string(current_count);
+            write(out_wd, size_string.c_str(), size_string.length());
+            write(out_wd, "\n", 1);
+            curr_word = new_word;
+            current_count = 1;
+        }
+        else
+        {
+            current_count++;
+        }
+    }
+    write(out_wd, curr_word.c_str(), curr_word.length());
+    write(out_wd, " ", 1);
+    string size_string = to_string(current_count);
+    write(out_wd, size_string.c_str(), size_string.length());
+    close(out_wd);
+    fclose(sorted_file);
+
     cout<<"\nJOB COMPLETED\n";
 }
