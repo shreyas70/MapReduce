@@ -1,17 +1,22 @@
-#include "common.h"
+#include "utilities.h"
 #include "includes.h"
+
+#include <sys/socket.h> 
+//#include <cstdlib> 
+#include <netinet/in.h> 
+#include <arpa/inet.h>
 
 using namespace std;
 
 extern string  working_dir;
 
-void from_cursor_line_clear()
+void util_from_cursor_line_clear()
 {
     cout << "\e[0K";
     cout.flush();
 }
 
-string abs_path_get(string str)
+string util_abs_path_get(string str)
 {
     if(str[0] == '/')
         return str;
@@ -67,7 +72,7 @@ string abs_path_get(string str)
     return ret_path;
 }
 
-void ip_and_port_split(string addr, string &ip, int &port)
+void util_ip_port_split(string addr, string &ip, int &port)
 {
     int colon_pos = addr.find(':');
     if(colon_pos != string::npos)
@@ -76,3 +81,46 @@ void ip_and_port_split(string addr, string &ip, int &port)
         port = stoi(addr.substr(colon_pos + 1));
     }
 }
+
+int util_connection_make(string ip, uint16_t port)
+{
+    struct sockaddr_in serv_addr;
+    int sock = 0;
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        cout << "Socket connection error!!" << endl;
+        return FAILURE;
+    }
+
+    memset(&serv_addr, '0', sizeof(serv_addr));
+
+    serv_addr.sin_family = AF_INET; 
+    serv_addr.sin_port = htons(port);
+
+    // Convert IPv4 and IPv6 addresses from text to binary form 
+    if(inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr)<=0)
+    {
+        cout << "Invalid address/ Address not supported" << endl;
+        return FAILURE;
+    }
+
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+        cout << "Connection with tracker failed!!" << endl;
+        return FAILURE;
+    }
+
+    return sock;
+}
+
+void util_data_read(int sock, char* read_buffer, int size_to_read)
+{
+    int bytes_read = 0;
+    do
+    {
+        // read in a loop
+        bytes_read += read(sock, read_buffer + bytes_read, size_to_read);
+    }while(bytes_read < size_to_read);
+}
+
