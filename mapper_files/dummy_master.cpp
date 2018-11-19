@@ -18,6 +18,6 @@ int main()
         }
         exit(0);
     }
-    m.initiate_word_count_request("job1", "file1.txt", 54, 43);
+    m.initiate_word_count_request("job1", "word_file.txt", 54, 43);
     return 0;
 }

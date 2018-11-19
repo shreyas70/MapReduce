@@ -3,6 +3,18 @@
 
 #include<string>
 
+typedef struct
+{
+    std::string data;
+    int file_id;
+}HeapData;
+class Compare
+{
+    public:
+    
+    bool operator()(HeapData d1, const HeapData d2);
+};
+
 class WordCount
 {
     private:
@@ -20,8 +32,7 @@ class WordCount
     std::string get_file_path();
     off_t get_offset();
     size_t get_piece_size();
-
-
+    void start_job();
 };
 
 #endif
