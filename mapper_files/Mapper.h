@@ -3,21 +3,20 @@
 
 #include<string>
 
-typedef struct
-{
-    int mapper_socket;
-    int heart_beat_socket;
-}MapperConnection;
-
 class Mapper
 {
     private:
+    int mapper_socket;
+    int heart_beat_socket;
     int initiate_heart_beats(std::string mapper_ip, int mapper_port);
     
     public:
-    MapperConnection connect_to_mapper(std::string mapper_ip, int mapper_port);
-    int initiate_word_count_request(int sock, std::string job_id, std::string file_path, off_t file_offset, size_t piece_size);
-    int get_available_slots(int sock);
+    Mapper(std::string mapper_ip, int mapper_port);
+
+    std::string receive_heart_beat();
+    void reply_to_heart_beat(); 
+    int initiate_word_count_request(std::string job_id, std::string file_path, off_t file_offset, size_t piece_size);
+    int get_available_slots();
 };
 
 #endif

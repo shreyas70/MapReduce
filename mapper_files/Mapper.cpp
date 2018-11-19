@@ -11,6 +11,39 @@
 
 using namespace std;
 
+Mapper::Mapper(string mapper_ip, int mapper_port)
+{
+    struct sockaddr_in server_ip;
+    struct hostent * server;
+    int sock = socket(AF_INET,SOCK_STREAM,0);
+    if(sock < 0)
+    {
+        cout<<"\nError while creating socket\n";
+        this->heart_beat_socket = -1;
+        this->mapper_socket = -1;
+    }
+    server = gethostbyname(mapper_ip.c_str());
+    if(server==NULL)
+    {
+        cout<<"\nNo such host identified\n";
+        this->heart_beat_socket = -1;
+        this->mapper_socket = -1;
+    }
+    bzero((char *) &server_ip, sizeof(server_ip));
+    server_ip.sin_family = AF_INET;
+    bcopy((char *)server->h_addr, (char *) &server_ip.sin_addr.s_addr, server->h_length);
+    server_ip.sin_port = htons(mapper_port);
+    if(connect(sock,(struct sockaddr *) &server_ip, sizeof(server_ip)) < 0)
+    {
+        cout<<"\nConnection to server failed\n";
+        this->heart_beat_socket = -1;
+        this->mapper_socket = -1;
+    }
+    int hb_sock = initiate_heart_beats(mapper_ip, mapper_port);
+    this->heart_beat_socket = hb_sock;
+    this->mapper_socket = sock;
+}
+
 int Mapper::initiate_heart_beats(string mapper_ip, int mapper_port)
 {
     struct sockaddr_in server_ip;
@@ -40,49 +73,25 @@ int Mapper::initiate_heart_beats(string mapper_ip, int mapper_port)
     return sock;
 }
 
-MapperConnection Mapper::connect_to_mapper(string mapper_ip, int mapper_port)
+string Mapper::receive_heart_beat()
 {
-    struct sockaddr_in server_ip;
-    struct hostent * server;
-    int sock = socket(AF_INET,SOCK_STREAM,0);
-    if(sock < 0)
-    {
-        cout<<"\nError while creating socket\n";
-        MapperConnection mc;
-        mc.heart_beat_socket = -1;
-        mc.mapper_socket = -1;
-        return mc;
-    }
-    server = gethostbyname(mapper_ip.c_str());
-    if(server==NULL)
-    {
-        cout<<"\nNo such host identified\n";
-        MapperConnection mc;
-        mc.heart_beat_socket = -1;
-        mc.mapper_socket = -1;
-        return mc;
-    }
-    bzero((char *) &server_ip, sizeof(server_ip));
-    server_ip.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *) &server_ip.sin_addr.s_addr, server->h_length);
-    server_ip.sin_port = htons(mapper_port);
-    if(connect(sock,(struct sockaddr *) &server_ip, sizeof(server_ip)) < 0)
-    {
-        cout<<"\nConnection to server failed\n";
-        MapperConnection mc;
-        mc.heart_beat_socket = -1;
-        mc.mapper_socket = -1;
-        return mc;
-    }
-    int hb_sock = initiate_heart_beats(mapper_ip, mapper_port);
-    MapperConnection mc;
-    mc.heart_beat_socket = hb_sock;
-    mc.mapper_socket = sock;
-    return mc;
+    int hb_sock = this->heart_beat_socket;
+    char heart_beat[10];
+    bzero(heart_beat, 10);
+    read(hb_sock, heart_beat, 10);
+    string hb = heart_beat;
+    return hb;
 }
 
-int Mapper::initiate_word_count_request(int sock, string job_id, string file_path, off_t offset, size_t piece_size)
+void Mapper::reply_to_heart_beat()
 {
+    int hb_sock = this->heart_beat_socket;
+    write(hb_sock, "NULL", 4);
+}
+
+int Mapper::initiate_word_count_request(string job_id, string file_path, off_t offset, size_t piece_size)
+{
+    int sock = this->mapper_socket;
     char req_string[255];
     string repl_string;
     bzero(req_string, 255);
@@ -172,8 +181,9 @@ int Mapper::initiate_word_count_request(int sock, string job_id, string file_pat
 
 }
 
-int Mapper::get_available_slots(int sock)
+int Mapper::get_available_slots()
 {
+    int sock = this->mapper_socket;
     char req_string[255];
     string repl_string;
     bzero(req_string, 255);

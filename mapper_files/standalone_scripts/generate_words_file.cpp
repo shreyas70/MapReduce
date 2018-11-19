@@ -13,7 +13,7 @@ int main()
     cout<<endl;
     vector<string> words;
     int fd = open("small_file.txt",(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    for(int i=0; i<1000000; i++)
+    for(int i=0; i<15; i++)
     {
         int word_length = (rand() % 10) + 1;
         string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
