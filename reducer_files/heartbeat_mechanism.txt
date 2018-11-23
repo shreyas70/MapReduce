@@ -1,0 +1,6 @@
+1) the task_tracker (mapper) will communicate its ALIVE status and the number of slots remaining to
+    accept new tasks.
+2) the job_tracker (master) will respond to each heartbeat signal including commands (such as start or end
+a task, or if the TaskTracker needs to be restarted)
+
+Read pages 5, 6, 7 of https://hal.archives-ouvertes.fr/hal-00863176/document

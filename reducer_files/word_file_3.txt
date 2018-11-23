@@ -1,0 +1,3 @@
+banana 3
+cashewnut 3
+dominos 5
