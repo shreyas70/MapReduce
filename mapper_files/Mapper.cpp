@@ -1,6 +1,7 @@
-#include<iostream>
-#include<string.h>
-#include<string>
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <string>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -117,7 +118,40 @@ void Mapper::initiate_word_count_request(string job_id, string file_path, off_t 
     {
         cout<<"\nFailed to initiate connection with Mapper!";
     }
+}
 
+void Mapper::initiate_inverted_index_request(string job_id, vector<string> file_paths, vector<off_t> offsets, vector<size_t> piece_sizes)
+{
+    int sock = this->mapper_socket;
+    char req_string[255];
+    string repl_string;
+    write(sock, "initiate_inverted_index", 23);
+    bzero(req_string, 255);
+    read(sock, req_string, 255);
+    repl_string = req_string;
+
+    cout<<"Reply string : "<<repl_string<<endl;
+
+    if(!repl_string.compare("OK"))
+    {
+        string reply_string = job_id;
+        for(int i=0; i<file_paths.size(); i++)
+        {
+            reply_string = reply_string+"$"+file_paths[i]+"$"+to_string(offsets[i])+"$"+to_string(piece_sizes[i]);
+        }
+        write(sock, reply_string.c_str(), reply_string.length());
+        bzero(req_string, 255);
+        read(sock, req_string, 255);
+        repl_string = req_string;
+        if(repl_string.compare("OK"))
+        {
+            cout<<"\n\nFailed to initiate word count job!\n\n";
+        }
+    }
+    else
+    {
+        cout<<"\nFailed to initiate connection with Mapper!";
+    }
 }
 
 int Mapper::get_available_slots()

@@ -2,6 +2,7 @@
 #define MAPPER_H
 
 #include<string>
+#include<vector>
 
 class Mapper
 {
@@ -17,6 +18,7 @@ class Mapper
     std::string receive_heart_beat();
     void reply_to_heart_beat(); 
     void initiate_word_count_request(std::string job_id, std::string file_path, off_t file_offset, size_t piece_size);
+    void initiate_inverted_index_request(std::string job_id, std::vector<std::string> file_paths, std::vector<off_t> offsets, std::vector<size_t> piece_sizes);
     int get_available_slots();
 };
 

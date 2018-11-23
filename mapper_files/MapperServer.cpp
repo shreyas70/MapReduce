@@ -10,6 +10,7 @@
 #include <thread>
 #include "MapperServer.h"
 #include "WordCount.h"
+#include "InvertedIndex.h"
 
 using namespace std;
 
@@ -100,6 +101,23 @@ void MapperServer::process_map_request(int sock_desc)
             write(client_socket, "OK", 2);
             wc.start_job();
 
+            release_slot();
+        }
+        else if(!req_type.compare("initiate_inverted_index"))
+        {
+            if(!take_slot())
+            {
+                write(client_socket, "UNAVAILABLE", 11);
+                return;
+            }
+            write(client_socket, "OK", 2);
+            read(client_socket, req_string, 255);
+            string request_string = req_string;
+            cout<<"\n\nRequest string is : "<<request_string<<endl;
+            InvertedIndex ii = InvertedIndex(request_string);
+            write(client_socket, "OK", 2);
+            ii.start_job();
+            
             release_slot();
         }
         else if(!req_type.compare("initiate_heart_beats"))
