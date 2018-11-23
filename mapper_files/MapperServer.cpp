@@ -92,10 +92,10 @@ void MapperServer::process_map_request(int sock_desc)
             string request_string = req_string;
             cout<<"\n\nRequest string is : "<<request_string<<endl;
             WordCount wc = WordCount(request_string);
-            // cout<<"\nJOB ID = "<<wc.get_job_id()<<endl;
-            // cout<<"\nFILE PATH = "<<wc.get_file_path()<<endl;
-            // cout<<"\nOFFSET = "<<wc.get_offset()<<endl;
-            // cout<<"\nPIECE SIZE = "<<wc.get_piece_size()<<endl;
+            cout<<"\nJOB ID = "<<wc.get_job_id()<<endl;
+            cout<<"\nFILE PATH = "<<wc.get_file_path()<<endl;
+            cout<<"\nOFFSET = "<<wc.get_offset()<<endl;
+            cout<<"\nPIECE SIZE = "<<wc.get_piece_size()<<endl;
 
             write(client_socket, "OK", 2);
             wc.start_job();

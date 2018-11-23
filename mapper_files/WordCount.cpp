@@ -30,7 +30,7 @@ WordCount::WordCount(string request_string)
     for(int i=0; i<request_string.length(); i++)
     {
         char curr_char = request_string[i];
-        if(curr_char=='$')
+        if(curr_char == '$')
         {
             req_vec.push_back(curr_string);
             curr_string = "";
@@ -73,16 +73,32 @@ void WordCount::start_job()
     cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
     string file_name = this->file_path;
     FILE * file_ptr = fopen(file_name.c_str(), "r");
+
+    cout<<"\n\nREACHED HERE "<<file_ptr<<endl<<endl; 
     int iteration = 0;
     string out_file_name = "out_file"+to_string(iteration)+".txt";
     int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
     int count = 0;
-    char word[12];
-    bzero(word,12);
+    char word[100];
+    bzero(word,100);
     vector<string> file_words;
     while( fscanf(file_ptr, "%s", word) != EOF )
     {
-        string word_string = word;
+        string temp_string = word;
+        string word_string = "";
+        for(int i=0; i<temp_string.length(); i++)
+        {
+            char curr_char = temp_string[i];
+            if((curr_char < 48) || (curr_char > 57 && curr_char < 65) || (curr_char > 90 && curr_char < 97) || (curr_char > 122))
+            {
+                continue;
+            }
+            word_string+=curr_char;
+        }
+        if(word_string.empty())
+        {
+            continue;
+        }
         count++;
         if(count > 100000)
         {
@@ -103,7 +119,7 @@ void WordCount::start_job()
             iteration++;
         }
         file_words.push_back(word_string);
-        bzero(word, 12);
+        bzero(word, 100);
     }
     if(!file_words.empty())
     {
