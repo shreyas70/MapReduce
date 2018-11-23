@@ -74,7 +74,7 @@ string util_abs_path_get(string str)
 
 void util_ip_port_split(string addr, string &ip, int &port)
 {
-    int colon_pos = addr.find(':');
+    unsigned int colon_pos = addr.find(':');
     if(colon_pos != string::npos)
     {
         ip = addr.substr(0, colon_pos);
