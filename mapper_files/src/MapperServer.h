@@ -30,7 +30,9 @@ class JobRequest
     std::vector<std::pair<Reducer, std::string>> file_map;
 
     public:
-    JobRequest(std::string job_id, std::string job_type);
+    // JobRequest(std::string job_id, std::string job_type);
+    void set_job_id(std::string job_id);
+    void set_job_type(std::string job_type);
     std::string get_job_id();
     void link_file_to_reducer(Reducer r, std::string file_path);
 };
@@ -44,6 +46,7 @@ class MapperServer
     std::vector<Reducer> reducer_instances;
     std::mutex queue_lock;
     std::queue<JobRequest> pending_queue;
+    void add_job_to_pending_queue(JobRequest jr);
     std::mutex slot_lock;
     int slots;
     bool take_slot();

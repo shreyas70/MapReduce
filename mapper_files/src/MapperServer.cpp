@@ -48,9 +48,14 @@ int Reducer::get_port_number()
     return this->port_number;
 }
 
-JobRequest::JobRequest(string job_id, string job_type)
+
+void JobRequest::set_job_id(string job_id)
 {
     this->job_id = job_id;
+}
+
+void JobRequest::set_job_type(string job_type)
+{
     if(!job_type.compare("WORD_COUNT"))
     {
         this->job_type = WORD_COUNT;
@@ -70,6 +75,12 @@ void JobRequest::link_file_to_reducer(Reducer r, string file_path)
 {
     pair<Reducer, string> link = make_pair(r, file_path);
     this->file_map.push_back(link);
+}
+
+void MapperServer::add_job_to_pending_queue(JobRequest jr)
+{
+    lock_guard<mutex> lock(queue_lock);
+    this->pending_queue.push(jr);
 }
 
 bool MapperServer::take_slot()
@@ -217,6 +228,20 @@ void MapperServer::process_map_request(int sock_desc)
             close(r_wd2);
             close(r_wd3);
             close(r_wd4);
+
+            JobRequest jr;
+            jr.set_job_id(wc.get_job_id());
+            jr.set_job_type("WORD_COUNT");
+            jr.link_file_to_reducer(this->reducer_instances[0], reducer_file1);
+            jr.link_file_to_reducer(this->reducer_instances[1], reducer_file2);
+            jr.link_file_to_reducer(this->reducer_instances[2], reducer_file3);
+            jr.link_file_to_reducer(this->reducer_instances[3], reducer_file4);
+            this->add_job_to_pending_queue(jr);
+            cout<<"\n\nAdded JOB "<<wc.get_job_id()<<" to pending queue!\n\n";
+            if(!this->pending_queue.empty())
+            {
+                cout<<"\nQueue is not empty!\n\n";
+            }
 
         }
         else if(!req_type.compare("initiate_inverted_index"))
