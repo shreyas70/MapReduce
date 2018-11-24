@@ -27,25 +27,6 @@ InvertedIndex::InvertedIndex(string job_id, vector<string> file_paths, vector<of
 
 InvertedIndex::InvertedIndex(string request_string)
 {
-    // vector<string> req_vec;
-    // string curr_string = "";
-    // for(int i=0; i<request_string.length(); i++)
-    // {
-    //     char curr_char = request_string[i];
-    //     if(curr_char == '$')
-    //     {
-    //         req_vec.push_back(curr_string);
-    //         curr_string = "";
-    //     }
-    //     else
-    //     {
-    //         curr_string+=curr_char;
-    //     }
-    // }
-    // if(!curr_string.empty())
-    // {
-    //     req_vec.push_back(curr_string);
-    // }
     vector<string> req_vec = split_string(request_string, '$');
     this->job_id = req_vec[0];
     FileInfo curr_file_info;
@@ -106,7 +87,7 @@ void InvertedIndex::start_job()
         }
         fclose(file_ptr);
     }
-    string out_file_name = "output_inverted.txt";
+    string out_file_name = "output_files/output_inverted.txt";
     int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
     for(unordered_map<string, set<string>>::iterator it = index.begin(); it!=index.end(); ++it)
     {
