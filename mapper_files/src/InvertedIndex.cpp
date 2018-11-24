@@ -61,7 +61,12 @@ InvertedIndex::InvertedIndex(string request_string)
     this->input_files.push_back(curr_file_info);
 }
 
-void InvertedIndex::start_job()
+string InvertedIndex::get_job_id()
+{
+    return this->job_id;
+}
+
+string InvertedIndex::start_job()
 {
     cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
     unordered_map<string, set<string>> index;
@@ -105,4 +110,5 @@ void InvertedIndex::start_job()
     }
     close(wd);
     cout<<"\nJOB "<<this->job_id<<" COMPLETED\n";
+    return "output_files/output_inverted.txt";
 }

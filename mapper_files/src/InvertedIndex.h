@@ -22,7 +22,8 @@ class InvertedIndex
 
     InvertedIndex(std::string job_id, std::vector<std::string> file_paths, std::vector<off_t> offsets, std::vector<size_t> piece_sizes);
     InvertedIndex(std::string request_string);
-    void start_job();
+    std::string get_job_id();
+    std::string start_job();
 };
 
 

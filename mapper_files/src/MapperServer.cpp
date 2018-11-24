@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <thread>
+#include <fstream>
 #include "MapperServer.h"
 #include "WordCount.h"
 #include "InvertedIndex.h"
@@ -238,10 +239,6 @@ void MapperServer::process_map_request(int sock_desc)
             jr.link_file_to_reducer(this->reducer_instances[3], reducer_file4);
             this->add_job_to_pending_queue(jr);
             cout<<"\n\nAdded JOB "<<wc.get_job_id()<<" to pending queue!\n\n";
-            if(!this->pending_queue.empty())
-            {
-                cout<<"\nQueue is not empty!\n\n";
-            }
 
         }
         else if(!req_type.compare("initiate_inverted_index"))
@@ -257,9 +254,89 @@ void MapperServer::process_map_request(int sock_desc)
             cout<<"\n\nRequest string is : "<<request_string<<endl;
             InvertedIndex ii = InvertedIndex(request_string);
             write(client_socket, "OK", 2);
-            ii.start_job();
+            string output_file_path = ii.start_job();
             
             release_slot();
+
+            FILE * output_file = fopen(output_file_path.c_str(), "r");
+            string file_dir = "output_files/";
+            string job_id = ii.get_job_id();
+            string reducer_file1 = file_dir+job_id+"_reducer1.txt";
+            string reducer_file2 = file_dir+job_id+"_reducer2.txt";
+            string reducer_file3 = file_dir+job_id+"_reducer3.txt";
+            string reducer_file4 = file_dir+job_id+"_reducer4.txt";
+            int r_wd1 = open(reducer_file1.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+            int r_wd2 = open(reducer_file2.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+            int r_wd3 = open(reducer_file3.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+            int r_wd4 = open(reducer_file4.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+            
+            string line;
+            ifstream infile(output_file_path.c_str());
+            while(getline(infile, line))
+            {
+                if(line.empty())
+                {
+                    continue;
+                }
+                vector<string> words_split = split_string(line, ' ');
+                if((words_split[0][0]>=65 && words_split[0][0]<=71) || (words_split[0][0]>=97 && words_split[0][0]<=103))
+                {
+                    write(r_wd1, words_split[0].c_str(), words_split[0].length());
+                    for(int i=1; i<words_split.size(); i++)
+                    {
+                        write(r_wd1, " ", 1);
+                        write(r_wd1, words_split[i].c_str(), words_split[i].length());
+                    }
+                    write(r_wd1, "\n", 1);
+                }
+                else if((words_split[0][0]>=72 && words_split[0][0]<=78) || (words_split[0][0]>=104 && words_split[0][0]<=110))
+                {
+                    write(r_wd2, words_split[0].c_str(), words_split[0].length());
+                    for(int i=1; i<words_split.size(); i++)
+                    {
+                        write(r_wd2, " ", 1);
+                        write(r_wd2, words_split[i].c_str(), words_split[i].length());
+                    }
+                    write(r_wd2, "\n", 1);
+                }
+                else if((words_split[0][0]>=79 && words_split[0][0]<=85) || (words_split[0][0]>=111 && words_split[0][0]<=117))
+                {
+                    write(r_wd3, words_split[0].c_str(), words_split[0].length());
+                    for(int i=1; i<words_split.size(); i++)
+                    {
+                        write(r_wd3, " ", 1);
+                        write(r_wd3, words_split[i].c_str(), words_split[i].length());
+                    }
+                    write(r_wd3, "\n", 1);
+                }
+                else
+                {
+                    write(r_wd4, words_split[0].c_str(), words_split[0].length());
+                    for(int i=1; i<words_split.size(); i++)
+                    {
+                        write(r_wd4, " ", 1);
+                        write(r_wd4, words_split[i].c_str(), words_split[i].length());
+                    }
+                    write(r_wd4, "\n", 1);
+                }
+
+            }
+
+            close(r_wd1);
+            close(r_wd2);
+            close(r_wd3);
+            close(r_wd4);
+
+            JobRequest jr;
+            jr.set_job_id(ii.get_job_id());
+            jr.set_job_type("INVERTED_INDEX");
+            jr.link_file_to_reducer(this->reducer_instances[0], reducer_file1);
+            jr.link_file_to_reducer(this->reducer_instances[1], reducer_file2);
+            jr.link_file_to_reducer(this->reducer_instances[2], reducer_file3);
+            jr.link_file_to_reducer(this->reducer_instances[3], reducer_file4);
+            this->add_job_to_pending_queue(jr);
+            cout<<"\n\nAdded JOB "<<ii.get_job_id()<<" to pending queue!\n\n";
+            
         }
         else if(!req_type.compare("initiate_heart_beats"))
         {
