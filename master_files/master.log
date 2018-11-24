@@ -1,0 +1,14 @@
+Sat Nov 24 22:15:13 2018 : "MasterTracker listening on 127.0.0.1:4000"
+Sat Nov 24 22:15:16 2018 : "New client with socket id 4 connected
+"
+Sat Nov 24 22:15:16 2018 : "Request read: 0$/home/shreyas/IIITH/MapReduce_Project/master_files/abc.txt"
+Sat Nov 24 22:15:16 2018 : "Handling request: 0$/home/shreyas/IIITH/MapReduce_Project/master_files/abc.txt
+"
+Sat Nov 24 22:22:18 2018 : "MasterTracker listening on 127.0.0.1:4000"
+Sat Nov 24 22:22:20 2018 : "New client with socket id 4 connected
+"
+Sat Nov 24 22:22:20 2018 : "Request read: 0$/home/shreyas/IIITH/MapReduce_Project/master_files/abc.txt"
+Sat Nov 24 22:22:20 2018 : "Handling request: 0$/home/shreyas/IIITH/MapReduce_Project/master_files/abc.txt
+"
+Sat Nov 24 22:22:20 2018 : "hello"
+Sat Nov 24 22:22:20 2018 : "Client disconnected!! <ip_addr>:<port> -> 127.0.0.1:57464"
