@@ -21,7 +21,7 @@ public:
     std::string m_ip_addr;
     struct sockaddr_in m_sock_address;
 
-    ReducerTracker(std::string ip = "", int p = -1): m_ip_addr(ip), m_port(p), m_sock(-1), m_log_path("") {}
+    ReducerTracker(std::string ip = "", int p = -1): m_log_path(""), m_port(p), m_sock(-1), m_ip_addr(ip) {}
 
     void                    run();
     void                    log_print(std::string msg);
