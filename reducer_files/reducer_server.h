@@ -15,7 +15,7 @@ public:
     int port;
     std::string ip_addr;
 
-    ReducerTracker(std::string ip = "", int p = -1): ip_addr(ip), port(p), sock(-1)
+    ReducerTracker(std::string ip = "", int p = -1): sock(-1), port(p), ip_addr(ip)
     {
         sock = util_connection_make(ip_addr, port);
     }
