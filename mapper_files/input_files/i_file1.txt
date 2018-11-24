@@ -1,0 +1,15 @@
+apple
+orange
+banana
+apple
+yellow
+red
+blue
+black
+blue
+red
+white
+ready
+set
+go
+start
