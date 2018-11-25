@@ -8,14 +8,14 @@ int main(int argc, char * argv[])
 {
     if(argc<2)
     {
-        cout<<"\nAre you insane?\n";
+        cout<<"\nEnter mapper ip address\n";
         exit(1);
     }
     vector<string> reducer_ips;
-    reducer_ips.push_back("10.1.1.1:1000");
-    reducer_ips.push_back("10.1.1.2:1000");
-    reducer_ips.push_back("10.1.1.3:1000");
-    reducer_ips.push_back("10.1.1.4:1000");
+    reducer_ips.push_back("127.0.0.1:9000");
+    reducer_ips.push_back("127.0.0.1:9001");
+    reducer_ips.push_back("127.0.0.1:9002");
+    reducer_ips.push_back("127.0.0.1:9003");
     MapperServer ms;
     string mapper_ip = argv[1];
     ms.set_mapper_ip(mapper_ip);

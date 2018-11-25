@@ -5,13 +5,15 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/time.h>
 #include <string.h>
 #include <thread>
 #include <fstream>
-#include "MapperServer.h"
 #include "WordCount.h"
 #include "InvertedIndex.h"
 #include "Utility.h"
+#include "DummyReducerClient.h"
+#include "MapperServer.h"
 
 using namespace std;
 
@@ -22,33 +24,18 @@ void MapperServer::set_mapper_ip(string mapper_ip)
     this->port_number = stoi(mapper_ip_split[1]);
 }
 
+
 void MapperServer::set_reducer_info(vector<string> reducer_ips)
 {
     for(int i=0; i<reducer_ips.size(); i++)
     {
         string reducer_ip = reducer_ips[i];
         vector<string> reducer_ip_split = split_string(reducer_ip, ':');
-        Reducer r = Reducer(reducer_ip_split[0], stoi(reducer_ip_split[1]));
+        DummyReducerClient r;
+        r.connect_to_reducer(reducer_ip_split[0], stoi(reducer_ip_split[1]));
         this->reducer_instances.push_back(r);
     }
 }
-
-Reducer::Reducer(string ip_address, int port_number)
-{
-    this->ip_address = ip_address;
-    this->port_number = port_number;
-}
-
-string Reducer::get_ip_address()
-{
-    return this->ip_address;
-}
-
-int Reducer::get_port_number()
-{
-    return this->port_number;
-}
-
 
 void JobRequest::set_job_id(string job_id)
 {
@@ -72,9 +59,9 @@ string JobRequest::get_job_id()
     return this->job_id;
 }
 
-void JobRequest::link_file_to_reducer(Reducer r, string file_path)
+void JobRequest::link_file_to_reducer(DummyReducerClient r, string file_path)
 {
-    pair<Reducer, string> link = make_pair(r, file_path);
+    pair<DummyReducerClient, string> link = make_pair(r, file_path);
     this->file_map.push_back(link);
 }
 
@@ -87,24 +74,18 @@ void MapperServer::add_job_to_pending_queue(JobRequest jr)
 bool MapperServer::take_slot()
 {
     lock_guard<mutex> lock(slot_lock);
-    // cout<<"\nThread "<<this_thread::get_id()<<" Obtained lock on slot variable!"<<endl;
-    // cout<<"\nThread "<<this_thread::get_id()<<" Current value of slots = "<<slots<<endl;
     if(slots<=0)
     {
         return false;
     }
     slots--;
-    // cout<<"\nThread "<<this_thread::get_id()<<" Slots value changed to = "<<slots<<endl;
     return true;
 }
 
 void MapperServer::release_slot()
 {
     lock_guard<mutex> lock(slot_lock);
-    // cout<<"\nThread "<<this_thread::get_id()<<" Obtained lock on slot variable!"<<endl;
-    // cout<<"\nThread "<<this_thread::get_id()<<" Current value of slots = "<<slots<<endl;
     slots++;
-    // cout<<"\nThread "<<this_thread::get_id()<<" Slots value changed to = "<<slots<<endl;
 }
 
 int MapperServer::available_slots()
@@ -136,6 +117,18 @@ void MapperServer::give_heart_beats(int sock_desc)
     }
 }
 
+void MapperServer::dispatch()
+{
+    while(true)
+    {
+        for(int i=0; i<this->reducer_instances.size(); i++)
+        {
+            cout<<"\nHeart beat received from reducer "<<(i+1)<<" "<<this->reducer_instances[i].receive_heart_beat()<<endl;
+            this->reducer_instances[i].reply_to_heart_beat();
+        }
+    }
+}
+
 void MapperServer::process_map_request(int sock_desc)
 {
     int client_socket = sock_desc;
@@ -163,10 +156,6 @@ void MapperServer::process_map_request(int sock_desc)
             string request_string = req_string;
             cout<<"\n\nRequest string is : "<<request_string<<endl;
             WordCount wc = WordCount(request_string);
-            // cout<<"\nJOB ID = "<<wc.get_job_id()<<endl;
-            // cout<<"\nFILE PATH = "<<wc.get_file_path()<<endl;
-            // cout<<"\nOFFSET = "<<wc.get_offset()<<endl;
-            // cout<<"\nPIECE SIZE = "<<wc.get_piece_size()<<endl;
 
             write(client_socket, "OK", 2);
             string output_file_path = wc.start_job();
@@ -384,6 +373,8 @@ void MapperServer::start_mapper_server()
     int thread_count = 0;
     thread all_threads[50];
     slots = 3;
+    thread dispatch_thread = thread(&MapperServer::dispatch, this);
+    dispatch_thread.detach();
     while( (client_socket = accept(init_socket, (struct sockaddr *) &mapper_client_address, &file_client_length)) )
     {
         cout<<"\n\nNew connection received\n\n";

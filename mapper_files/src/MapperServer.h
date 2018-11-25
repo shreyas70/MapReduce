@@ -9,17 +9,19 @@
 #define WORD_COUNT 0
 #define INVERTED_INDEX 1
 
-class Reducer
-{
-    private:
-    std::string ip_address;
-    int port_number;
+// class Reducer
+// {
+//     private:
+//     std::string ip_address;
+//     int port_number;
 
-    public:
-    Reducer(std::string ip_address, int port_number);
-    std::string get_ip_address();
-    int get_port_number();
-};
+//     public:
+//     Reducer(std::string ip_address, int port_number);
+//     std::string get_ip_address();
+//     int get_port_number();
+// };
+
+#include "DummyReducerClient.h"
 
 class JobRequest
 {
@@ -27,14 +29,14 @@ class JobRequest
 
     std::string job_id;
     int job_type;
-    std::vector<std::pair<Reducer, std::string>> file_map;
+    std::vector<std::pair<DummyReducerClient, std::string>> file_map;
 
     public:
     // JobRequest(std::string job_id, std::string job_type);
     void set_job_id(std::string job_id);
     void set_job_type(std::string job_type);
     std::string get_job_id();
-    void link_file_to_reducer(Reducer r, std::string file_path);
+    void link_file_to_reducer(DummyReducerClient r, std::string file_path);
 };
 
 class MapperServer
@@ -43,7 +45,7 @@ class MapperServer
 
     std::string ip_address;
     int port_number;
-    std::vector<Reducer> reducer_instances;
+    std::vector<DummyReducerClient> reducer_instances;
     std::mutex queue_lock;
     std::queue<JobRequest> pending_queue;
     void add_job_to_pending_queue(JobRequest jr);
@@ -54,6 +56,8 @@ class MapperServer
     int available_slots();
     void give_heart_beats(int sock_desc);
     void process_map_request(int sock_desc);
+    void dispatch();
+    void receive_heart_beats(DummyReducerClient r);
     
     public:
     

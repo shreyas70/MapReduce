@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Mapper::Mapper(string mapper_ip, int mapper_port)
+void Mapper::connect_to_mapper(string mapper_ip, int mapper_port)
 {
     struct sockaddr_in server_ip;
     struct hostent * server;
@@ -168,10 +168,4 @@ int Mapper::get_available_slots()
 
     int av_slots = stoi(repl_string);
     return av_slots;
-}
-
-Mapper::~Mapper()
-{
-    close(this->heart_beat_socket);
-    close(this->mapper_socket);
 }

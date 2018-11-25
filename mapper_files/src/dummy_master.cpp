@@ -8,7 +8,8 @@ using namespace std;
 
 int main()
 {
-    Mapper m = Mapper("127.0.0.1", 7000);
+    Mapper m;
+    m.connect_to_mapper("127.0.0.1", 7000);
     if(fork()==0)
     {
         while(true)

@@ -12,8 +12,9 @@ class Mapper
     int initiate_heart_beats(std::string mapper_ip, int mapper_port);
     
     public:
-    Mapper(std::string mapper_ip, int mapper_port);
-    ~Mapper();
+    // Mapper(std::string mapper_ip, int mapper_port);
+    // ~Mapper();
+    void connect_to_mapper(std::string mapper_ip, int mapper_port);
 
     std::string receive_heart_beat();
     void reply_to_heart_beat(); 
