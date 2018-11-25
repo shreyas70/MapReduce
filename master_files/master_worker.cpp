@@ -15,8 +15,14 @@
 #include <string.h> 
 #include <signal.h>
 
+
 #include "utilities.h"
 #include "master_worker.h"
+
+#include "Mapper.h"
+
+
+
 
 using namespace std;
 
@@ -30,6 +36,7 @@ using namespace std;
 // static int            num_mappers_alive = MAX_CLIENTS;
 
 string working_dir;
+vector<Mapper> mappers;
 
 
 string current_timestamp_get()
@@ -59,52 +66,26 @@ void MasterTracker::log_print(string msg)
 }
 
 
-void MasterTracker::job_remove(int job_id)
+void MasterTracker::replyToHeartBeat()
 {
-    m_job_files_map[job_id].clear();
-    m_job_files_map.erase(job_id);
-}
-
-
-int command_size_check(vector<string> &v, unsigned int min_size, unsigned int max_size, string error_msg)
-{
-    if(v.size() < min_size || v.size() > max_size)
+    
+    
+    Mapper m = mappers[0];
+    cout << "heart beat thread initiated working! " << endl;
+    while(true)
     {
-        //status_print(FAILURE, error_msg);
-        return FAILURE;
+        cout<<"\nHeart beat received : "<<m.receive_heart_beat()<<endl;
+        // m.receive_heart_beat();
+        m.reply_to_heart_beat();
     }
-    return SUCCESS;
-}
-
-void MasterTracker::job_file_add(int job_id, string file_path)
-{
-    // check number of files received for this job
-    set<string>& files_set = m_job_files_map[job_id];
-    int num_files = files_set.size();
-    // assert(num_files < num_mappers_alive);
-    files_set.insert(file_path);
-}
-
-int MasterTracker::num_job_files(int job_id)
-{
-    // check number of files received for this job
-    set<string>& files_set = m_job_files_map[job_id];
-    int num_files = files_set.size();
-    // assert(num_files <= num_mappers_alive);
-    return num_files;
+    exit(0);
 }
 
 
-set<string>& MasterTracker::job_files_get(int job_id)
-{
-    return m_job_files_map[job_id];
-}
-
-
-void MasterTracker::client_request_handler(int mapper_sock, string req_str)
+void MasterTracker::client_request_handler(int client_sock, string req_str)
 {
     stringstream ss;
-    ss << "Handling request: " << req_str << endl;
+    ss << "Handling request: " << req_str;
     log_print(ss.str());
 
     // currently only taking "problem_id$job_id$file_path" in the request buffer
@@ -116,22 +97,24 @@ void MasterTracker::client_request_handler(int mapper_sock, string req_str)
     {
         case Problem::WORD_COUNT:
         {
-            // req_str = req_str.erase(0, dollar_pos+1);
+            string file_path = req_str.erase(0, dollar_pos+1);
+           
+            if(mappers.empty())
+            {
+                cout << "No mapper objects in vector" << endl;
+            }
+            else
+            {
+                Mapper m = mappers[0];
+                
+                cout << "reached ! File path received -" << file_path<<"-" <<endl;
+                // cout << "available slots " << z.get_available_slots() << endl;
+                m.initiate_word_count_request("job1", file_path, 54, 43);
 
-            // dollar_pos = req_str.find('$');
-            // string job_id_str = req_str.substr(0, dollar_pos);
-            // int job_id = stoi(job_id_str);
-            // req_str = req_str.erase(0, dollar_pos+1);
+            }
+        
+            
 
-            // cout << req_str << endl;
-            // cout << job_id_str << endl;
-
-            // cout << "hello" << endl;
-
-
-            // stringstream ss;
-            // ss << "Request re";
-            log_print("hello");
 
             // job_file_add(job_id, req_str);
 
@@ -197,11 +180,14 @@ void MasterTracker::run()
         stringstream ss;
         ss << __func__ << " (" << __LINE__ << "): bind failed";
         log_print(ss.str());
-        exit(EXIT_FAILURE);   
+        exit(EXIT_FAILURE);
     }   
     stringstream ss;
     ss << "MasterTracker listening on " << m_ip_addr << ":" << m_port;
     log_print(ss.str());
+
+
+    connectToMappers();
          
     // try to specify maximum of pending connections for r_tracker's socket
     if (listen(m_sock, MAX_CLIENTS) < 0)   
@@ -248,7 +234,7 @@ void MasterTracker::run()
             if(errno != EINTR)
             {
                 stringstream ss;
-                ss << __func__ << " (" << __LINE__ << "): select error";
+                ss << __func__ << " (" << __LINE__ << "): select error: " << errno;
                 log_print(ss.str());
             }
             continue;
@@ -332,6 +318,21 @@ void MasterTracker::run()
             }
         }
     }
+}
+
+void MasterTracker::connectToMappers()
+{
+    Mapper m1;
+    m1.connect_to_mapper("127.0.0.1", 7000);
+    mappers.push_back(m1);
+
+
+    Mapper m2;
+    m2.connect_to_mapper("127.0.0.1", 70001);
+    mappers.push_back(m2);
+
+    thread hb = thread(&MasterTracker::replyToHeartBeat, this);
+    hb.detach();
 }
 
 int main(int argc, char* argv[])

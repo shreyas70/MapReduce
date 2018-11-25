@@ -21,12 +21,16 @@ public:
     std::string m_ip_addr;
     struct sockaddr_in m_sock_address;
 
+
     MasterTracker(std::string ip = "", int p = -1): m_ip_addr(ip), m_port(p), m_sock(-1), m_log_path("") {}
 
     void                    run();
     void                    log_print(std::string msg);
 
     void                    client_request_handler(int, std::string);
+    void connectToMappers();
+    void replyToHeartBeat();
+    
 
     // Setter functions
     void                    log_path_set(std::string path) { m_log_path = path; }
