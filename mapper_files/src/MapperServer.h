@@ -5,21 +5,10 @@
 #include<string>
 #include<utility>
 #include<vector>
+#include<list>
 #include<queue>
 #define WORD_COUNT 0
 #define INVERTED_INDEX 1
-
-// class Reducer
-// {
-//     private:
-//     std::string ip_address;
-//     int port_number;
-
-//     public:
-//     Reducer(std::string ip_address, int port_number);
-//     std::string get_ip_address();
-//     int get_port_number();
-// };
 
 #include "DummyReducerClient.h"
 
@@ -36,7 +25,9 @@ class JobRequest
     void set_job_id(std::string job_id);
     void set_job_type(std::string job_type);
     std::string get_job_id();
+    int get_job_type();
     void link_file_to_reducer(DummyReducerClient r, std::string file_path);
+    std::vector<std::pair<DummyReducerClient, std::string>> get_file_map();
 };
 
 class MapperServer
@@ -47,8 +38,11 @@ class MapperServer
     int port_number;
     std::vector<DummyReducerClient> reducer_instances;
     std::mutex queue_lock;
-    std::queue<JobRequest> pending_queue;
-    void add_job_to_pending_queue(JobRequest jr);
+    int pending_queue_size;
+    std::queue<JobRequest *> * pending_queue;
+    void add_job_to_pending_queue(JobRequest * jr);
+    JobRequest * get_next_job();
+    bool is_pending_queue_empty();
     std::mutex slot_lock;
     int slots;
     bool take_slot();

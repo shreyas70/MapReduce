@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <thread>
+#include <time.h>
 
 #include "DummyReducerServer.h"
 
@@ -22,9 +23,11 @@ DummyReducerServer::DummyReducerServer(string ip_address, int port_number)
 void DummyReducerServer::give_heart_beats(int sock_desc)
 {
     int client_socket = sock_desc;
+    hash<thread::id> hasher;
+    srand (hasher(this_thread::get_id()));
     while(true)
     {
-        int av_slots = 3;
+        int av_slots = (rand()%2);
         string av_slots_string = to_string(av_slots);
         write(client_socket, av_slots_string.c_str(), av_slots_string.length());
         char job_id[255];
@@ -95,3 +98,4 @@ void DummyReducerServer::start_server()
         all_threads[i].join();
     }
 }
+

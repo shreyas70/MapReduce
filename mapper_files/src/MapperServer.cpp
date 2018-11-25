@@ -8,7 +8,9 @@
 #include <sys/time.h>
 #include <string.h>
 #include <thread>
+#include <list>
 #include <fstream>
+#include <unordered_map>
 #include "WordCount.h"
 #include "InvertedIndex.h"
 #include "Utility.h"
@@ -59,16 +61,50 @@ string JobRequest::get_job_id()
     return this->job_id;
 }
 
+vector<pair<DummyReducerClient, string>> JobRequest::get_file_map()
+{
+    return this->file_map;
+}
+
+int JobRequest::get_job_type()
+{
+    return this->job_type;
+}
+
 void JobRequest::link_file_to_reducer(DummyReducerClient r, string file_path)
 {
     pair<DummyReducerClient, string> link = make_pair(r, file_path);
     this->file_map.push_back(link);
 }
 
-void MapperServer::add_job_to_pending_queue(JobRequest jr)
+bool MapperServer::is_pending_queue_empty()
 {
     lock_guard<mutex> lock(queue_lock);
-    this->pending_queue.push(jr);
+    if(this->pending_queue_size <= 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+void MapperServer::add_job_to_pending_queue(JobRequest * jr)
+{
+    lock_guard<mutex> lock(queue_lock);
+    this->pending_queue->push(jr);
+    this->pending_queue_size++;
+}
+
+JobRequest * MapperServer::get_next_job()
+{
+    lock_guard<mutex> lock(queue_lock);
+    if(this->pending_queue_size <= 0)
+    {
+        return NULL;
+    }
+    JobRequest * jr = this->pending_queue->front();
+    this->pending_queue->pop();
+    this->pending_queue_size--;
+    return jr;
 }
 
 bool MapperServer::take_slot()
@@ -119,12 +155,65 @@ void MapperServer::give_heart_beats(int sock_desc)
 
 void MapperServer::dispatch()
 {
+    unordered_map<int, bool> slots_available;
     while(true)
     {
         for(int i=0; i<this->reducer_instances.size(); i++)
         {
-            cout<<"\nHeart beat received from reducer "<<(i+1)<<" "<<this->reducer_instances[i].receive_heart_beat()<<endl;
+            int slots = stoi(this->reducer_instances[i].receive_heart_beat());
+            if(slots>0)
+            {
+                slots_available[i] = true;
+            }
+            else
+            {
+                slots_available[i] = false;
+            }
+            cout<<"\nHeart beat received from reducer "<<(i+1)<<" "<<slots<<endl;
             this->reducer_instances[i].reply_to_heart_beat();
+        }
+        int reducers_available = 0;
+        for(unordered_map<int, bool>::iterator it = slots_available.begin(); it!=slots_available.end(); ++it)
+        {
+            if(it->second)
+            {
+                reducers_available++;
+            }
+        }
+        if(reducers_available >= this->reducer_instances.size())
+        {
+            cout<<"\n\nHURRAY OK TO SEND!\n\n";
+            if(!this->is_pending_queue_empty())
+            {
+                JobRequest * jr = this->get_next_job();
+                vector<pair<DummyReducerClient, string>> file_map = jr->get_file_map();
+                for(int i=0; i<file_map.size(); i++)
+                {
+                    DummyReducerClient dr = file_map[i].first;
+                    string file_path = file_map[i].second;
+                    if(jr->get_job_type()==WORD_COUNT)
+                    {
+                        cout<<"\n\nAssigning "<<file_path<<" to reducer "<<(i+1);
+                        dr.start_word_count_job(file_path);
+                    }
+                    else if(jr->get_job_type()==INVERTED_INDEX)
+                    {
+                        cout<<"\n\nAssigning "<<file_path<<" to reducer "<<(i+1);
+                        dr.start_inverted_index_job(file_path);
+                    }
+                
+                }    
+            }
+            else
+            {
+                cout<<"\n\nNo jobs at queue!\n\n";
+            }
+            
+            
+        }
+        else
+        {
+            cout<<"\n\nNOT OK TO SEND\n\n";
         }
     }
 }
@@ -219,13 +308,13 @@ void MapperServer::process_map_request(int sock_desc)
             close(r_wd3);
             close(r_wd4);
 
-            JobRequest jr;
-            jr.set_job_id(wc.get_job_id());
-            jr.set_job_type("WORD_COUNT");
-            jr.link_file_to_reducer(this->reducer_instances[0], reducer_file1);
-            jr.link_file_to_reducer(this->reducer_instances[1], reducer_file2);
-            jr.link_file_to_reducer(this->reducer_instances[2], reducer_file3);
-            jr.link_file_to_reducer(this->reducer_instances[3], reducer_file4);
+            JobRequest * jr = new JobRequest();
+            jr->set_job_id(wc.get_job_id());
+            jr->set_job_type("WORD_COUNT");
+            jr->link_file_to_reducer(this->reducer_instances[0], reducer_file1);
+            jr->link_file_to_reducer(this->reducer_instances[1], reducer_file2);
+            jr->link_file_to_reducer(this->reducer_instances[2], reducer_file3);
+            jr->link_file_to_reducer(this->reducer_instances[3], reducer_file4);
             this->add_job_to_pending_queue(jr);
             cout<<"\n\nAdded JOB "<<wc.get_job_id()<<" to pending queue!\n\n";
 
@@ -316,13 +405,13 @@ void MapperServer::process_map_request(int sock_desc)
             close(r_wd3);
             close(r_wd4);
 
-            JobRequest jr;
-            jr.set_job_id(ii.get_job_id());
-            jr.set_job_type("INVERTED_INDEX");
-            jr.link_file_to_reducer(this->reducer_instances[0], reducer_file1);
-            jr.link_file_to_reducer(this->reducer_instances[1], reducer_file2);
-            jr.link_file_to_reducer(this->reducer_instances[2], reducer_file3);
-            jr.link_file_to_reducer(this->reducer_instances[3], reducer_file4);
+            JobRequest * jr = new JobRequest();
+            jr->set_job_id(ii.get_job_id());
+            jr->set_job_type("INVERTED_INDEX");
+            jr->link_file_to_reducer(this->reducer_instances[0], reducer_file1);
+            jr->link_file_to_reducer(this->reducer_instances[1], reducer_file2);
+            jr->link_file_to_reducer(this->reducer_instances[2], reducer_file3);
+            jr->link_file_to_reducer(this->reducer_instances[3], reducer_file4);
             this->add_job_to_pending_queue(jr);
             cout<<"\n\nAdded JOB "<<ii.get_job_id()<<" to pending queue!\n\n";
             
@@ -373,8 +462,9 @@ void MapperServer::start_mapper_server()
     int thread_count = 0;
     thread all_threads[50];
     slots = 3;
+    this->pending_queue_size = 0;
+    this->pending_queue = new queue<JobRequest *>();
     thread dispatch_thread = thread(&MapperServer::dispatch, this);
-    dispatch_thread.detach();
     while( (client_socket = accept(init_socket, (struct sockaddr *) &mapper_client_address, &file_client_length)) )
     {
         cout<<"\n\nNew connection received\n\n";

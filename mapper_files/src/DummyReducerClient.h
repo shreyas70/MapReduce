@@ -20,6 +20,8 @@ class DummyReducerClient
     std::string receive_heart_beat();
     void reply_to_heart_beat();
     int get_heart_beat_socket();
+    void start_word_count_job(std::string file_path);
+    void start_inverted_index_job(std::string file_path);
 };
 
 #endif

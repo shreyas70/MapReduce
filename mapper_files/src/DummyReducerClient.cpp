@@ -104,3 +104,13 @@ int DummyReducerClient::get_heart_beat_socket()
 {
     return this->heart_beat_socket;
 }
+
+void DummyReducerClient::start_word_count_job(string file_path)
+{
+    cout<<"\n\nWORD COUNT JOB STARTED AT REDUCER\n\n";
+}
+
+void DummyReducerClient::start_inverted_index_job(string file_path)
+{
+    cout<<"\n\nINVERTED INDEX JOB STARTED AT REDUCER\n\n";
+}
