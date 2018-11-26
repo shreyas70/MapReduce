@@ -14,7 +14,8 @@
 
 #include <string.h> 
 #include <signal.h>
-
+#include <queue>
+#include <set>
 
 #include "utilities.h"
 #include "master_worker.h"
@@ -26,7 +27,7 @@
 
 using namespace std;
 
-#define PIECE_SIZE     (512 * 1024)
+#define PIECE_SIZE     100
 #define pb             push_back
 
 #define REDUCER             0
@@ -37,6 +38,9 @@ using namespace std;
 
 string working_dir;
 vector<Mapper> mappers;
+queue<string> pendingJobs;
+set<string> processingJobs;
+int slotAvailableFlag=0;
 
 
 string current_timestamp_get()
@@ -48,6 +52,22 @@ string current_timestamp_get()
     ti = localtime(&tt);
     return asctime(ti);
 }
+
+
+int countLines(string filePath)
+{
+    int count = 0;
+    string line;
+ 
+    /* Creating input filestream */ 
+    ifstream file(filePath);
+    while (getline(file, line))
+        count++;
+ 
+    cout << "Numbers of lines in the file : " << count << endl;
+    return count;
+}
+
 
 
 void MasterTracker::log_print(string msg)
@@ -65,21 +85,90 @@ void MasterTracker::log_print(string msg)
     out << curr_timestamp << " : " << "\"" << msg << "\"" << "\n";
 }
 
+void dispatchJob()
+{
+    string file_path = pendingJobs.front();
+    pendingJobs.pop();
+    processingJobs.insert(file_path);
+    int numberOfLines = countLines(file_path);
+    int linesOffset=1; //number of lines alredy alloted to mappers
+    
+    if(numberOfLines > 4 * PIECE_SIZE)
+    {
+        cout <<"File too large" << endl;
+        return;
+    }
+    else
+    {
+        cout << "\nDispatch job to " << mappers.size() << " mappers " << endl;
+        for(int i=0;i<mappers.size();i++)
+        {
+            
+            Mapper m = mappers[i];
+            if(numberOfLines==0)
+            {
+                m.initiate_word_count_request("job1",file_path, 0, 0);
+                cout << "Mapper " << i << " alloted " << " 0 lines " << endl;
+
+            }
+            else if(numberOfLines < PIECE_SIZE)
+            {
+                m.initiate_word_count_request("job1",file_path, linesOffset, numberOfLines);
+                cout << "Mapper " << i << " : " << " Offset " << linesOffset << " | numberOfLines " << numberOfLines << endl;
+                linesOffset+=numberOfLines;
+                numberOfLines=0;
+                
+            }
+            else
+            {
+                m.initiate_word_count_request("job1",file_path, linesOffset, PIECE_SIZE);
+                cout << "Mapper " << i << " : " << " Offset " << linesOffset << " | numberOfLines " << PIECE_SIZE << endl;
+                numberOfLines-=PIECE_SIZE;
+                linesOffset+=PIECE_SIZE;
+            }
+        }
+    }
+    return;
+}
 
 void MasterTracker::replyToHeartBeat()
 {
-    
-    
-    Mapper m = mappers[0];
-    cout << "heart beat thread initiated working! " << endl;
+    cout << "Heart beat thread initiated! " << endl;
     while(true)
     {
-        cout<<"\nHeart beat received : "<<m.receive_heart_beat()<<endl;
-        // m.receive_heart_beat();
-        m.reply_to_heart_beat();
+        if(!pendingJobs.empty())
+        {
+            slotAvailableFlag=1; //indicating that slots need to be checked
+            cout << "Pending queue not empty. Searching for slots" << endl;
+        }
+            
+    
+        for(int i=0;i<mappers.size();i++){
+            Mapper m = mappers[i];
+            int availableSlots = stoi(m.receive_heart_beat());
+            cout<<"\nMapper " <<i << " | Heart beat received : "<< availableSlots<<endl;
+            if(slotAvailableFlag==1 && availableSlots==0) //If we are checking for slots and found a mapper with no slot available
+            {
+                availableSlots=0;
+            }
+            m.reply_to_heart_beat();
+        }
+
+        if(slotAvailableFlag==1)
+        {
+            dispatchJob();
+        }
+
+        slotAvailableFlag=0; //resetting flag
     }
+
+    
+
+
+
     exit(0);
 }
+
 
 
 void MasterTracker::client_request_handler(int client_sock, string req_str)
@@ -105,17 +194,19 @@ void MasterTracker::client_request_handler(int client_sock, string req_str)
             }
             else
             {
-                Mapper m = mappers[0];
-                
-                cout << "reached ! File path received -" << file_path<<"-" <<endl;
-                // cout << "available slots " << z.get_available_slots() << endl;
-                m.initiate_word_count_request("job1", file_path, 54, 43);
+                //***check if file is valid***
+                if( access( file_path.c_str() , R_OK ) == -1) {
+                    cout << "File doesn't exists. Terminating request." << endl;
+                    break;
+                } 
+                pendingJobs.push(file_path);
+
+                cout << "Recieved request from client ! File path received -" << file_path<<"-" <<endl;
+                cout << "Added to pending queue" << endl;
 
             }
         
-            
-
-
+        
             // job_file_add(job_id, req_str);
 
 
@@ -328,7 +419,7 @@ void MasterTracker::connectToMappers()
 
 
     Mapper m2;
-    m2.connect_to_mapper("127.0.0.1", 70001);
+    m2.connect_to_mapper("127.0.0.1", 7001);
     mappers.push_back(m2);
 
     thread hb = thread(&MasterTracker::replyToHeartBeat, this);
