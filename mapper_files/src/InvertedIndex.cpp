@@ -189,7 +189,7 @@ string InvertedIndexReducer::reduce(int category, string file_path)
     this->increment_files_in_category(category);
     if(get_file_count_in_category(category)==this->no_of_files)
     {
-        string out_file_name = "../output_files/wc_reducer_"+this->job_id+".txt";
+        string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
         int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         for(unordered_map<string,unordered_set<string>>::iterator it = words_to_files_map.begin(); it!=words_to_files_map.end(); ++it)
         {

@@ -12,6 +12,7 @@
 #include <thread>
 #include "Mapper.h"
 #include "Utility.h"
+#include "Reducer.h"
 
 using namespace std;
 
@@ -48,6 +49,23 @@ void process_request(int socket)
         cout<<endl<<m.get_reply()<<endl;
     }
     
+    if(!reply.compare("REDUCER"))
+    {
+        Reducer r;
+        r.init(socket);
+        // cout<<"\nGiving word count request!\n";
+        // r.word_count_request("job3", 1, "input_files/wc_reducer1.txt",4);
+        // r.word_count_request("job3", 1, "input_files/wc_reducer2.txt",4);
+        // r.word_count_request("job3", 1, "input_files/wc_reducer3.txt",4);
+        // r.word_count_request("job3", 1, "input_files/wc_reducer4.txt",4);
+        cout<<"\n\nGiving inverted index request\n";
+        r.inverted_index_request("job4", 1, "output_files/job2_reducer1.txt",4);
+        r.inverted_index_request("job4", 1, "output_files/job2_reducer2.txt",4);
+        r.inverted_index_request("job4", 1, "output_files/job2_reducer3.txt",4);
+        r.inverted_index_request("job4", 1, "output_files/job2_reducer4.txt",4);
+
+        cout<<endl<<r.get_reply()<<endl;
+    }
     
     
 }

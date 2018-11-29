@@ -43,6 +43,37 @@ void DummyMaster::connect_as_mapper(string ip_address, int port_number)
     this->sock_id = sock;
 }
 
+void DummyMaster::connect_as_reducer(string ip_address, int port_number)
+{
+    
+    struct sockaddr_in server_ip;
+    struct hostent * server;
+    int sock = socket(AF_INET,SOCK_STREAM,0);
+    if(sock < 0)
+    {
+        cout<<"\nError while creating socket\n";
+    }
+    server = gethostbyname(ip_address.c_str());
+    if(server==NULL)
+    {
+        cout<<"\nNo such host identified\n";
+    }
+    bzero((char *) &server_ip, sizeof(server_ip));
+    server_ip.sin_family = AF_INET;
+    bcopy((char *)server->h_addr, (char *) &server_ip.sin_addr.s_addr, server->h_length);
+    server_ip.sin_port = htons(port_number);
+    if(connect(sock,(struct sockaddr *) &server_ip, sizeof(server_ip)) < 0)
+    {
+        cout<<"\nConnection to server failed\n";
+    }
+
+    string sys_type = "REDUCER";
+    int write_bytes = sys_type.length();
+    send(sock, &write_bytes, sizeof(write_bytes), 0);
+    send(sock, sys_type.c_str(), sys_type.length(), 0);
+    this->sock_id = sock;
+}
+
 string DummyMaster::get_request()
 {
     int read_size;
@@ -80,3 +111,12 @@ void DummyMaster::job_completed(string job_id, vector<string> reducer_files)
     send(this->sock_id, &write_bytes, sizeof(write_bytes), 0);
     send(this->sock_id, reply_string.c_str(), reply_string.length(), 0);
 }
+
+void DummyMaster::job_completed_reducer(string job_id, int category, string output_file)
+{
+    string reply_string = job_id+"$"+to_string(category)+"$"+output_file;
+    int write_bytes = reply_string.length();
+    send(this->sock_id, &write_bytes, sizeof(write_bytes), 0);
+    send(this->sock_id, reply_string.c_str(), reply_string.length(), 0);
+}
+

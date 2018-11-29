@@ -41,6 +41,8 @@
         "optional": "cpp",
         "sstream": "cpp",
         "string": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "cstdarg": "cpp",
+        "unordered_set": "cpp"
     }
 }

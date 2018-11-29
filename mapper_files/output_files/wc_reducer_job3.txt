@@ -1,0 +1,11 @@
+catdance 8
+apple 6
+listen 19
+word2 3
+yoga 2
+word1 5
+banana 22
+word3 2
+orange 8
+word4 9
+eminem 12

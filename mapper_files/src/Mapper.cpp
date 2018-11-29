@@ -7,7 +7,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <thread>
 #include "Mapper.h"
 
 using namespace std;
