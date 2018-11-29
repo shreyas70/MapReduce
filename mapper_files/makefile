@@ -2,7 +2,7 @@ CC = g++
 OBJ_DIR = bin
 SRC_DIR = src
 S_OBJ_FILE_NAMES = Utility.o Mapper.o dummy_master_server.o
-C_OBJ_FILE_NAMES = Utility.o WordCount.o DummyMaster.o MapperNode.o mapper_node.o
+C_OBJ_FILE_NAMES = Utility.o WordCount.o InvertedIndex.o DummyMaster.o MapperNode.o mapper_node.o
 S_OBJ_FILES = $(patsubst %,$(OBJ_DIR)/%,$(S_OBJ_FILE_NAMES))
 C_OBJ_FILES = $(patsubst %,$(OBJ_DIR)/%,$(C_OBJ_FILE_NAMES))
 

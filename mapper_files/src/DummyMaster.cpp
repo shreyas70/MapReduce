@@ -11,19 +11,10 @@
 
 using namespace std;
 
-// DummyMaster::DummyMaster()
-// {
-//     // ip_address = (string *) malloc(sizeof(string));
-//     // this->port_number = (int *)malloc(sizeof(int));
-    
-//     this->sock = (int *)malloc(sizeof(int));
-// }
 
 void DummyMaster::connect_as_mapper(string ip_address, int port_number)
 {
-    // this->ip_address = ip_address;
-    // this->port_number = port_number;
-
+    
     struct sockaddr_in server_ip;
     struct hostent * server;
     int sock = socket(AF_INET,SOCK_STREAM,0);
@@ -89,8 +80,3 @@ void DummyMaster::job_completed(string job_id, vector<string> reducer_files)
     send(this->sock_id, &write_bytes, sizeof(write_bytes), 0);
     send(this->sock_id, reply_string.c_str(), reply_string.length(), 0);
 }
-
-// int DummyMaster::get_socket()
-// {
-//     return this->sock;
-// }
