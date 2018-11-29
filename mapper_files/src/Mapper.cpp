@@ -21,11 +21,11 @@ int Mapper::get_socket()
     return this->mapper_socket;
 }
 
-void Mapper::initiate_word_count_request(string job_id, int chunk_id, string file_path, off_t offset, size_t piece_size, int no_of_reducers)
+void Mapper::initiate_word_count_request(string job_id, int chunk_id, string file_path, int start_line, int no_of_lines, int no_of_reducers)
 {
     int sock = this->mapper_socket;
     string request_type = "initiate_word_count";
-    string wc_details = job_id+"$"+to_string(chunk_id)+"$"+file_path+"$"+to_string(offset)+"$"+to_string(piece_size);
+    string wc_details = job_id+"$"+to_string(chunk_id)+"$"+file_path+"$"+to_string(start_line)+"$"+to_string(no_of_lines)+"$"+to_string(no_of_reducers);
     string request_string = request_type + "#" + wc_details;
     int write_bytes = request_string.length();
     send(sock, &write_bytes, sizeof(write_bytes), 0);

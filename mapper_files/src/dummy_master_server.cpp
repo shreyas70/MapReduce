@@ -31,21 +31,21 @@ void process_request(int socket)
         Mapper m;
         m.init(socket);
         cout<<"\nInitiating word count request!\n";
-        // m.initiate_word_count_request("job1", 1, "input_files/file1.txt", 0, 0, 3);
+        m.initiate_word_count_request("job1", 1, "input_files/file1.txt", 0, 0, 3);
         
-        vector<string> file_paths;
-        file_paths.push_back("input_files/i_file1.txt");
-        file_paths.push_back("input_files/i_file2.txt");
-        file_paths.push_back("input_files/i_file3.txt");
-        vector<off_t> offsets;
-        offsets.push_back(54);
-        offsets.push_back(48);
-        offsets.push_back(0);
-        vector<size_t> piece_sizes;
-        piece_sizes.push_back(334);
-        piece_sizes.push_back(100);
-        piece_sizes.push_back(300);
-        m.initiate_inverted_index_request("job2", 1, file_paths, offsets, piece_sizes, 3);
+        // vector<string> file_paths;
+        // file_paths.push_back("input_files/i_file1.txt");
+        // file_paths.push_back("input_files/i_file2.txt");
+        // file_paths.push_back("input_files/i_file3.txt");
+        // vector<off_t> offsets;
+        // offsets.push_back(54);
+        // offsets.push_back(48);
+        // offsets.push_back(0);
+        // vector<size_t> piece_sizes;
+        // piece_sizes.push_back(334);
+        // piece_sizes.push_back(100);
+        // piece_sizes.push_back(300);
+        // m.initiate_inverted_index_request("job2", 1, file_paths, offsets, piece_sizes, 3);
         cout<<endl<<m.get_reply()<<endl;
     }
     

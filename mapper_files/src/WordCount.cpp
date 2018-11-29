@@ -17,13 +17,14 @@ bool Compare::operator()(HeapData d1, const HeapData d2)
     return !lexicographical_compare(d1.data.begin(), d1.data.end(), d2.data.begin(), d2.data.end());
 }
 
-WordCountMapper::WordCountMapper(std::string job_id, int chunk_id, std::string file_path, off_t offset, size_t piece_size)
+WordCountMapper::WordCountMapper(std::string job_id, int chunk_id, std::string file_path, int start_line, int no_of_lines, int no_of_reducers)
 {
     this->job_id = job_id;
     this->chunk_id = chunk_id;
     this->file_path = file_path;
-    this->offset = offset;
-    this->piece_size = piece_size;
+    this->start_line = start_line;
+    this->no_of_lines = no_of_lines;
+    this->no_of_reducers = no_of_reducers;
 }
 
 WordCountMapper::WordCountMapper(string request_string)
@@ -32,8 +33,9 @@ WordCountMapper::WordCountMapper(string request_string)
     this->job_id = req_vec[0];
     this->chunk_id = stoi(req_vec[1]);
     this->file_path = req_vec[2];
-    this->offset = stoi(req_vec[3]);
-    this->piece_size = stoi(req_vec[4]);
+    this->start_line = stoi(req_vec[3]);
+    this->no_of_lines = stoi(req_vec[4]);
+    this->no_of_reducers = stoi(req_vec[5]);
 }
 
 string WordCountMapper::get_job_id()
@@ -46,14 +48,9 @@ string WordCountMapper::get_file_path()
     return this->file_path;
 }
 
-off_t WordCountMapper::get_offset()
+int WordCountMapper::get_no_of_reducers()
 {
-    return this->offset;
-}
-
-size_t WordCountMapper::get_piece_size()
-{
-    return this->piece_size;
+    return this->no_of_reducers;
 }
 
 string WordCountMapper::start_job()

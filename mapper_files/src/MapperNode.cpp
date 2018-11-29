@@ -22,15 +22,63 @@ void MapperNode::word_count(DummyMaster dm, string request_string)
     FILE * output_file = fopen(output_file_path.c_str(), "r");
     string file_dir = "output_files/";
     string job_id = wc.get_job_id();
-    string reducer_file1 = file_dir+job_id+"_reducer1.txt";
-    string reducer_file2 = file_dir+job_id+"_reducer2.txt";
-    string reducer_file3 = file_dir+job_id+"_reducer3.txt";
-    string reducer_file4 = file_dir+job_id+"_reducer4.txt";
-    int r_wd1 = open(reducer_file1.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    int r_wd2 = open(reducer_file2.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    int r_wd3 = open(reducer_file3.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    int r_wd4 = open(reducer_file4.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-            
+    vector<string> reducer_files;
+    int no_of_reducers = wc.get_no_of_reducers();
+    for(int i=0; i<no_of_reducers; i++)
+    {
+        string file_name = file_dir+job_id+"_reducer"+to_string(i+1)+".txt";
+        reducer_files.push_back(file_name);
+    }
+    // string reducer_file1 = file_dir+job_id+"_reducer1.txt";
+    // string reducer_file2 = file_dir+job_id+"_reducer2.txt";
+    // string reducer_file3 = file_dir+job_id+"_reducer3.txt";
+    // string reducer_file4 = file_dir+job_id+"_reducer4.txt";
+    vector<int> r_wd;
+    for(int i=0; i<no_of_reducers; i++)
+    {
+        int wd = open(reducer_files[i].c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+        r_wd.push_back(wd);
+    }
+    // int r_wd1 = open(reducer_file1.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+    // int r_wd2 = open(reducer_file2.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+    // int r_wd3 = open(reducer_file3.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+    // int r_wd4 = open(reducer_file4.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+
+    int inc = 26/no_of_reducers;
+    vector<pair<int,int>> small_ranges;
+    vector<pair<int,int>> capital_ranges;
+    int x=0,y=1;
+    for(int i=0; i<no_of_reducers; i++)
+    {
+        int start = 65+(inc*x);
+        int end = 65+(inc*y);
+        end = (end>71)?71:end;
+        if(i==(no_of_reducers-1))
+        {
+            end = 71;
+        }
+        pair<int,int> range = make_pair(start,end);
+        small_ranges.push_back(range);
+        x++;
+        y++;
+    }
+
+    x=0,y=1;
+    for(int i=0; i<no_of_reducers; i++)
+    {
+        int start = 97+(inc*x);
+        int end = 97+(inc*y);
+        end = (end>122)?122:end;
+        if(i==(no_of_reducers-1))
+        {
+            end = 122;
+        }
+        pair<int,int> range = make_pair(start,end);
+        capital_ranges.push_back(range);
+        x++;
+        y++;
+    }
+
     char buff[100];
     bzero(buff, 100);
     while( fscanf(output_file, "%s", buff)!=EOF )
@@ -39,45 +87,40 @@ void MapperNode::word_count(DummyMaster dm, string request_string)
         bzero(buff, 100);
         fscanf(output_file, "%s", buff);
         string count = buff;
-        if((word[0]>=65 && word[0]<=71) || (word[0]>=97 && word[0]<=103))
+        for(int i=0; i<no_of_reducers; i++)
         {
-            write(r_wd1, word.c_str(), word.length());
-            write(r_wd1, " ", 1);
-            write(r_wd1, count.c_str(), count.length());
-            write(r_wd1, "\n", 1);
-        }
-        else if((word[0]>=72 && word[0]<=78) || (word[0]>=104 && word[0]<=110))
-        {
-            write(r_wd2, word.c_str(), word.length());
-            write(r_wd2, " ", 1);
-            write(r_wd2, count.c_str(), count.length());
-            write(r_wd2, "\n", 1);
-        }
-        else if((word[0]>=79 && word[0]<=85) || (word[0]>=111 && word[0]<=117))
-        {
-            write(r_wd3, word.c_str(), word.length());
-            write(r_wd3, " ", 1);
-            write(r_wd3, count.c_str(), count.length());
-            write(r_wd3, "\n", 1);
-        }
-        else
-        {
-            write(r_wd4, word.c_str(), word.length());
-            write(r_wd4, " ", 1);
-            write(r_wd4, count.c_str(), count.length());
-            write(r_wd4, "\n", 1);
+            int start = small_ranges[i].first;
+            int end = small_ranges[i].second;
+            if(word[0]>=start && word[0]<=end)
+            {
+                write(r_wd[i], word.c_str(), word.length());
+                write(r_wd[i], " ", 1);
+                write(r_wd[i], count.c_str(), count.length());
+                write(r_wd[i], "\n", 1);
+                break;
+            }
+            start = capital_ranges[i].first;
+            end = capital_ranges[i].second;
+            if(word[0]>=start && word[0]<=end)
+            {
+                write(r_wd[i], word.c_str(), word.length());
+                write(r_wd[i], " ", 1);
+                write(r_wd[i], count.c_str(), count.length());
+                write(r_wd[i], "\n", 1);
+                break;
+            }
         }
     }
     fclose(output_file);
-    close(r_wd1);
-    close(r_wd2);
-    close(r_wd3);
-    close(r_wd4);
-    vector<string> reducer_files;
-    reducer_files.push_back(reducer_file1);
-    reducer_files.push_back(reducer_file2);
-    reducer_files.push_back(reducer_file3);
-    reducer_files.push_back(reducer_file4);
+    for(int i=0; i<no_of_reducers; i++)
+    {
+        close(r_wd[i]);
+    }
+    // vector<string> reducer_files;
+    // reducer_files.push_back(reducer_file1);
+    // reducer_files.push_back(reducer_file2);
+    // reducer_files.push_back(reducer_file3);
+    // reducer_files.push_back(reducer_file4);
     dm.job_completed(wc.get_job_id(), reducer_files);
 }
 

@@ -24,17 +24,17 @@ class WordCountMapper
     std::string job_id;
     int chunk_id;
     std::string file_path;
-    off_t offset;
-    size_t piece_size;
+    int start_line;
+    int no_of_lines;
+    int no_of_reducers;
 
     public:
 
-    WordCountMapper(std::string job_id, int chunk_id, std::string file_path, off_t offset, size_t piece_size);
+    WordCountMapper(std::string job_id, int chunk_id, std::string file_path, int start_line, int no_of_lines, int no_of_reducers);
     WordCountMapper(std::string request_string);
     std::string get_job_id();
     std::string get_file_path();
-    off_t get_offset();
-    size_t get_piece_size();
+    int get_no_of_reducers();
     std::string start_job();
 };
 
