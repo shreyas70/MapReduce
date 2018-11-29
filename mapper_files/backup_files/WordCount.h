@@ -20,14 +20,13 @@ class WordCount
     private:
 
     std::string job_id;
-    int chunk_id;
     std::string file_path;
     off_t offset;
     size_t piece_size;
 
     public:
 
-    WordCount(std::string job_id, int chunk_id, std::string file_path, off_t offset, size_t piece_size);
+    WordCount(std::string job_id, std::string file_path, off_t offset, size_t piece_size);
     WordCount(std::string request_string);
     std::string get_job_id();
     std::string get_file_path();

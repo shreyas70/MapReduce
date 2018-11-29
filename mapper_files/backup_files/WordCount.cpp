@@ -16,10 +16,9 @@ bool Compare::operator()(HeapData d1, const HeapData d2)
     return !lexicographical_compare(d1.data.begin(), d1.data.end(), d2.data.begin(), d2.data.end());
 }
 
-WordCount::WordCount(std::string job_id, int chunk_id, std::string file_path, off_t offset, size_t piece_size)
+WordCount::WordCount(std::string job_id, std::string file_path, off_t offset, size_t piece_size)
 {
     this->job_id = job_id;
-    this->chunk_id = chunk_id;
     this->file_path = file_path;
     this->offset = offset;
     this->piece_size = piece_size;
@@ -29,10 +28,9 @@ WordCount::WordCount(string request_string)
 {
     vector<string> req_vec = split_string(request_string, '$');
     this->job_id = req_vec[0];
-    this->chunk_id = stoi(req_vec[1]);
-    this->file_path = req_vec[2];
-    this->offset = stoi(req_vec[3]);
-    this->piece_size = stoi(req_vec[4]);
+    this->file_path = req_vec[1];
+    this->offset = stoi(req_vec[2]);
+    this->piece_size = stoi(req_vec[3]);
 }
 
 string WordCount::get_job_id()

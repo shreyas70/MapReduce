@@ -12,141 +12,71 @@
 
 using namespace std;
 
-void Mapper::connect_to_mapper(string mapper_ip, int mapper_port)
+void Mapper::init(int mapper_socket)
 {
-    struct sockaddr_in server_ip;
-    struct hostent * server;
-    int sock = socket(AF_INET,SOCK_STREAM,0);
-    if(sock < 0)
-    {
-        cout<<"\nError while creating socket\n";
-        this->heart_beat_socket = -1;
-        this->mapper_socket = -1;
-    }
-    server = gethostbyname(mapper_ip.c_str());
-    if(server==NULL)
-    {
-        cout<<"\nNo such host identified\n";
-        this->heart_beat_socket = -1;
-        this->mapper_socket = -1;
-    }
-    bzero((char *) &server_ip, sizeof(server_ip));
-    server_ip.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *) &server_ip.sin_addr.s_addr, server->h_length);
-    server_ip.sin_port = htons(mapper_port);
-    if(connect(sock,(struct sockaddr *) &server_ip, sizeof(server_ip)) < 0)
-    {
-        cout<<"\nConnection to server failed\n";
-        this->heart_beat_socket = -1;
-        this->mapper_socket = -1;
-    }
-    int hb_sock = initiate_heart_beats(mapper_ip, mapper_port);
-    this->heart_beat_socket = hb_sock;
-    this->mapper_socket = sock;
+    this->mapper_socket = mapper_socket;
 }
 
-int Mapper::initiate_heart_beats(string mapper_ip, int mapper_port)
+int Mapper::get_socket()
 {
-    struct sockaddr_in server_ip;
-    struct hostent * server;
-    int sock = socket(AF_INET,SOCK_STREAM,0);
-    if(sock < 0)
-    {
-        cout<<"\nError while creating socket\n";
-        return -1;
-    }
-    server = gethostbyname(mapper_ip.c_str());
-    if(server==NULL)
-    {
-        cout<<"\nNo such host identified\n";
-        return -1;
-    }
-    bzero((char *) &server_ip, sizeof(server_ip));
-    server_ip.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *) &server_ip.sin_addr.s_addr, server->h_length);
-    server_ip.sin_port = htons(mapper_port);
-    if(connect(sock,(struct sockaddr *) &server_ip, sizeof(server_ip)) < 0)
-    {
-        cout<<"\nConnection to server failed\n";
-        return -1;
-    }
-    write(sock, "initiate_heart_beats", 20);
-    return sock;
+    return this->mapper_socket;
 }
 
-string Mapper::receive_heart_beat()
-{
-    int hb_sock = this->heart_beat_socket;
-    char heart_beat[10];
-    bzero(heart_beat, 10);
-    read(hb_sock, heart_beat, 10);
-    string hb = heart_beat;
-    return hb;
-}
-
-void Mapper::reply_to_heart_beat()
-{
-    int hb_sock = this->heart_beat_socket;
-    write(hb_sock, "NULL", 4);
-}
-
-void Mapper::initiate_word_count_request(string job_id, string file_path, off_t offset, size_t piece_size)
+void Mapper::initiate_word_count_request(string job_id, int chunk_id, string file_path, off_t offset, size_t piece_size, int no_of_reducers)
 {
     int sock = this->mapper_socket;
-    char req_string[255];
-    string repl_string;
-    write(sock, "initiate_word_count", 19);
-    bzero(req_string, 255);
-    read(sock, req_string, 255);
-    repl_string = req_string;
+    string request_type = "initiate_word_count";
+    string wc_details = job_id+"$"+to_string(chunk_id)+"$"+file_path+"$"+to_string(offset)+"$"+to_string(piece_size);
+    string request_string = request_type + "#" + wc_details;
+    int write_bytes = request_string.length();
+    send(sock, &write_bytes, sizeof(write_bytes), 0);
+    send(sock, request_string.c_str(), request_string.length(), 0);
 
-    cout<<"Reply string : "<<repl_string<<endl;
 
-    if(!repl_string.compare("OK"))
-    {
-        string reply_string = job_id+"$"+file_path+"$"+to_string(offset)+"$"+to_string(piece_size);
-        write(sock, reply_string.c_str(), reply_string.length());
-        bzero(req_string, 255);
-        read(sock, req_string, 255);
-        repl_string = req_string;
-        if(repl_string.compare("OK"))
-        {
-            cout<<"\n\nFailed to initiate word count job!\n\n";
-        }
-    }
-    else
-    {
-        cout<<"\nFailed to initiate connection with Mapper!";
-    }
+    // if(true)
+    // {
+    //     string reply_string = job_id+"$"+to_string(chunk_id)+"$"+file_path+"$"+to_string(offset)+"$"+to_string(piece_size);
+        
+    //     cout<<"\n\nSending "<<reply_string<<endl;
+
+    //     int write_bytes = reply_string.length();
+    //     send(sock, &write_bytes, sizeof(write_bytes), 0);
+    //     send(sock, reply_string.c_str(), reply_string.length(), 0);
+        
+    // }
+    // else
+    // {
+    //     cout<<"\nFailed to initiate connection with Mapper!";
+    // }
 }
 
-void Mapper::initiate_inverted_index_request(string job_id, vector<string> file_paths, vector<off_t> offsets, vector<size_t> piece_sizes)
+void Mapper::initiate_inverted_index_request(string job_id, int chunk_id, vector<string> file_paths, vector<off_t> offsets, vector<size_t> piece_sizes, int no_of_reducers)
 {
     int sock = this->mapper_socket;
-    char req_string[255];
-    string repl_string;
-    write(sock, "initiate_inverted_index", 23);
-    bzero(req_string, 255);
-    read(sock, req_string, 255);
-    repl_string = req_string;
+    string request_type = "initiate_word_count";
+    int write_bytes = request_type.length();
+    send(sock, &write_bytes, sizeof(write_bytes), 0);
+    send(sock, request_type.c_str(), request_type.length(), 0);
 
-    cout<<"Reply string : "<<repl_string<<endl;
+    //write(sock, "initiate_word_count", 19);
+    
+    int read_size;
+    read(sock, &read_size, sizeof(read_size));
+    char buff[read_size+1];
+    bzero(buff,read_size+1);
+    read(sock, buff, read_size);
+    string reply = buff;
 
-    if(!repl_string.compare("OK"))
+    if(!reply.compare("OK"))
     {
         string reply_string = job_id;
         for(int i=0; i<file_paths.size(); i++)
         {
             reply_string = reply_string+"$"+file_paths[i]+"$"+to_string(offsets[i])+"$"+to_string(piece_sizes[i]);
         }
-        write(sock, reply_string.c_str(), reply_string.length());
-        bzero(req_string, 255);
-        read(sock, req_string, 255);
-        repl_string = req_string;
-        if(repl_string.compare("OK"))
-        {
-            cout<<"\n\nFailed to initiate word count job!\n\n";
-        }
+        int write_bytes = reply_string.length();
+        send(sock, &write_bytes, sizeof(write_bytes), 0);
+        send(sock, reply_string.c_str(), reply_string.length(), 0);
     }
     else
     {
@@ -154,18 +84,13 @@ void Mapper::initiate_inverted_index_request(string job_id, vector<string> file_
     }
 }
 
-int Mapper::get_available_slots()
+string Mapper::get_reply()
 {
-    int sock = this->mapper_socket;
-    char req_string[255];
-    string repl_string;
-    bzero(req_string, 255);
-    write(sock, "get_available_slots", 19);
-    read(sock, req_string, 255);
-    repl_string = req_string;
-
-    cout<<"Reply string : "<<repl_string<<endl;
-
-    int av_slots = stoi(repl_string);
-    return av_slots;
+    int read_size;
+    read(this->mapper_socket, &read_size, sizeof(read_size));
+    char buff[read_size+1];
+    bzero(buff,read_size+1);
+    read(this->mapper_socket, buff, read_size);
+    string reply = buff;
+    return reply;
 }
