@@ -1,11 +1,11 @@
-brown 1 input_files/i_file3.txt 
-grey 1 input_files/i_file3.txt 
-green 1 input_files/i_file3.txt 
-chikoo 1 input_files/i_file2.txt 
-blue 2 input_files/i_file1.txt input_files/i_file3.txt 
-banana 2 input_files/i_file1.txt input_files/i_file2.txt 
-black 2 input_files/i_file1.txt input_files/i_file3.txt 
-go 1 input_files/i_file1.txt 
-cyan 1 input_files/i_file3.txt 
-apple 2 input_files/i_file1.txt input_files/i_file2.txt 
-grapes 1 input_files/i_file2.txt 
+brown input_files/i_file3.txt 
+grey input_files/i_file3.txt 
+green input_files/i_file3.txt 
+chikoo input_files/i_file2.txt 
+blue input_files/i_file1.txt input_files/i_file3.txt 
+banana input_files/i_file1.txt input_files/i_file2.txt 
+black input_files/i_file1.txt input_files/i_file3.txt 
+go input_files/i_file1.txt 
+cyan input_files/i_file3.txt 
+apple input_files/i_file1.txt input_files/i_file2.txt 
+grapes input_files/i_file2.txt 

@@ -10,8 +10,8 @@
 typedef struct
 {
     std::string file_path;
-    off_t offset;
-    size_t piece_size;
+    int start_line;
+    int no_of_lines;
 }FileInfo;
 
 class InvertedIndexMapper
@@ -20,12 +20,15 @@ class InvertedIndexMapper
 
     std::string job_id;
     std::vector<FileInfo> input_files;
+    int no_of_reducers;
+    int chunk_id;
 
     public:
 
-    InvertedIndexMapper(std::string job_id, std::vector<std::string> file_paths, std::vector<off_t> offsets, std::vector<size_t> piece_sizes);
+    InvertedIndexMapper(std::string job_id, int chunk_id, std::vector<std::string> file_paths, std::vector<int> start_lines, std::vector<int> no_of_lines, int no_of_reducers);
     InvertedIndexMapper(std::string request_string);
     std::string get_job_id();
+    int get_no_of_reducers();
     std::string start_job();
 };
 

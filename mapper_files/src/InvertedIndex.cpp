@@ -14,15 +14,17 @@
 
 using namespace std;
 
-InvertedIndexMapper::InvertedIndexMapper(string job_id, vector<string> file_paths, vector<off_t> offsets, vector<size_t> piece_sizes)
+InvertedIndexMapper::InvertedIndexMapper(string job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)
 {
     this->job_id = job_id;
+    this->no_of_reducers = no_of_reducers;
+    this->chunk_id = chunk_id;
     for(int i=0; i<file_paths.size(); i++)
     {
         FileInfo file_info;
         file_info.file_path = file_paths[i];
-        file_info.offset = offsets[i];
-        file_info.piece_size = piece_sizes[i];
+        file_info.start_line = start_lines[i];
+        file_info.no_of_lines = no_of_lines[i];
         this->input_files.push_back(file_info);
     }
 }
@@ -31,12 +33,14 @@ InvertedIndexMapper::InvertedIndexMapper(string request_string)
 {
     vector<string> req_vec = split_string(request_string, '$');
     this->job_id = req_vec[0];
+    this->chunk_id = stoi(req_vec[1]);
+    this->no_of_reducers = stoi(req_vec[2]);
     FileInfo curr_file_info;
     bool first = true;
-    for(int i=1; i<req_vec.size(); i++)
+    for(int i=3; i<req_vec.size(); i++)
     {
         string req_string = req_vec[i];
-        int index = (i-1);
+        int index = (i-3);
         if(index%3 == 0)
         {
             if(!first)
@@ -53,11 +57,11 @@ InvertedIndexMapper::InvertedIndexMapper(string request_string)
         }
         else if(index%3 == 1)
         {
-            curr_file_info.offset = stoi(req_string);
+            curr_file_info.start_line = stoi(req_string);
         }
         else if(index%3 == 2)
         {
-            curr_file_info.piece_size = stoi(req_string);
+            curr_file_info.no_of_lines = stoi(req_string);
         }
     }
     this->input_files.push_back(curr_file_info);
@@ -66,6 +70,11 @@ InvertedIndexMapper::InvertedIndexMapper(string request_string)
 string InvertedIndexMapper::get_job_id()
 {
     return this->job_id;
+}
+
+int InvertedIndexMapper::get_no_of_reducers()
+{
+    return this->no_of_reducers;
 }
 
 string InvertedIndexMapper::start_job()
