@@ -1,2 +1,2 @@
-muskmelon input_files/i_file2.txt 
-jackfruit input_files/i_file2.txt 
+muskmelon 1 input_files/i_file2.txt 
+jackfruit 1 input_files/i_file2.txt 

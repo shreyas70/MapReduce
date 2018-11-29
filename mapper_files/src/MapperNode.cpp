@@ -17,7 +17,7 @@ using namespace std;
 
 void MapperNode::word_count(DummyMaster dm, string request_string)
 { 
-    WordCount wc = WordCount(request_string);
+    WordCountMapper wc = WordCountMapper(request_string);
     string output_file_path = wc.start_job();
     FILE * output_file = fopen(output_file_path.c_str(), "r");
     string file_dir = "output_files/";
@@ -83,7 +83,7 @@ void MapperNode::word_count(DummyMaster dm, string request_string)
 
 void MapperNode::inverted_index(DummyMaster dm, string request_string)
 {
-    InvertedIndex ii = InvertedIndex(request_string);
+    InvertedIndexMapper ii = InvertedIndexMapper(request_string);
     string output_file_path = ii.start_job();
             
             

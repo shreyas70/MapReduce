@@ -6,6 +6,7 @@
 #include<algorithm>
 #include<queue>
 #include<string.h>
+#include<mutex>
 #include "WordCount.h"
 #include "Utility.h"
 
@@ -16,7 +17,7 @@ bool Compare::operator()(HeapData d1, const HeapData d2)
     return !lexicographical_compare(d1.data.begin(), d1.data.end(), d2.data.begin(), d2.data.end());
 }
 
-WordCount::WordCount(std::string job_id, int chunk_id, std::string file_path, off_t offset, size_t piece_size)
+WordCountMapper::WordCountMapper(std::string job_id, int chunk_id, std::string file_path, off_t offset, size_t piece_size)
 {
     this->job_id = job_id;
     this->chunk_id = chunk_id;
@@ -25,7 +26,7 @@ WordCount::WordCount(std::string job_id, int chunk_id, std::string file_path, of
     this->piece_size = piece_size;
 }
 
-WordCount::WordCount(string request_string)
+WordCountMapper::WordCountMapper(string request_string)
 {
     vector<string> req_vec = split_string(request_string, '$');
     this->job_id = req_vec[0];
@@ -35,27 +36,27 @@ WordCount::WordCount(string request_string)
     this->piece_size = stoi(req_vec[4]);
 }
 
-string WordCount::get_job_id()
+string WordCountMapper::get_job_id()
 {
     return this->job_id;
 }
 
-string WordCount::get_file_path()
+string WordCountMapper::get_file_path()
 {
     return this->file_path;
 }
 
-off_t WordCount::get_offset()
+off_t WordCountMapper::get_offset()
 {
     return this->offset;
 }
 
-size_t WordCount::get_piece_size()
+size_t WordCountMapper::get_piece_size()
 {
     return this->piece_size;
 }
 
-string WordCount::start_job()
+string WordCountMapper::start_job()
 {
 
     cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
@@ -214,4 +215,92 @@ string WordCount::start_job()
 
     cout<<"\nJOB COMPLETED\n";
     return "temp_files/output.txt";
+}
+
+// WordCountReducer::WordCountReducer(string job_id, int no_of_files)
+// {
+//     this->job_id = job_id;
+//     this->no_of_files = no_of_files;
+// }
+
+void WordCountReducer::init(string request_string)
+{
+    vector<string> req_vec = split_string(request_string, '$');
+    this->job_id = req_vec[0];
+    this->no_of_files = stoi(req_vec[1]);
+}
+
+int WordCountReducer::get_file_count_in_category(int category)
+{
+    lock_guard<mutex> lock(category_file_map_lock);
+    if(this->category_to_files_map.find(category)==this->category_to_files_map.end())
+    {
+        return -1;
+    }
+    return this->category_to_files_map[category];
+}
+
+void WordCountReducer::increment_files_in_category(int category)
+{
+    lock_guard<mutex> lock(category_file_map_lock);
+    if(this->category_to_files_map.find(category)==this->category_to_files_map.end())
+    {
+        this->category_to_files_map[category] = 0;
+    }
+    int nf = this->category_to_files_map[category];
+    nf++;
+    this->category_to_files_map[category] = nf;
+}
+
+void WordCountReducer::update_word_count(string word, int count)
+{
+    lock_guard<mutex> lock(words_count_map_lock);
+    if(this->words_count.find(word)==this->words_count.end())
+    {
+        this->words_count[word] = count;
+    }
+    else
+    {
+        int prev_count = this->words_count[word];
+        count = count+prev_count;
+        this->words_count[word] = count;
+    }
+}
+
+string WordCountReducer::reduce(int category,  string file_path)
+{
+    cout<<"\n\nReducing "<<file_path<<endl;
+    FILE * file_ptr = fopen(file_path.c_str(), "r");
+    char buff[100];
+    bzero(buff, 100);
+    while( fscanf(file_ptr, "%s", buff)!=EOF )
+    {
+        string word = buff;
+        bzero(buff, 100);
+        fscanf(file_ptr, "%s", buff);
+        int count = stoi(buff);
+        update_word_count(word, count);
+    }
+    fclose(file_ptr);
+    cout<<"\nDone with "<<file_path<<endl;
+    this->increment_files_in_category(category);
+    if(get_file_count_in_category(category)==this->no_of_files)
+    {
+        string out_file_name = "../output_files/wc_reducer_"+this->job_id+".txt";
+        int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+        for(unordered_map<string,int>::iterator it = words_count.begin(); it!=words_count.end(); ++it)
+        {
+            string word = it->first;
+            int count = it->second;
+            string count_string = to_string(count);
+            write(wd, word.c_str(), word.length());
+            write(wd, " ", 1);
+            write(wd, count_string.c_str(), count_string.length());
+            write(wd, "\n", 1);
+        }
+        close(wd);
+        cout<<this->job_id<<" COMPLETED\n";
+        return out_file_name;
+    }
+    return "INCOMPLETE";
 }
