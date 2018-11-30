@@ -167,7 +167,7 @@ int Master::client_request_handler(int client_sock, string req_str)
                 new_job->chunks[chunk_id] = new_chunk;
                 mapper_chunks_map[mapper_socket].insert({new_job->job_id, chunk_id});
 
-                (*litr)->initiate_word_count_request(to_string(new_job->job_id),
+                (*litr)->initiate_word_count_request(new_job->job_id,
                                                      new_chunk->chunk_id,
                                                      file_path,
                                                      curr_line_num,
@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
     }
 
     Master master;
-    master.log_path_set(util_abs_path_get(argv[2]));         // USE NFS PATH HERE
+    // master.log_path_set(util_abs_path_get(argv[2]));         // USE NFS PATH HERE
     master.ip_addr_set(argv[1]);
 
     master.run();
