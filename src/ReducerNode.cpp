@@ -24,7 +24,11 @@ void ReducerNode::word_count(DummyMaster dm, string request_string)
     }
     WordCountReducer * wcr = this->wc_reducer_map[job_id];
     string status = wcr->reduce(category, file_path);
-    if(status.compare("INCOMPLETE"))
+    if(!status.compare("FAILURE"))
+    {
+        dm.job_failure_reducer(stoi(job_id), category);
+    }
+    else if(status.compare("INCOMPLETE"))
     {
         dm.job_completed_reducer(job_id, category, status);
     }
@@ -46,7 +50,12 @@ void ReducerNode::inverted_index(DummyMaster dm, string request_string)
     }
     InvertedIndexReducer * iir = this->ii_reducer_map[job_id];
     string status = iir->reduce(category, file_path);
-    if(status.compare("INCOMPLETE"))
+
+    if(!status.compare("FAILURE"))
+    {
+        dm.job_failure_reducer(stoi(job_id), category);
+    }
+    else if(status.compare("INCOMPLETE"))
     {
         dm.job_completed_reducer(job_id, category, status);
     }

@@ -85,48 +85,56 @@ int InvertedIndexMapper::get_no_of_reducers()
 
 string InvertedIndexMapper::start_job()
 {
-    cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
-    unordered_map<string, set<string>> index;
-    for(int i=0; i<this->input_files.size(); i++)
+    try
     {
-        FileInfo file_info = this->input_files[i];
-        string file_path = file_info.file_path;
-        FILE * file_ptr = fopen(file_path.c_str(), "r");
-        char buff[100];
-        bzero(buff, 100);
-        while( fscanf(file_ptr, "%s", buff)!=EOF )
+        cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
+        unordered_map<string, set<string>> index;
+        for(int i=0; i<this->input_files.size(); i++)
         {
-            string word = buff;
-            if(index.find(word)==index.end())
+            FileInfo file_info = this->input_files[i];
+            string file_path = file_info.file_path;
+            FILE * file_ptr = fopen(file_path.c_str(), "r");
+            char buff[100];
+            bzero(buff, 100);
+            while( fscanf(file_ptr, "%s", buff)!=EOF )
             {
-                set<string> file_names;
+                string word = buff;
+                if(index.find(word)==index.end())
+                {
+                    set<string> file_names;
+                    index[word] = file_names;
+                }
+                set<string> file_names = index[word];
+                file_names.insert(file_path);
                 index[word] = file_names;
+                bzero(buff,100);
             }
-            set<string> file_names = index[word];
-            file_names.insert(file_path);
-            index[word] = file_names;
-            bzero(buff,100);
+            fclose(file_ptr);
         }
-        fclose(file_ptr);
-    }
-    string out_file_name = "output_files/output_inverted.txt";
-    int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    for(unordered_map<string, set<string>>::iterator it = index.begin(); it!=index.end(); ++it)
-    {
-        string word = it->first;
-        write(wd, word.c_str(), word.length());
-        write(wd, " ", 1);
-        set<string> file_names = it->second;
-        for(set<string>::iterator fit = file_names.begin(); fit!=file_names.end(); ++fit)
+        string out_file_name = "output_files/output_inverted.txt";
+        int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+        for(unordered_map<string, set<string>>::iterator it = index.begin(); it!=index.end(); ++it)
         {
-            string file_name = *fit;
-            write(wd, file_name.c_str(), file_name.length());
+            string word = it->first;
+            write(wd, word.c_str(), word.length());
             write(wd, " ", 1);
+            set<string> file_names = it->second;
+            for(set<string>::iterator fit = file_names.begin(); fit!=file_names.end(); ++fit)
+            {
+                string file_name = *fit;
+                write(wd, file_name.c_str(), file_name.length());
+                write(wd, " ", 1);
+            }
+            write(wd, "\n", 1);
         }
-        write(wd, "\n", 1);
+        close(wd);
+        cout<<"\nJOB "<<this->job_id<<" CHUNK "<<this->chunk_id<<" COMPLETED\n";
     }
-    close(wd);
-    cout<<"\nJOB "<<this->job_id<<" COMPLETED\n";
+    catch(...)
+    {
+        return "FAILURE";
+    }
+    
     return "output_files/output_inverted.txt";
 }
 
@@ -177,51 +185,59 @@ int InvertedIndexReducer::get_file_count_in_category(int category)
 
 string InvertedIndexReducer::reduce(int category, string file_path)
 {
-    cout<<"\n\nReducing "<<file_path<<endl;
-    FILE * file_ptr = fopen(file_path.c_str(), "r");
-    char buff[100];
-    bzero(buff, 100);
-    while( fscanf(file_ptr, "%s", buff)!=EOF )
+    try
     {
-        string word = buff;
+        cout<<"\n\nReducing "<<file_path<<endl;
+        FILE * file_ptr = fopen(file_path.c_str(), "r");
+        char buff[100];
         bzero(buff, 100);
-        fscanf(file_ptr, "%s", buff);
-        int files_count = stoi(buff);
-        vector<string> file_list;
-        for(int i=0; i<files_count; i++)
+        while( fscanf(file_ptr, "%s", buff)!=EOF )
         {
+            string word = buff;
             bzero(buff, 100);
             fscanf(file_ptr, "%s", buff);
-            string file_name = buff;
-            file_list.push_back(file_name);
-        }
-        this->update_files_list(word, file_list);
-    }
-
-    fclose(file_ptr);
-    cout<<"\nDone with "<<file_path<<endl;
-
-    this->increment_files_in_category(category);
-    if(get_file_count_in_category(category)==this->no_of_files)
-    {
-        string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
-        int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-        for(unordered_map<string,unordered_set<string>>::iterator it = words_to_files_map.begin(); it!=words_to_files_map.end(); ++it)
-        {
-            string word = it->first;
-            unordered_set<string> file_list =  it->second;
-            write(wd, word.c_str(), word.length());
-            for(unordered_set<string>::iterator it = file_list.begin(); it!=file_list.end(); ++it)
+            int files_count = stoi(buff);
+            vector<string> file_list;
+            for(int i=0; i<files_count; i++)
             {
-                string file_name = *it;
-                write(wd, " ", 1);
-                write(wd, file_name.c_str(), file_name.length());
+                bzero(buff, 100);
+                fscanf(file_ptr, "%s", buff);
+                string file_name = buff;
+                file_list.push_back(file_name);
             }
-            write(wd, "\n", 1);
+            this->update_files_list(word, file_list);
         }
-        close(wd);
-        cout<<this->job_id<<" COMPLETED\n";
-        return out_file_name;
+
+        fclose(file_ptr);
+        cout<<"\nDone with "<<file_path<<endl;
+
+        this->increment_files_in_category(category);
+        if(get_file_count_in_category(category)==this->no_of_files)
+        {
+            string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
+            int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+            for(unordered_map<string,unordered_set<string>>::iterator it = words_to_files_map.begin(); it!=words_to_files_map.end(); ++it)
+            {
+                string word = it->first;
+                unordered_set<string> file_list =  it->second;
+                write(wd, word.c_str(), word.length());
+                for(unordered_set<string>::iterator it = file_list.begin(); it!=file_list.end(); ++it)
+                {
+                    string file_name = *it;
+                    write(wd, " ", 1);
+                    write(wd, file_name.c_str(), file_name.length());
+                }
+                write(wd, "\n", 1);
+            }
+            close(wd);
+            cout<<this->job_id<<" COMPLETED\n";
+            return out_file_name;
+        }
     }
+    catch(...)
+    {
+        return "FAILURE";
+    }
+    
     return "INCOMPLETE";
 }

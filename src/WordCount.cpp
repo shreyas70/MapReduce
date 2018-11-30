@@ -66,40 +66,61 @@ int WordCountMapper::get_no_of_reducers()
 
 string WordCountMapper::start_job()
 {
-
-    cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
-    string file_name = this->file_path;
-    FILE * file_ptr = fopen(file_name.c_str(), "r");
-
-    //cout<<"\n\nREACHED HERE "<<file_ptr<<endl<<endl; 
-    int iteration = 0;
-    string out_file_name = "temp_files/out_file"+to_string(iteration)+".txt";
-    int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    int count = 0;
-    char word[100];
-    bzero(word,100);
-    vector<string> file_words;
-    while( fscanf(file_ptr, "%s", word) != EOF )
+    try
     {
-        string temp_string = word;
-        string word_string = "";
-        for(int i=0; i<temp_string.length(); i++)
+        cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
+        string file_name = this->file_path;
+        FILE * file_ptr = fopen(file_name.c_str(), "r");
+
+        //cout<<"\n\nREACHED HERE "<<file_ptr<<endl<<endl; 
+        int iteration = 0;
+        string out_file_name = "temp_files/out_file"+to_string(iteration)+".txt";
+        int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+        int count = 0;
+        char word[100];
+        bzero(word,100);
+        vector<string> file_words;
+        while( fscanf(file_ptr, "%s", word) != EOF )
         {
-            char curr_char = temp_string[i];
-            if((curr_char < 65) || (curr_char > 90 && curr_char < 97) || (curr_char > 122))
+            string temp_string = word;
+            string word_string = "";
+            for(int i=0; i<temp_string.length(); i++)
+            {
+                char curr_char = temp_string[i];
+                if((curr_char < 65) || (curr_char > 90 && curr_char < 97) || (curr_char > 122))
+                {
+                    continue;
+                }
+                word_string+=curr_char;
+            }
+            if(word_string.empty())
             {
                 continue;
             }
-            word_string+=curr_char;
+            count++;
+            if(count > 100000)
+            {
+                count = 1;
+                out_file_name = "temp_files/out_file"+to_string(iteration)+".txt";
+                wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+                sort(file_words.begin(), file_words.end());
+                for(int i=0; i<file_words.size(); i++)
+                {
+                    write(wd, file_words[i].c_str(), file_words[i].length());
+                    if(i!=file_words.size()-1)
+                    {
+                        write(wd, " ", 1);
+                    }
+                }
+                close(wd);
+                file_words.clear();
+                iteration++;
+            }
+            file_words.push_back(word_string);
+            bzero(word, 100);
         }
-        if(word_string.empty())
+        if(!file_words.empty())
         {
-            continue;
-        }
-        count++;
-        if(count > 100000)
-        {
-            count = 1;
             out_file_name = "temp_files/out_file"+to_string(iteration)+".txt";
             wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
             sort(file_words.begin(), file_words.end());
@@ -112,124 +133,102 @@ string WordCountMapper::start_job()
                 }
             }
             close(wd);
-            file_words.clear();
             iteration++;
         }
-        file_words.push_back(word_string);
-        bzero(word, 100);
-    }
-    if(!file_words.empty())
-    {
-        out_file_name = "temp_files/out_file"+to_string(iteration)+".txt";
-        wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-        sort(file_words.begin(), file_words.end());
-        for(int i=0; i<file_words.size(); i++)
+        fclose(file_ptr);
+        //iteration++;
+        FILE * out_files[iteration];
+        for(int i=0; i<iteration; i++)
         {
-            write(wd, file_words[i].c_str(), file_words[i].length());
-            if(i!=file_words.size()-1)
+            string out_file_name = "temp_files/out_file"+to_string(i)+".txt";
+            out_files[i] = fopen(out_file_name.c_str(), "r");
+        }
+
+        priority_queue<HeapData, vector<HeapData>, Compare> min_heap;
+
+        for(int i=0; i<iteration; i++)
+        {
+            char buff[15];
+            bzero(buff, 15);
+            if( fscanf(out_files[i], "%s", buff)!=EOF )
             {
-                write(wd, " ", 1);
+                string curr_string = buff;
+                HeapData d;
+                d.data = curr_string;
+                d.file_id = i;
+                min_heap.push(d);
             }
         }
-        close(wd);
-        iteration++;
-    }
-    fclose(file_ptr);
-    //iteration++;
-    FILE * out_files[iteration];
-    for(int i=0; i<iteration; i++)
-    {
-        string out_file_name = "temp_files/out_file"+to_string(i)+".txt";
-        out_files[i] = fopen(out_file_name.c_str(), "r");
-    }
 
-    priority_queue<HeapData, vector<HeapData>, Compare> min_heap;
-
-    for(int i=0; i<iteration; i++)
-    {
-        char buff[15];
-        bzero(buff, 15);
-        if( fscanf(out_files[i], "%s", buff)!=EOF )
+        string output_file_name = "temp_files/word_file_sorted.txt";
+        int sorted_wd = open(output_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+        bool start = true;
+        while(!min_heap.empty())
         {
-            string curr_string = buff;
-            HeapData d;
-            d.data = curr_string;
-            d.file_id = i;
-            min_heap.push(d);
+            HeapData d = min_heap.top();
+            min_heap.pop();
+            write(sorted_wd, d.data.c_str(), d.data.length());
+            write(sorted_wd, " ", 1);
+            int curr_id = d.file_id;
+            char buff[15];
+            bzero(buff, 15);
+            if(fscanf(out_files[curr_id], "%s", buff)!=EOF)
+            {
+                string curr_string = buff;
+                HeapData d;
+                d.data = curr_string;
+                d.file_id = curr_id;
+                min_heap.push(d);
+            }
         }
-    }
-
-    string output_file_name = "temp_files/word_file_sorted.txt";
-    int sorted_wd = open(output_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    bool start = true;
-    while(!min_heap.empty())
-    {
-        HeapData d = min_heap.top();
-        min_heap.pop();
-        write(sorted_wd, d.data.c_str(), d.data.length());
-        write(sorted_wd, " ", 1);
-        int curr_id = d.file_id;
-        char buff[15];
-        bzero(buff, 15);
-        if(fscanf(out_files[curr_id], "%s", buff)!=EOF)
+        close(sorted_wd);
+        for(int i=0; i<iteration; i++)
         {
-            string curr_string = buff;
-            HeapData d;
-            d.data = curr_string;
-            d.file_id = curr_id;
-            min_heap.push(d);
+            fclose(out_files[i]);
         }
-    }
-    close(sorted_wd);
-    for(int i=0; i<iteration; i++)
-    {
-        fclose(out_files[i]);
-    }
-    FILE * sorted_file = fopen("temp_files/word_file_sorted.txt", "r");
-    char buff[255];
-    bzero(buff, 255);
-    int current_count = 1;
-    string curr_word = "";
-    int out_wd = open("temp_files/output.txt",(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    if(fscanf(sorted_file, "%s", buff)!=EOF)
-    {
-        curr_word = buff;
-    }
-    bzero(buff, 255);
-    while(fscanf(sorted_file, "%s", buff)!=EOF)
-    {
-        string new_word = buff;
-        if(new_word.compare(curr_word))
+        FILE * sorted_file = fopen("temp_files/word_file_sorted.txt", "r");
+        char buff[255];
+        bzero(buff, 255);
+        int current_count = 1;
+        string curr_word = "";
+        int out_wd = open("temp_files/output.txt",(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+        if(fscanf(sorted_file, "%s", buff)!=EOF)
         {
-            write(out_wd, curr_word.c_str(), curr_word.length());
-            write(out_wd, " ", 1);
-            string size_string = to_string(current_count);
-            write(out_wd, size_string.c_str(), size_string.length());
-            write(out_wd, "\n", 1);
-            curr_word = new_word;
-            current_count = 1;
+            curr_word = buff;
         }
-        else
+        bzero(buff, 255);
+        while(fscanf(sorted_file, "%s", buff)!=EOF)
         {
-            current_count++;
+            string new_word = buff;
+            if(new_word.compare(curr_word))
+            {
+                write(out_wd, curr_word.c_str(), curr_word.length());
+                write(out_wd, " ", 1);
+                string size_string = to_string(current_count);
+                write(out_wd, size_string.c_str(), size_string.length());
+                write(out_wd, "\n", 1);
+                curr_word = new_word;
+                current_count = 1;
+            }
+            else
+            {
+                current_count++;
+            }
         }
+        write(out_wd, curr_word.c_str(), curr_word.length());
+        write(out_wd, " ", 1);
+        string size_string = to_string(current_count);
+        write(out_wd, size_string.c_str(), size_string.length());
+        close(out_wd);
+        fclose(sorted_file);
     }
-    write(out_wd, curr_word.c_str(), curr_word.length());
-    write(out_wd, " ", 1);
-    string size_string = to_string(current_count);
-    write(out_wd, size_string.c_str(), size_string.length());
-    close(out_wd);
-    fclose(sorted_file);
-
-    cout<<"\nJOB COMPLETED\n";
+    catch(...)
+    {
+        return "FAILURE";
+    }
+    cout<<"JOB "<<this->job_id<<" CHUNK "<<this->chunk_id<<" COMPLETED"<<endl;
     return "temp_files/output.txt";
 }
-
-// WordCountReducer::WordCountReducer(string job_id, int no_of_files)
-// {
-//     this->job_id = job_id;
-//     this->no_of_files = no_of_files;
-// }
 
 void WordCountReducer::init(string request_string)
 {
@@ -277,40 +276,46 @@ void WordCountReducer::update_word_count(string word, int count)
 
 string WordCountReducer::reduce(int category,  string file_path)
 {
-    cout<<"\n\nReducing "<<file_path<<endl;
-    FILE * file_ptr = fopen(file_path.c_str(), "r");
-    char buff[100];
-    bzero(buff, 100);
-    while( fscanf(file_ptr, "%s", buff)!=EOF )
+    try
     {
-        string word = buff;
+        cout<<"\n\nReducing "<<file_path<<endl;
+        FILE * file_ptr = fopen(file_path.c_str(), "r");
+        char buff[100];
         bzero(buff, 100);
-        fscanf(file_ptr, "%s", buff);
-        int count = stoi(buff);
-        update_word_count(word, count);
-    }
-    fclose(file_ptr);
-    cout<<"\nDone with "<<file_path<<endl;
-    this->increment_files_in_category(category);
-    if(get_file_count_in_category(category)==this->no_of_files)
-    {
-        //cout<<"\n\nREACHED HERE 1\n\n";
-        string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
-        int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-        //cout<<"\n\nREACHED HERE 2\n\n";
-        for(unordered_map<string,int>::iterator it = words_count.begin(); it!=words_count.end(); ++it)
+        while( fscanf(file_ptr, "%s", buff)!=EOF )
         {
-            string word = it->first;
-            int count = it->second;
-            string count_string = to_string(count);
-            write(wd, word.c_str(), word.length());
-            write(wd, " ", 1);
-            write(wd, count_string.c_str(), count_string.length());
-            write(wd, "\n", 1);
+            string word = buff;
+            bzero(buff, 100);
+            fscanf(file_ptr, "%s", buff);
+            int count = stoi(buff);
+            update_word_count(word, count);
         }
-        close(wd);
-        cout<<this->job_id<<" COMPLETED\n";
-        return out_file_name;
+        fclose(file_ptr);
+        cout<<"\nDone with "<<file_path<<endl;
+        this->increment_files_in_category(category);
+        if(get_file_count_in_category(category)==this->no_of_files)
+        {
+            string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
+            int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+            for(unordered_map<string,int>::iterator it = words_count.begin(); it!=words_count.end(); ++it)
+            {
+                string word = it->first;
+                int count = it->second;
+                string count_string = to_string(count);
+                write(wd, word.c_str(), word.length());
+                write(wd, " ", 1);
+                write(wd, count_string.c_str(), count_string.length());
+                write(wd, "\n", 1);
+            }
+            close(wd);
+            cout<<"JOB "<<this->job_id<<" CATEGORY "<<category<<" completed";
+            return out_file_name;
+        }
     }
+    catch(...)
+    {
+        return "FAILURE";
+    }
+    
     return "INCOMPLETE";
 }
