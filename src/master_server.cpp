@@ -23,7 +23,6 @@
 
 using namespace std;
 
-string working_dir;
 
 string current_timestamp_get()
 {
@@ -505,8 +504,10 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    
+
     Master master;
-    // master.log_path_set(util_abs_path_get(argv[2]));         // USE NFS PATH HERE
+    master.log_path_set(util_abs_path_get(argv[2]));         // USE NFS PATH HERE
     master.ip_addr_set(argv[1]);
 
     master.run();

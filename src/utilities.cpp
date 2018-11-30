@@ -8,9 +8,9 @@
 
 using namespace std;
 
-//extern string  working_dir;
 
-#if 0
+
+
 void util_from_cursor_line_clear()
 {
     cout << "\e[0K";
@@ -19,6 +19,13 @@ void util_from_cursor_line_clear()
 
 string util_abs_path_get(string str)
 {
+    string  working_dir;
+
+    working_dir = getenv("PWD");
+    if(working_dir != "/")
+        working_dir = working_dir + "/";
+
+    
     if(str[0] == '/')
         return str;
 
@@ -72,7 +79,6 @@ string util_abs_path_get(string str)
 
     return ret_path;
 }
-#endif
 
 vector<string> split_string(string input_string, char delimiter)
 {

@@ -1,5 +1,6 @@
 orange 1
 ready 1
 red 2
+run 1
 set 1
-start 1
+startMaster 1

@@ -1,0 +1,16 @@
+[Master] Fri Nov 30 23:59:57 2018 : "Master listening on 127.0.0.1:4000"
+[Master] Sat Dec  1 00:00:14 2018 : "New client with socket id 4 connected
+"
+[Master] Sat Dec  1 00:00:14 2018 : "request_handler:74 : Handling request: 1"
+[Master] Sat Dec  1 00:00:16 2018 : "New client with socket id 5 connected
+"
+[Master] Sat Dec  1 00:00:16 2018 : "request_handler:74 : Handling request: 1"
+[Master] Sat Dec  1 00:00:17 2018 : "New client with socket id 6 connected
+"
+[Master] Sat Dec  1 00:00:17 2018 : "request_handler:74 : Handling request: 0$0$/home/shreyas/OS_temp/Final/MapReduce_Project/input_files/i_file1.txt"
+[Master] Sat Dec  1 00:00:17 2018 : "client_request_handler (180): Inititate WC - mapper socket: 4"
+[Master] Sat Dec  1 00:00:17 2018 : "client_request_handler (180): Inititate WC - mapper socket: 5"
+[Master] Sat Dec  1 00:00:17 2018 : "Handling response: 3$1$0$output_files/1_reducer1.txt$output_files/1_reducer2.txt$output_files/1_reducer3.txt$output_files/1_reducer4.txt
+"
+[Master] Sat Dec  1 00:00:17 2018 : "Handling response: 3$1$1$output_files/1_reducer1.txt$output_files/1_reducer2.txt$output_files/1_reducer3.txt$output_files/1_reducer4.txt
+"
