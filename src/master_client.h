@@ -8,15 +8,6 @@
 #include "utilities.h"
 
 
-enum class Opcode
-{
-    CLIENT_REQUEST,
-    MAPPER_CONNECTION,
-    REDUCER_CONNECTION,
-    MAPPER_SUCCESS,
-    MAPPER_FAILURE
-};
-
 class MasterClient
 {
     int m_sock;
@@ -37,6 +28,9 @@ public:
     int get_request(std::string&);
     void job_completed(int job_id, int chunk_id, std::vector<std::string> reducer_files);
     //void job_completed_reducer(std::string job_id, int category, std::string output_file);
+
+    void job_failure_mapper(int job_id, int chunk_id);
+    void job_failure_reducer(int job_id, int category);
 };
 
 #endif

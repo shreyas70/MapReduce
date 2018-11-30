@@ -14,15 +14,6 @@
 
 #define MAX_CONNECTIONS 100
 
-enum class Opcode
-{
-    CLIENT_REQUEST,
-    MAPPER_CONNECTION,
-    REDUCER_CONNECTION,
-    MAPPER_SUCCESS,
-    MAPPER_FAILURE
-};
-
 
 struct Chunk
 {
