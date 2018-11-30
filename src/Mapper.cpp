@@ -38,7 +38,7 @@ void Mapper::initiate_inverted_index_request(int job_id, int chunk_id, vector<st
     int sock = this->mapper_socket;
     string request_type = "initiate_inverted_index";
     string ii_details = to_string(job_id) + "$"+to_string(chunk_id)+"$"+to_string(no_of_reducers);
-    for(int i=0; i<file_paths.size(); i++)
+    for(unsigned int i=0; i<file_paths.size(); i++)
     {
         ii_details = ii_details+"$"+file_paths[i]+"$"+to_string(start_lines[i])+"$"+to_string(no_of_lines[i]);
     }

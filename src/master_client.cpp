@@ -11,6 +11,8 @@ using namespace std;
 int MasterClient::connect_as_client(string ip_address, int port_number, Problem problem, string file_path)
 {
     m_sock = util_connection_make(ip_address, port_number);
+    if (FAILURE == m_sock)
+        return FAILURE;
     string client_opcode = to_string((int)Opcode::CLIENT_REQUEST);
     string problem_str = to_string((int)problem);
     string req = client_opcode + "$" + problem_str + "$" + file_path;
@@ -34,6 +36,8 @@ int MasterClient::connect_as_mapper(string ip_address, int port_number)
 int MasterClient::connect_as_reducer(string ip_address, int port_number)
 {
     m_sock = util_connection_make(ip_address, port_number);
+    if (FAILURE == m_sock)
+        return FAILURE;
     string req = to_string((int)Opcode::REDUCER_CONNECTION);
     util_write_to_sock(m_sock, req);
     return SUCCESS;
