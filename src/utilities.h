@@ -33,7 +33,6 @@ enum class Problem
     INVERTED_INDEX
 };
 
-
 enum class Opcode
 {
     CLIENT_REQUEST,
@@ -44,7 +43,6 @@ enum class Opcode
     REDUCER_SUCCESS,
     REDUCER_FAILURE
 };
-
 
 void                      util_from_cursor_line_clear();
 std::string               util_abs_path_get(std::string str);

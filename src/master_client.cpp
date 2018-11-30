@@ -105,3 +105,23 @@ void MasterClient::job_completed_reducer(int job_id, int category, string output
     send(this->m_sock, reply_string.c_str(), reply_string.length(), 0);
 }
 
+void MasterClient::job_failure_mapper(int job_id, int chunk_id)
+{
+    string reply_string = to_string((int)(Opcode::MAPPER_FAILURE));
+    reply_string += "$" + to_string(job_id) + "$" + to_string(chunk_id);
+
+    int write_bytes = reply_string.length();
+    send(this->m_sock, &write_bytes, sizeof(write_bytes), 0);
+    send(this->m_sock, reply_string.c_str(), reply_string.length(), 0);
+
+}
+
+void MasterClient::job_failure_reducer(int job_id, int category)
+{
+    string reply_string = to_string((int)(Opcode::REDUCER_FAILURE));
+    reply_string += "$" + to_string(job_id) + "$" + to_string(category);
+
+    int write_bytes = reply_string.length();
+    send(this->m_sock, &write_bytes, sizeof(write_bytes), 0);
+    send(this->m_sock, reply_string.c_str(), reply_string.length(), 0);
+}

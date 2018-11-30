@@ -22,7 +22,14 @@ void MapperNode::word_count(MasterClient dm, string request_string)
     cout << request_string << endl;
     WordCountMapper wc = WordCountMapper(request_string);
     cout << endl << " After word count mapper " << endl;
-    string output_file_path = wc.start_job();
+    string status = wc.start_job();
+
+    if(!status.compare("FAILURE"))
+    {
+        dm.job_failure_mapper(stoi(wc.get_job_id()), stoi(wc.get_chunk_id()));
+    }
+
+    string output_file_path = status;
     FILE * output_file = fopen(output_file_path.c_str(), "r");
     string file_dir = "output_files/";
     string job_id = wc.get_job_id();
@@ -119,9 +126,14 @@ void MapperNode::word_count(MasterClient dm, string request_string)
 void MapperNode::inverted_index(MasterClient dm, string request_string)
 {
     InvertedIndexMapper ii = InvertedIndexMapper(request_string);
-    string output_file_path = ii.start_job();
-            
-            
+    string status = ii.start_job();
+
+    if(!status.compare("FAILURE"))
+    {
+        dm.job_failure_mapper(stoi(ii.get_job_id()), stoi(ii.get_chunk_id()));
+    }        
+    
+    string output_file_path = status;        
     FILE * output_file = fopen(output_file_path.c_str(), "r");
     string file_dir = "output_files/";
     string job_id = ii.get_job_id();
