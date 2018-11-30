@@ -1,2 +1,0 @@
-http://timepasstechies.com/handling-failures-hadoopmapreduce-yarn/
-https://hal.archives-ouvertes.fr/hal-00863176/document

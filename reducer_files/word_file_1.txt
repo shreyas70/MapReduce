@@ -1,3 +1,0 @@
-apple 5
-banana 3
-cashewnut 4

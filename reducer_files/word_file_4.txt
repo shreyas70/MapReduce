@@ -1,4 +1,0 @@
-banana 4
-cashewnut 3
-dominos 5
-egg 4
