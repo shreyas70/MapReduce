@@ -1,0 +1,5 @@
+banana 6
+orange 4
+eminem 3
+yoga 2
+listen 9

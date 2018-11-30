@@ -1,0 +1,7 @@
+yellow input_files/i_file1.txt input_files/i_file3.txt 
+white input_files/i_file1.txt input_files/i_file3.txt 
+set input_files/i_file1.txt 
+ready input_files/i_file1.txt 
+red input_files/i_file1.txt input_files/i_file3.txt 
+watermelon input_files/i_file2.txt 
+start input_files/i_file1.txt 

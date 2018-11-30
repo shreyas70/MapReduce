@@ -1,0 +1,11 @@
+brown input_files/i_file3.txt 
+grey input_files/i_file3.txt 
+green input_files/i_file3.txt 
+chikoo input_files/i_file2.txt 
+blue input_files/i_file1.txt input_files/i_file3.txt 
+banana input_files/i_file1.txt input_files/i_file2.txt 
+black input_files/i_file1.txt input_files/i_file3.txt 
+go input_files/i_file1.txt 
+cyan input_files/i_file3.txt 
+apple input_files/i_file1.txt input_files/i_file2.txt 
+grapes input_files/i_file2.txt 

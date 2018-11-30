@@ -1,0 +1,21 @@
+brown input_files/i_file3.txt 
+grey input_files/i_file3.txt 
+green input_files/i_file3.txt 
+chikoo input_files/i_file2.txt 
+blue input_files/i_file1.txt input_files/i_file3.txt 
+yellow input_files/i_file1.txt input_files/i_file3.txt 
+banana input_files/i_file1.txt input_files/i_file2.txt 
+orange input_files/i_file1.txt input_files/i_file2.txt input_files/i_file3.txt 
+black input_files/i_file1.txt input_files/i_file3.txt 
+white input_files/i_file1.txt input_files/i_file3.txt 
+set input_files/i_file1.txt 
+ready input_files/i_file1.txt 
+go input_files/i_file1.txt 
+cyan input_files/i_file3.txt 
+red input_files/i_file1.txt input_files/i_file3.txt 
+watermelon input_files/i_file2.txt 
+start input_files/i_file1.txt 
+muskmelon input_files/i_file2.txt 
+apple input_files/i_file1.txt input_files/i_file2.txt 
+jackfruit input_files/i_file2.txt 
+grapes input_files/i_file2.txt 
