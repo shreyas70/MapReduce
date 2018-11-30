@@ -28,6 +28,7 @@ class InvertedIndexMapper
     InvertedIndexMapper(std::string job_id, int chunk_id, std::vector<std::string> file_paths, std::vector<int> start_lines, std::vector<int> no_of_lines, int no_of_reducers);
     InvertedIndexMapper(std::string request_string);
     std::string get_job_id();
+    std::string get_chunk_id();
     int get_no_of_reducers();
     std::string start_job();
 };

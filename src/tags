@@ -1,0 +1,137 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CLIENT_REQUEST	master_client.h	/^    CLIENT_REQUEST,$/;"	m	class:Opcode
+Compare	WordCount.h	/^class Compare$/;"	c
+FAILURE	Utility.h	26;"	d
+FAILURE	utilities.h	27;"	d
+FileInfo	InvertedIndex.h	/^}FileInfo;$/;"	t	typeref:struct:__anon1
+HeapData	WordCount.h	/^}HeapData;$/;"	t	typeref:struct:__anon2
+INT_MAX	Utility.h	28;"	d
+INT_MAX	includes.h	21;"	d
+INT_MAX	utilities.h	25;"	d
+INVERTEDINDEX_H	InvertedIndex.h	2;"	d
+InvertedIndexMapper	InvertedIndex.cpp	/^InvertedIndexMapper::InvertedIndexMapper(string job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)$/;"	f	class:InvertedIndexMapper
+InvertedIndexMapper	InvertedIndex.cpp	/^InvertedIndexMapper::InvertedIndexMapper(string request_string)$/;"	f	class:InvertedIndexMapper
+InvertedIndexMapper	InvertedIndex.h	/^class InvertedIndexMapper$/;"	c
+InvertedIndexReducer	InvertedIndex.h	/^class InvertedIndexReducer$/;"	c
+MAPPERNODE_H	MapperNode.h	2;"	d
+MAPPER_CONNECTION	master_client.h	/^    MAPPER_CONNECTION,$/;"	m	class:Opcode
+MAPPER_H	Mapper.h	2;"	d
+MAPPER_SUCCESS	master_client.h	/^    MAPPER_SUCCESS,$/;"	m	class:Opcode
+Mapper	Mapper.h	/^class Mapper$/;"	c
+MapperNode	MapperNode.h	/^class MapperNode$/;"	c
+MasterClient	master_client.h	/^class MasterClient$/;"	c
+Opcode	master_client.h	/^enum class Opcode$/;"	c
+Problem	utilities.h	/^enum class Problem$/;"	c
+REDUCERNODE_H	ReducerNode.h	2;"	d
+REDUCER_CONNECTION	master_client.h	/^    REDUCER_CONNECTION,$/;"	m	class:Opcode
+REDUCER_H	Reducer.h	2;"	d
+Reducer	Reducer.h	/^class Reducer$/;"	c
+ReducerNode	ReducerNode.h	/^class ReducerNode$/;"	c
+SUCCESS	Utility.h	25;"	d
+SUCCESS	utilities.h	28;"	d
+UTILITY_H	Utility.h	2;"	d
+WORDCOUNT_H	WordCount.h	2;"	d
+WORD_COUNT	utilities.h	/^    WORD_COUNT,$/;"	m	class:Problem
+WordCountMapper	WordCount.cpp	/^WordCountMapper::WordCountMapper(std::string job_id, int chunk_id, std::string file_path, int start_line, int no_of_lines, int no_of_reducers)$/;"	f	class:WordCountMapper
+WordCountMapper	WordCount.cpp	/^WordCountMapper::WordCountMapper(string request_string)$/;"	f	class:WordCountMapper
+WordCountMapper	WordCount.h	/^class WordCountMapper$/;"	c
+WordCountReducer	WordCount.h	/^class WordCountReducer$/;"	c
+_INCLUDES_H_	includes.h	2;"	d
+_MASTER_CLIENT_H_	master_client.h	2;"	d
+_UTILITIES_H_	utilities.h	2;"	d
+category_file_map_lock	InvertedIndex.h	/^    std::mutex category_file_map_lock;$/;"	m	class:InvertedIndexReducer
+category_file_map_lock	WordCount.h	/^    std::mutex category_file_map_lock;$/;"	m	class:WordCountReducer
+category_to_files_map	InvertedIndex.h	/^    std::unordered_map<int, int> category_to_files_map;$/;"	m	class:InvertedIndexReducer
+category_to_files_map	WordCount.h	/^    std::unordered_map<int, int> category_to_files_map;$/;"	m	class:WordCountReducer
+chunk_id	InvertedIndex.h	/^    int chunk_id;$/;"	m	class:InvertedIndexMapper
+chunk_id	WordCount.h	/^    int chunk_id;$/;"	m	class:WordCountMapper
+connect_as_client	master_client.cpp	/^int MasterClient::connect_as_client(string ip_address, int port_number, Problem problem, string file_path)$/;"	f	class:MasterClient
+connect_as_mapper	master_client.cpp	/^int MasterClient::connect_as_mapper(string ip_address, int port_number)$/;"	f	class:MasterClient
+connect_as_reducer	master_client.cpp	/^int MasterClient::connect_as_reducer(string ip_address, int port_number)$/;"	f	class:MasterClient
+data	WordCount.h	/^    std::string data;$/;"	m	struct:__anon2
+file_id	WordCount.h	/^    int file_id;$/;"	m	struct:__anon2
+file_path	InvertedIndex.h	/^    std::string file_path;$/;"	m	struct:__anon1
+file_path	WordCount.h	/^    std::string file_path;$/;"	m	class:WordCountMapper
+get_file_count_in_category	InvertedIndex.cpp	/^int InvertedIndexReducer::get_file_count_in_category(int category)$/;"	f	class:InvertedIndexReducer
+get_file_count_in_category	WordCount.cpp	/^int WordCountReducer::get_file_count_in_category(int category)$/;"	f	class:WordCountReducer
+get_file_path	WordCount.cpp	/^string WordCountMapper::get_file_path()$/;"	f	class:WordCountMapper
+get_job_id	InvertedIndex.cpp	/^string InvertedIndexMapper::get_job_id()$/;"	f	class:InvertedIndexMapper
+get_job_id	WordCount.cpp	/^string WordCountMapper::get_job_id()$/;"	f	class:WordCountMapper
+get_no_of_reducers	InvertedIndex.cpp	/^int InvertedIndexMapper::get_no_of_reducers()$/;"	f	class:InvertedIndexMapper
+get_no_of_reducers	WordCount.cpp	/^int WordCountMapper::get_no_of_reducers()$/;"	f	class:WordCountMapper
+get_reply	Mapper.cpp	/^string Mapper::get_reply()$/;"	f	class:Mapper
+get_reply	Reducer.cpp	/^string Reducer::get_reply()$/;"	f	class:Reducer
+get_request	master_client.cpp	/^string MasterClient::get_request()$/;"	f	class:MasterClient
+get_socket	Mapper.cpp	/^int Mapper::get_socket()$/;"	f	class:Mapper
+get_socket	Reducer.cpp	/^int Reducer::get_socket()$/;"	f	class:Reducer
+ii_reducer_map	ReducerNode.h	/^    std::unordered_map<std::string, InvertedIndexReducer*> ii_reducer_map;$/;"	m	class:ReducerNode
+increment_files_in_category	InvertedIndex.cpp	/^void InvertedIndexReducer::increment_files_in_category(int category)$/;"	f	class:InvertedIndexReducer
+increment_files_in_category	WordCount.cpp	/^void WordCountReducer::increment_files_in_category(int category)$/;"	f	class:WordCountReducer
+init	InvertedIndex.cpp	/^void InvertedIndexReducer::init(string request_string)$/;"	f	class:InvertedIndexReducer
+init	Mapper.cpp	/^void Mapper::init(int mapper_socket)$/;"	f	class:Mapper
+init	Reducer.cpp	/^void Reducer::init(int reducer_socket)$/;"	f	class:Reducer
+init	WordCount.cpp	/^void WordCountReducer::init(string request_string)$/;"	f	class:WordCountReducer
+initiate_inverted_index_request	Mapper.cpp	/^void Mapper::initiate_inverted_index_request(int job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)$/;"	f	class:Mapper
+initiate_word_count_request	Mapper.cpp	/^void Mapper::initiate_word_count_request(int job_id, int chunk_id, string file_path, int start_line, int no_of_lines, int no_of_reducers)$/;"	f	class:Mapper
+input_files	InvertedIndex.h	/^    std::vector<FileInfo> input_files;$/;"	m	class:InvertedIndexMapper
+inverted_index	MapperNode.cpp	/^void MapperNode::inverted_index(MasterClient dm, string request_string)$/;"	f	class:MapperNode
+inverted_index	ReducerNode.cpp	/^void ReducerNode::inverted_index(DummyMaster dm, string request_string)$/;"	f	class:ReducerNode
+inverted_index_request	Reducer.cpp	/^void Reducer::inverted_index_request(string job_id, int category, string file_path, int no_of_mappers)$/;"	f	class:Reducer
+job_completed	master_client.cpp	/^void MasterClient::job_completed(string job_id, vector<string> reducer_files)$/;"	f	class:MasterClient
+job_id	InvertedIndex.h	/^    std::string job_id;$/;"	m	class:InvertedIndexMapper
+job_id	InvertedIndex.h	/^    std::string job_id;$/;"	m	class:InvertedIndexReducer
+job_id	WordCount.h	/^    std::string job_id;$/;"	m	class:WordCountMapper
+job_id	WordCount.h	/^    std::string job_id;$/;"	m	class:WordCountReducer
+m_ip_addr	master_client.h	/^    std::string m_ip_addr;$/;"	m	class:MasterClient
+m_port	master_client.h	/^    int m_port;$/;"	m	class:MasterClient
+m_sock	master_client.h	/^    int m_sock;$/;"	m	class:MasterClient
+main	dummy_master_server.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	mapper_node.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	reducer_node.cpp	/^int main(int argc, char * argv[])$/;"	f
+mapper_socket	Mapper.h	/^    int mapper_socket;$/;"	m	class:Mapper
+no_of_files	InvertedIndex.h	/^    int no_of_files;$/;"	m	class:InvertedIndexReducer
+no_of_files	WordCount.h	/^    int no_of_files;$/;"	m	class:WordCountReducer
+no_of_lines	InvertedIndex.h	/^    int no_of_lines;$/;"	m	struct:__anon1
+no_of_lines	WordCount.h	/^    int no_of_lines;$/;"	m	class:WordCountMapper
+no_of_reducers	InvertedIndex.h	/^    int no_of_reducers;$/;"	m	class:InvertedIndexMapper
+no_of_reducers	WordCount.h	/^    int no_of_reducers;$/;"	m	class:WordCountMapper
+operator ()	WordCount.cpp	/^bool Compare::operator()(HeapData d1, const HeapData d2)$/;"	f	class:Compare
+pb	utilities.h	24;"	d
+process_request	dummy_master_server.cpp	/^void process_request(int socket)$/;"	f
+reduce	InvertedIndex.cpp	/^string InvertedIndexReducer::reduce(int category, string file_path)$/;"	f	class:InvertedIndexReducer
+reduce	WordCount.cpp	/^string WordCountReducer::reduce(int category,  string file_path)$/;"	f	class:WordCountReducer
+reducer_socket	Reducer.h	/^    int reducer_socket;$/;"	m	class:Reducer
+sock_get	master_client.h	/^    int sock_get() { return m_sock; }$/;"	f	class:MasterClient
+split_string	Utility.cpp	/^vector<string> split_string(string input_string, char delimiter)$/;"	f
+split_string	utilities.cpp	/^vector<string> split_string(string input_string, char delimiter)$/;"	f
+start_job	InvertedIndex.cpp	/^string InvertedIndexMapper::start_job()$/;"	f	class:InvertedIndexMapper
+start_job	WordCount.cpp	/^string WordCountMapper::start_job()$/;"	f	class:WordCountMapper
+start_line	InvertedIndex.h	/^    int start_line;$/;"	m	struct:__anon1
+start_line	WordCount.h	/^    int start_line;$/;"	m	class:WordCountMapper
+start_mapper_node	MapperNode.cpp	/^void MapperNode::start_mapper_node(string master_ip_address, int master_port_number)$/;"	f	class:MapperNode
+start_reducer_node	ReducerNode.cpp	/^void ReducerNode::start_reducer_node(string master_ip_address, int master_port_number)$/;"	f	class:ReducerNode
+update_files_list	InvertedIndex.cpp	/^void InvertedIndexReducer::update_files_list(string word, vector<string> files_list)$/;"	f	class:InvertedIndexReducer
+update_word_count	WordCount.cpp	/^void WordCountReducer::update_word_count(string word, int count)$/;"	f	class:WordCountReducer
+util_connection_make	Utility.cpp	/^int util_connection_make(string ip, uint16_t port)$/;"	f
+util_connection_make	utilities.cpp	/^int util_connection_make(string ip, uint16_t port)$/;"	f
+util_data_read	Utility.cpp	/^void util_data_read(int sock, char* read_buffer, int size_to_read)$/;"	f
+util_data_read	utilities.cpp	/^void util_data_read(int sock, char* read_buffer, int size_to_read)$/;"	f
+util_ip_port_split	Utility.cpp	/^void util_ip_port_split(string addr, string &ip, int &port)$/;"	f
+util_ip_port_split	utilities.cpp	/^void util_ip_port_split(string addr, string &ip, int &port)$/;"	f
+util_socket_data_get	Utility.cpp	/^int util_socket_data_get(int sock, string& buffer_str, string& error_msg)$/;"	f
+util_socket_data_get	utilities.cpp	/^int util_socket_data_get(int sock, string& buffer_str, string& error_msg)$/;"	f
+util_write_to_sock	Utility.cpp	/^void util_write_to_sock(int sock, string data)$/;"	f
+util_write_to_sock	utilities.cpp	/^void util_write_to_sock(int sock, string data)$/;"	f
+wc_reducer_map	ReducerNode.h	/^    std::unordered_map<std::string, WordCountReducer*> wc_reducer_map;$/;"	m	class:ReducerNode
+word_count	MapperNode.cpp	/^void MapperNode::word_count(MasterClient dm, string request_string)$/;"	f	class:MapperNode
+word_count	ReducerNode.cpp	/^void ReducerNode::word_count(DummyMaster dm, string request_string)$/;"	f	class:ReducerNode
+word_count_request	Reducer.cpp	/^void Reducer::word_count_request(string job_id, int category, string file_path, int no_of_mappers)$/;"	f	class:Reducer
+words_count	WordCount.h	/^    std::unordered_map<std::string, int> words_count;$/;"	m	class:WordCountReducer
+words_count_map_lock	WordCount.h	/^    std::mutex words_count_map_lock;$/;"	m	class:WordCountReducer
+words_to_files_map	InvertedIndex.h	/^    std::unordered_map<std::string, std::unordered_set<std::string>> words_to_files_map;$/;"	m	class:InvertedIndexReducer
+words_to_files_map_lock	InvertedIndex.h	/^    std::mutex words_to_files_map_lock;$/;"	m	class:InvertedIndexReducer

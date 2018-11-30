@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "Utility.h"
+#include "utilities.h"
 #include "ReducerNode.h"
 
 using namespace std;

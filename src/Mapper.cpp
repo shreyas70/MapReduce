@@ -21,11 +21,11 @@ int Mapper::get_socket()
     return this->mapper_socket;
 }
 
-void Mapper::initiate_word_count_request(string job_id, int chunk_id, string file_path, int start_line, int no_of_lines, int no_of_reducers)
+void Mapper::initiate_word_count_request(int job_id, int chunk_id, string file_path, int start_line, int no_of_lines, int no_of_reducers)
 {
     int sock = this->mapper_socket;
     string request_type = "initiate_word_count";
-    string wc_details = job_id+"$"+to_string(chunk_id)+"$"+file_path+"$"+to_string(start_line)+"$"+to_string(no_of_lines)+"$"+to_string(no_of_reducers);
+    string wc_details = to_string(job_id) +"$" + to_string(chunk_id)+"$"+file_path+"$"+to_string(start_line)+"$"+to_string(no_of_lines)+"$"+to_string(no_of_reducers);
     string request_string = request_type + "#" + wc_details;
     int write_bytes = request_string.length();
     send(sock, &write_bytes, sizeof(write_bytes), 0);
@@ -33,11 +33,11 @@ void Mapper::initiate_word_count_request(string job_id, int chunk_id, string fil
 
 }
 
-void Mapper::initiate_inverted_index_request(string job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)
+void Mapper::initiate_inverted_index_request(int job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)
 {
     int sock = this->mapper_socket;
     string request_type = "initiate_inverted_index";
-    string ii_details = job_id+"$"+to_string(chunk_id)+"$"+to_string(no_of_reducers);
+    string ii_details = to_string(job_id) + "$"+to_string(chunk_id)+"$"+to_string(no_of_reducers);
     for(int i=0; i<file_paths.size(); i++)
     {
         ii_details = ii_details+"$"+file_paths[i]+"$"+to_string(start_lines[i])+"$"+to_string(no_of_lines[i]);

@@ -2,7 +2,7 @@
 #include<string>
 #include<thread>
 #include<utility>
-#include "Utility.h"
+#include "utilities.h"
 #include "DummyMaster.h"
 #include "ReducerNode.h"
 
@@ -55,10 +55,21 @@ void ReducerNode::inverted_index(DummyMaster dm, string request_string)
 void ReducerNode::start_reducer_node(string master_ip_address, int master_port_number)
 {
     DummyMaster dm;
-    dm.connect_as_reducer(master_ip_address, master_port_number);
     while(true)
     {
-        string request_string = dm.get_request();
+        string request_string;
+        while(!dm.connection_exists())
+        {
+            if(FAILURE == dm.connect_as_mapper(master_ip_address, master_port_number))
+            {
+                cout << "master Connection Failure\n";
+                sleep(2);
+            }
+        }
+        if (FAILURE == dm.get_request(request_string))
+        {
+            continue;
+        }
         vector<string> req_split = split_string(request_string, '#');
         string req_type = req_split[0];
         thread t;
@@ -75,6 +86,5 @@ void ReducerNode::start_reducer_node(string master_ip_address, int master_port_n
             t.detach();
         }   
     }
-    
 }
 

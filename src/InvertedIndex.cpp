@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <utility>
 #include "InvertedIndex.h"
-#include "Utility.h"
+#include "utilities.h"
 
 using namespace std;
 
@@ -70,6 +70,12 @@ InvertedIndexMapper::InvertedIndexMapper(string request_string)
 string InvertedIndexMapper::get_job_id()
 {
     return this->job_id;
+}
+
+string InvertedIndexMapper::get_chunk_id()
+{
+    return to_string(this->chunk_id);
+
 }
 
 int InvertedIndexMapper::get_no_of_reducers()

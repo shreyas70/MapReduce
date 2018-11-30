@@ -33,6 +33,7 @@ class WordCountMapper
     WordCountMapper(std::string job_id, int chunk_id, std::string file_path, int start_line, int no_of_lines, int no_of_reducers);
     WordCountMapper(std::string request_string);
     std::string get_job_id();
+    std::string get_chunk_id();
     std::string get_file_path();
     int get_no_of_reducers();
     std::string start_job();

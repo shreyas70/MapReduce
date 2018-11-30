@@ -8,7 +8,7 @@
 #include<string.h>
 #include<mutex>
 #include "WordCount.h"
-#include "Utility.h"
+#include "utilities.h"
 
 using namespace std;
 
@@ -29,13 +29,19 @@ WordCountMapper::WordCountMapper(std::string job_id, int chunk_id, std::string f
 
 WordCountMapper::WordCountMapper(string request_string)
 {
+
+    cout << endl << request_string << endl;
     vector<string> req_vec = split_string(request_string, '$');
     this->job_id = req_vec[0];
     this->chunk_id = stoi(req_vec[1]);
     this->file_path = req_vec[2];
+    cout << endl << this->file_path << endl;
     this->start_line = stoi(req_vec[3]);
     this->no_of_lines = stoi(req_vec[4]);
+    cout << endl << " numberof lines assigned" << endl;
     this->no_of_reducers = stoi(req_vec[5]);
+    cout << "number of reducers" << endl;
+
 }
 
 string WordCountMapper::get_job_id()
@@ -43,6 +49,11 @@ string WordCountMapper::get_job_id()
     return this->job_id;
 }
 
+string WordCountMapper::get_chunk_id()
+{
+    return to_string(this->chunk_id);
+
+}
 string WordCountMapper::get_file_path()
 {
     return this->file_path;

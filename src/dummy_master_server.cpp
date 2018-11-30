@@ -11,7 +11,7 @@
 #include <string.h>
 #include <thread>
 #include "Mapper.h"
-#include "Utility.h"
+#include "utilities.h"
 #include "Reducer.h"
 
 using namespace std;

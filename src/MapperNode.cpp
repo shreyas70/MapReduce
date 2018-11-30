@@ -7,17 +7,21 @@
 #include<string.h>
 #include<thread>
 #include <fstream>
-#include "DummyMaster.h"
+
+#include "master_client.h"
 #include "WordCount.h"
 #include "InvertedIndex.h"
 #include "MapperNode.h"
-#include "Utility.h"
+#include "utilities.h"
 
 using namespace std;
 
-void MapperNode::word_count(DummyMaster dm, string request_string)
+void MapperNode::word_count(MasterClient dm, string request_string)
 { 
+    cout <<"Socket in thread : " << dm.sock_get() << endl;
+    cout << request_string << endl;
     WordCountMapper wc = WordCountMapper(request_string);
+    cout << endl << " After word count mapper " << endl;
     string output_file_path = wc.start_job();
     FILE * output_file = fopen(output_file_path.c_str(), "r");
     string file_dir = "output_files/";
@@ -109,10 +113,10 @@ void MapperNode::word_count(DummyMaster dm, string request_string)
         close(r_wd[i]);
     }
     
-    dm.job_completed(wc.get_job_id(), reducer_files);
+    dm.job_completed(stoi(wc.get_job_id()), stoi(wc.get_chunk_id()) ,reducer_files);
 }
 
-void MapperNode::inverted_index(DummyMaster dm, string request_string)
+void MapperNode::inverted_index(MasterClient dm, string request_string)
 {
     InvertedIndexMapper ii = InvertedIndexMapper(request_string);
     string output_file_path = ii.start_job();
@@ -222,16 +226,29 @@ void MapperNode::inverted_index(DummyMaster dm, string request_string)
     {
         close(r_wd[i]);
     }
-    dm.job_completed(ii.get_job_id(), reducer_files);
+    dm.job_completed(stoi(ii.get_job_id()),stoi(ii.get_chunk_id()), reducer_files);
 }
 
 void MapperNode::start_mapper_node(string master_ip_address, int master_port_number)
 {
-    DummyMaster dm;
-    dm.connect_as_mapper(master_ip_address, master_port_number);
+    MasterClient dm;
     while(true)
     {
-        string request_string = dm.get_request();
+        string request_string;
+        while(!dm.connection_exists())
+        {
+            if(FAILURE == dm.connect_as_mapper(master_ip_address, master_port_number))
+            {
+                cout << "master Connection Failure\n";
+                sleep(2);
+            }
+        }
+
+        if (FAILURE == dm.get_request(request_string))
+        {
+            continue;
+        }
+        cout << "request string " << request_string << endl;
         vector<string> req_split = split_string(request_string, '#');
         string req_type = req_split[0];
         thread t;
@@ -248,5 +265,4 @@ void MapperNode::start_mapper_node(string master_ip_address, int master_port_num
             t.detach();
         }   
     }
-    
 }

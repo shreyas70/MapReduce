@@ -1,0 +1,246 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC	makefile	/^CC = g++ -std=c++11$/;"	m
+CLIENT_REQUEST	src/master_client.h	/^    CLIENT_REQUEST,$/;"	m	class:Opcode
+Compare	backup_files/WordCount.h	/^class Compare$/;"	c
+Compare	src/WordCount.h	/^class Compare$/;"	c
+Compare	standalone_scripts/k_way_merge.cpp	/^class Compare$/;"	c	file:
+DREDUCERCLIENT_H	backup_files/DummyReducerClient.h	2;"	d
+DREDUCERSERVER_H	backup_files/DummyReducerServer.h	2;"	d
+DummyReducerClient	backup_files/DummyReducerClient.h	/^class DummyReducerClient$/;"	c
+DummyReducerServer	backup_files/DummyReducerServer.cpp	/^DummyReducerServer::DummyReducerServer(string ip_address, int port_number)$/;"	f	class:DummyReducerServer
+DummyReducerServer	backup_files/DummyReducerServer.h	/^class DummyReducerServer$/;"	c
+FAILURE	src/utilities.h	27;"	d
+FileInfo	backup_files/InvertedIndex.h	/^}FileInfo;$/;"	t	typeref:struct:__anon3
+FileInfo	src/InvertedIndex.h	/^}FileInfo;$/;"	t	typeref:struct:__anon1
+HeapData	backup_files/WordCount.h	/^}HeapData;$/;"	t	typeref:struct:__anon4
+HeapData	src/WordCount.h	/^}HeapData;$/;"	t	typeref:struct:__anon2
+HeapData	standalone_scripts/k_way_merge.cpp	/^}HeapData;$/;"	t	typeref:struct:__anon5	file:
+INT_MAX	src/includes.h	21;"	d
+INT_MAX	src/utilities.h	25;"	d
+INVERTEDINDEX_H	backup_files/InvertedIndex.h	2;"	d
+INVERTEDINDEX_H	src/InvertedIndex.h	2;"	d
+INVERTED_INDEX	backup_files/MapperServer.h	11;"	d
+InvertedIndex	backup_files/InvertedIndex.cpp	/^InvertedIndex::InvertedIndex(string job_id, vector<string> file_paths, vector<off_t> offsets, vector<size_t> piece_sizes)$/;"	f	class:InvertedIndex
+InvertedIndex	backup_files/InvertedIndex.cpp	/^InvertedIndex::InvertedIndex(string request_string)$/;"	f	class:InvertedIndex
+InvertedIndex	backup_files/InvertedIndex.h	/^class InvertedIndex$/;"	c
+InvertedIndexMapper	src/InvertedIndex.cpp	/^InvertedIndexMapper::InvertedIndexMapper(string job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)$/;"	f	class:InvertedIndexMapper
+InvertedIndexMapper	src/InvertedIndex.cpp	/^InvertedIndexMapper::InvertedIndexMapper(string request_string)$/;"	f	class:InvertedIndexMapper
+InvertedIndexMapper	src/InvertedIndex.h	/^class InvertedIndexMapper$/;"	c
+InvertedIndexReducer	src/InvertedIndex.h	/^class InvertedIndexReducer$/;"	c
+JobRequest	backup_files/MapperServer.h	/^class JobRequest$/;"	c
+MAPPERNODE_H	src/MapperNode.h	2;"	d
+MAPPERSERVER_H	backup_files/MapperServer.h	2;"	d
+MAPPER_CONNECTION	src/master_client.h	/^    MAPPER_CONNECTION,$/;"	m	class:Opcode
+MAPPER_H	backup_files/Mapper.h	2;"	d
+MAPPER_H	src/Mapper.h	2;"	d
+MAPPER_SUCCESS	src/master_client.h	/^    MAPPER_SUCCESS,$/;"	m	class:Opcode
+M_OBJ_FILES	makefile	/^M_OBJ_FILES = $(patsubst %,$(OBJ_DIR)\/%,$(M_OBJ_FILE_NAMES))$/;"	m
+M_OBJ_FILE_NAMES	makefile	/^M_OBJ_FILE_NAMES = utilities.o WordCount.o InvertedIndex.o master_client.o MapperNode.o mapper_node.o$/;"	m
+Mapper	backup_files/Mapper.h	/^class Mapper$/;"	c
+Mapper	src/Mapper.h	/^class Mapper$/;"	c
+MapperNode	src/MapperNode.h	/^class MapperNode$/;"	c
+MapperServer	backup_files/MapperServer.h	/^class MapperServer$/;"	c
+MasterClient	src/master_client.h	/^    MasterClient(): m_sock (FAILURE), m_ip_addr("") {}$/;"	f	class:MasterClient
+MasterClient	src/master_client.h	/^class MasterClient$/;"	c
+OBJ_DIR	makefile	/^OBJ_DIR = bin$/;"	m
+Opcode	src/master_client.h	/^enum class Opcode$/;"	c
+Problem	src/utilities.h	/^enum class Problem$/;"	c
+REDUCERNODE_H	src/ReducerNode.h	2;"	d
+REDUCER_CONNECTION	src/master_client.h	/^    REDUCER_CONNECTION,$/;"	m	class:Opcode
+REDUCER_H	src/Reducer.h	2;"	d
+R_OBJ_FILES	makefile	/^R_OBJ_FILES = $(patsubst %,$(OBJ_DIR)\/%,$(R_OBJ_FILE_NAMES))$/;"	m
+R_OBJ_FILE_NAMES	makefile	/^R_OBJ_FILE_NAMES = utilities.o WordCount.o InvertedIndex.o DummyMaster.o ReducerNode.o reducer_node.o$/;"	m
+Reducer	src/Reducer.h	/^class Reducer$/;"	c
+ReducerNode	src/ReducerNode.h	/^class ReducerNode$/;"	c
+SRC_DIR	makefile	/^SRC_DIR = src$/;"	m
+SUCCESS	src/utilities.h	28;"	d
+S_OBJ_FILES	makefile	/^S_OBJ_FILES = $(patsubst %,$(OBJ_DIR)\/%,$(S_OBJ_FILE_NAMES))$/;"	m
+S_OBJ_FILE_NAMES	makefile	/^S_OBJ_FILE_NAMES = utilities.o Mapper.o Reducer.o dummy_master_server.o$/;"	m
+UTILITY_H	backup_files/Utility.h	2;"	d
+WORDCOUNT_H	backup_files/WordCount.h	2;"	d
+WORDCOUNT_H	src/WordCount.h	2;"	d
+WORD_COUNT	backup_files/MapperServer.h	10;"	d
+WORD_COUNT	src/utilities.h	/^    WORD_COUNT,$/;"	m	class:Problem
+WordCount	backup_files/WordCount.cpp	/^WordCount::WordCount(std::string job_id, std::string file_path, off_t offset, size_t piece_size)$/;"	f	class:WordCount
+WordCount	backup_files/WordCount.cpp	/^WordCount::WordCount(string request_string)$/;"	f	class:WordCount
+WordCount	backup_files/WordCount.h	/^class WordCount$/;"	c
+WordCountMapper	src/WordCount.cpp	/^WordCountMapper::WordCountMapper(std::string job_id, int chunk_id, std::string file_path, int start_line, int no_of_lines, int no_of_reducers)$/;"	f	class:WordCountMapper
+WordCountMapper	src/WordCount.cpp	/^WordCountMapper::WordCountMapper(string request_string)$/;"	f	class:WordCountMapper
+WordCountMapper	src/WordCount.h	/^class WordCountMapper$/;"	c
+WordCountReducer	src/WordCount.h	/^class WordCountReducer$/;"	c
+_INCLUDES_H_	src/includes.h	2;"	d
+_MASTER_CLIENT_H_	src/master_client.h	2;"	d
+_UTILITIES_H_	src/utilities.h	2;"	d
+add_job_to_pending_queue	backup_files/MapperServer.cpp	/^void MapperServer::add_job_to_pending_queue(JobRequest * jr)$/;"	f	class:MapperServer
+available_slots	backup_files/MapperServer.cpp	/^int MapperServer::available_slots()$/;"	f	class:MapperServer
+category_file_map_lock	src/InvertedIndex.h	/^    std::mutex category_file_map_lock;$/;"	m	class:InvertedIndexReducer
+category_file_map_lock	src/WordCount.h	/^    std::mutex category_file_map_lock;$/;"	m	class:WordCountReducer
+category_to_files_map	src/InvertedIndex.h	/^    std::unordered_map<int, int> category_to_files_map;$/;"	m	class:InvertedIndexReducer
+category_to_files_map	src/WordCount.h	/^    std::unordered_map<int, int> category_to_files_map;$/;"	m	class:WordCountReducer
+chunk_id	src/InvertedIndex.h	/^    int chunk_id;$/;"	m	class:InvertedIndexMapper
+chunk_id	src/WordCount.h	/^    int chunk_id;$/;"	m	class:WordCountMapper
+connect_as_client	src/master_client.cpp	/^int MasterClient::connect_as_client(string ip_address, int port_number, Problem problem, string file_path)$/;"	f	class:MasterClient
+connect_as_mapper	src/master_client.cpp	/^int MasterClient::connect_as_mapper(string ip_address, int port_number)$/;"	f	class:MasterClient
+connect_as_reducer	src/master_client.cpp	/^int MasterClient::connect_as_reducer(string ip_address, int port_number)$/;"	f	class:MasterClient
+connect_to_mapper	backup_files/Mapper.cpp	/^void Mapper::connect_to_mapper(string mapper_ip, int mapper_port)$/;"	f	class:Mapper
+connect_to_reducer	backup_files/DummyReducerClient.cpp	/^void DummyReducerClient::connect_to_reducer(string reducer_ip, int reducer_port)$/;"	f	class:DummyReducerClient
+connection_exists	src/master_client.h	/^    bool connection_exists() { return m_sock != FAILURE; }$/;"	f	class:MasterClient
+data	backup_files/WordCount.h	/^    std::string data;$/;"	m	struct:__anon4
+data	src/WordCount.h	/^    std::string data;$/;"	m	struct:__anon2
+data	standalone_scripts/k_way_merge.cpp	/^    string data;$/;"	m	struct:__anon5	file:
+dispatch	backup_files/MapperServer.cpp	/^void MapperServer::dispatch()$/;"	f	class:MapperServer
+file_id	backup_files/WordCount.h	/^    int file_id;$/;"	m	struct:__anon4
+file_id	src/WordCount.h	/^    int file_id;$/;"	m	struct:__anon2
+file_id	standalone_scripts/k_way_merge.cpp	/^    int file_id;$/;"	m	struct:__anon5	file:
+file_map	backup_files/MapperServer.h	/^    std::vector<std::pair<DummyReducerClient, std::string>> file_map;$/;"	m	class:JobRequest
+file_path	backup_files/InvertedIndex.h	/^    std::string file_path;$/;"	m	struct:__anon3
+file_path	backup_files/WordCount.h	/^    std::string file_path;$/;"	m	class:WordCount
+file_path	src/InvertedIndex.h	/^    std::string file_path;$/;"	m	struct:__anon1
+file_path	src/WordCount.h	/^    std::string file_path;$/;"	m	class:WordCountMapper
+get_available_slots	backup_files/Mapper.cpp	/^int Mapper::get_available_slots()$/;"	f	class:Mapper
+get_file_count_in_category	src/InvertedIndex.cpp	/^int InvertedIndexReducer::get_file_count_in_category(int category)$/;"	f	class:InvertedIndexReducer
+get_file_count_in_category	src/WordCount.cpp	/^int WordCountReducer::get_file_count_in_category(int category)$/;"	f	class:WordCountReducer
+get_file_map	backup_files/MapperServer.cpp	/^vector<pair<DummyReducerClient, string>> JobRequest::get_file_map()$/;"	f	class:JobRequest
+get_file_path	backup_files/WordCount.cpp	/^string WordCount::get_file_path()$/;"	f	class:WordCount
+get_file_path	src/WordCount.cpp	/^string WordCountMapper::get_file_path()$/;"	f	class:WordCountMapper
+get_heart_beat_socket	backup_files/DummyReducerClient.cpp	/^int DummyReducerClient::get_heart_beat_socket()$/;"	f	class:DummyReducerClient
+get_job_id	backup_files/InvertedIndex.cpp	/^string InvertedIndex::get_job_id()$/;"	f	class:InvertedIndex
+get_job_id	backup_files/MapperServer.cpp	/^string JobRequest::get_job_id()$/;"	f	class:JobRequest
+get_job_id	backup_files/WordCount.cpp	/^string WordCount::get_job_id()$/;"	f	class:WordCount
+get_job_id	src/InvertedIndex.cpp	/^string InvertedIndexMapper::get_job_id()$/;"	f	class:InvertedIndexMapper
+get_job_id	src/WordCount.cpp	/^string WordCountMapper::get_job_id()$/;"	f	class:WordCountMapper
+get_job_type	backup_files/MapperServer.cpp	/^int JobRequest::get_job_type()$/;"	f	class:JobRequest
+get_next_job	backup_files/MapperServer.cpp	/^JobRequest * MapperServer::get_next_job()$/;"	f	class:MapperServer
+get_no_of_reducers	src/InvertedIndex.cpp	/^int InvertedIndexMapper::get_no_of_reducers()$/;"	f	class:InvertedIndexMapper
+get_no_of_reducers	src/WordCount.cpp	/^int WordCountMapper::get_no_of_reducers()$/;"	f	class:WordCountMapper
+get_offset	backup_files/WordCount.cpp	/^off_t WordCount::get_offset()$/;"	f	class:WordCount
+get_piece_size	backup_files/WordCount.cpp	/^size_t WordCount::get_piece_size()$/;"	f	class:WordCount
+get_reply	src/Mapper.cpp	/^string Mapper::get_reply()$/;"	f	class:Mapper
+get_reply	src/Reducer.cpp	/^string Reducer::get_reply()$/;"	f	class:Reducer
+get_request	src/master_client.cpp	/^int MasterClient::get_request(string &reply)$/;"	f	class:MasterClient
+get_socket	src/Mapper.cpp	/^int Mapper::get_socket()$/;"	f	class:Mapper
+get_socket	src/Reducer.cpp	/^int Reducer::get_socket()$/;"	f	class:Reducer
+give_heart_beats	backup_files/DummyReducerServer.cpp	/^void DummyReducerServer::give_heart_beats(int sock_desc)$/;"	f	class:DummyReducerServer
+give_heart_beats	backup_files/MapperServer.cpp	/^void MapperServer::give_heart_beats(int sock_desc)$/;"	f	class:MapperServer
+heart_beat_socket	backup_files/DummyReducerClient.h	/^    int heart_beat_socket;$/;"	m	class:DummyReducerClient
+heart_beat_socket	backup_files/Mapper.h	/^    int heart_beat_socket;$/;"	m	class:Mapper
+ii_reducer_map	src/ReducerNode.h	/^    std::unordered_map<std::string, InvertedIndexReducer*> ii_reducer_map;$/;"	m	class:ReducerNode
+increment_files_in_category	src/InvertedIndex.cpp	/^void InvertedIndexReducer::increment_files_in_category(int category)$/;"	f	class:InvertedIndexReducer
+increment_files_in_category	src/WordCount.cpp	/^void WordCountReducer::increment_files_in_category(int category)$/;"	f	class:WordCountReducer
+init	src/InvertedIndex.cpp	/^void InvertedIndexReducer::init(string request_string)$/;"	f	class:InvertedIndexReducer
+init	src/Mapper.cpp	/^void Mapper::init(int mapper_socket)$/;"	f	class:Mapper
+init	src/Reducer.cpp	/^void Reducer::init(int reducer_socket)$/;"	f	class:Reducer
+init	src/WordCount.cpp	/^void WordCountReducer::init(string request_string)$/;"	f	class:WordCountReducer
+initiate_heart_beats	backup_files/DummyReducerClient.cpp	/^int DummyReducerClient::initiate_heart_beats()$/;"	f	class:DummyReducerClient
+initiate_heart_beats	backup_files/Mapper.cpp	/^int Mapper::initiate_heart_beats(string mapper_ip, int mapper_port)$/;"	f	class:Mapper
+initiate_inverted_index_request	backup_files/Mapper.cpp	/^void Mapper::initiate_inverted_index_request(string job_id, vector<string> file_paths, vector<off_t> offsets, vector<size_t> piece_sizes)$/;"	f	class:Mapper
+initiate_inverted_index_request	src/Mapper.cpp	/^void Mapper::initiate_inverted_index_request(int job_id, int chunk_id, vector<string> file_paths, vector<int> start_lines, vector<int> no_of_lines, int no_of_reducers)$/;"	f	class:Mapper
+initiate_word_count_request	backup_files/Mapper.cpp	/^void Mapper::initiate_word_count_request(string job_id, string file_path, off_t offset, size_t piece_size)$/;"	f	class:Mapper
+initiate_word_count_request	src/Mapper.cpp	/^void Mapper::initiate_word_count_request(int job_id, int chunk_id, string file_path, int start_line, int no_of_lines, int no_of_reducers)$/;"	f	class:Mapper
+input_files	backup_files/InvertedIndex.h	/^    std::vector<FileInfo> input_files;$/;"	m	class:InvertedIndex
+input_files	src/InvertedIndex.h	/^    std::vector<FileInfo> input_files;$/;"	m	class:InvertedIndexMapper
+inverted_index	src/MapperNode.cpp	/^void MapperNode::inverted_index(MasterClient dm, string request_string)$/;"	f	class:MapperNode
+inverted_index	src/ReducerNode.cpp	/^void ReducerNode::inverted_index(DummyMaster dm, string request_string)$/;"	f	class:ReducerNode
+inverted_index_request	src/Reducer.cpp	/^void Reducer::inverted_index_request(string job_id, int category, string file_path, int no_of_mappers)$/;"	f	class:Reducer
+ip_address	backup_files/DummyReducerServer.h	/^    std::string ip_address;$/;"	m	class:DummyReducerServer
+ip_address	backup_files/MapperServer.h	/^    std::string ip_address;$/;"	m	class:MapperServer
+is_pending_queue_empty	backup_files/MapperServer.cpp	/^bool MapperServer::is_pending_queue_empty()$/;"	f	class:MapperServer
+job_completed	src/master_client.cpp	/^void MasterClient::job_completed(string job_id, vector<string> reducer_files)$/;"	f	class:MasterClient
+job_id	backup_files/InvertedIndex.h	/^    std::string job_id;$/;"	m	class:InvertedIndex
+job_id	backup_files/MapperServer.h	/^    std::string job_id;$/;"	m	class:JobRequest
+job_id	backup_files/WordCount.h	/^    std::string job_id;$/;"	m	class:WordCount
+job_id	src/InvertedIndex.h	/^    std::string job_id;$/;"	m	class:InvertedIndexMapper
+job_id	src/InvertedIndex.h	/^    std::string job_id;$/;"	m	class:InvertedIndexReducer
+job_id	src/WordCount.h	/^    std::string job_id;$/;"	m	class:WordCountMapper
+job_id	src/WordCount.h	/^    std::string job_id;$/;"	m	class:WordCountReducer
+job_type	backup_files/MapperServer.h	/^    int job_type;$/;"	m	class:JobRequest
+link_file_to_reducer	backup_files/MapperServer.cpp	/^void JobRequest::link_file_to_reducer(DummyReducerClient r, string file_path)$/;"	f	class:JobRequest
+m_ip_addr	src/master_client.h	/^    std::string m_ip_addr;$/;"	m	class:MasterClient
+m_port	src/master_client.h	/^    int m_port;$/;"	m	class:MasterClient
+m_sock	src/master_client.h	/^    int m_sock;$/;"	m	class:MasterClient
+main	backup_files/dummy_master.cpp	/^int main()$/;"	f
+main	backup_files/dummy_reducer_server.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	backup_files/mapper_server.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	src/dummy_master_server.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	src/mapper_node.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	src/reducer_node.cpp	/^int main(int argc, char * argv[])$/;"	f
+main	standalone_scripts/generate_words_file.cpp	/^int main()$/;"	f
+main	standalone_scripts/k_way_merge.cpp	/^int main(int argc, char ** argv)$/;"	f
+mapper_socket	backup_files/Mapper.h	/^    int mapper_socket;$/;"	m	class:Mapper
+mapper_socket	src/Mapper.h	/^    int mapper_socket;$/;"	m	class:Mapper
+no_of_files	src/InvertedIndex.h	/^    int no_of_files;$/;"	m	class:InvertedIndexReducer
+no_of_files	src/WordCount.h	/^    int no_of_files;$/;"	m	class:WordCountReducer
+no_of_lines	src/InvertedIndex.h	/^    int no_of_lines;$/;"	m	struct:__anon1
+no_of_lines	src/WordCount.h	/^    int no_of_lines;$/;"	m	class:WordCountMapper
+no_of_reducers	src/InvertedIndex.h	/^    int no_of_reducers;$/;"	m	class:InvertedIndexMapper
+no_of_reducers	src/WordCount.h	/^    int no_of_reducers;$/;"	m	class:WordCountMapper
+offset	backup_files/InvertedIndex.h	/^    off_t offset;$/;"	m	struct:__anon3
+offset	backup_files/WordCount.h	/^    off_t offset;$/;"	m	class:WordCount
+operator ()	backup_files/WordCount.cpp	/^bool Compare::operator()(HeapData d1, const HeapData d2)$/;"	f	class:Compare
+operator ()	src/WordCount.cpp	/^bool Compare::operator()(HeapData d1, const HeapData d2)$/;"	f	class:Compare
+operator ()	standalone_scripts/k_way_merge.cpp	/^    bool operator()(HeapData d1, const HeapData d2)$/;"	f	class:Compare
+pb	src/utilities.h	24;"	d
+pending_queue	backup_files/MapperServer.h	/^    std::queue<JobRequest *> * pending_queue;$/;"	m	class:MapperServer
+pending_queue_size	backup_files/MapperServer.h	/^    int pending_queue_size;$/;"	m	class:MapperServer
+piece_size	backup_files/InvertedIndex.h	/^    size_t piece_size;$/;"	m	struct:__anon3
+piece_size	backup_files/WordCount.h	/^    size_t piece_size;$/;"	m	class:WordCount
+port_number	backup_files/DummyReducerServer.h	/^    int port_number;$/;"	m	class:DummyReducerServer
+port_number	backup_files/MapperServer.h	/^    int port_number;$/;"	m	class:MapperServer
+process_map_request	backup_files/MapperServer.cpp	/^void MapperServer::process_map_request(int sock_desc)$/;"	f	class:MapperServer
+process_reduce_request	backup_files/DummyReducerServer.cpp	/^void DummyReducerServer::process_reduce_request(int client_socket)$/;"	f	class:DummyReducerServer
+process_request	src/dummy_master_server.cpp	/^void process_request(int socket)$/;"	f
+queue_lock	backup_files/MapperServer.h	/^    std::mutex queue_lock;$/;"	m	class:MapperServer
+receive_heart_beat	backup_files/DummyReducerClient.cpp	/^string DummyReducerClient::receive_heart_beat()$/;"	f	class:DummyReducerClient
+receive_heart_beat	backup_files/Mapper.cpp	/^string Mapper::receive_heart_beat()$/;"	f	class:Mapper
+reduce	src/InvertedIndex.cpp	/^string InvertedIndexReducer::reduce(int category, string file_path)$/;"	f	class:InvertedIndexReducer
+reduce	src/WordCount.cpp	/^string WordCountReducer::reduce(int category,  string file_path)$/;"	f	class:WordCountReducer
+reducer_instances	backup_files/MapperServer.h	/^    std::vector<DummyReducerClient> reducer_instances;$/;"	m	class:MapperServer
+reducer_ip	backup_files/DummyReducerClient.h	/^    std::string reducer_ip;$/;"	m	class:DummyReducerClient
+reducer_port	backup_files/DummyReducerClient.h	/^    int reducer_port;$/;"	m	class:DummyReducerClient
+reducer_socket	backup_files/DummyReducerClient.h	/^    int reducer_socket;$/;"	m	class:DummyReducerClient
+reducer_socket	src/Reducer.h	/^    int reducer_socket;$/;"	m	class:Reducer
+release_slot	backup_files/MapperServer.cpp	/^void MapperServer::release_slot()$/;"	f	class:MapperServer
+reply_to_heart_beat	backup_files/DummyReducerClient.cpp	/^void DummyReducerClient::reply_to_heart_beat()$/;"	f	class:DummyReducerClient
+reply_to_heart_beat	backup_files/Mapper.cpp	/^void Mapper::reply_to_heart_beat()$/;"	f	class:Mapper
+set_job_id	backup_files/MapperServer.cpp	/^void JobRequest::set_job_id(string job_id)$/;"	f	class:JobRequest
+set_job_type	backup_files/MapperServer.cpp	/^void JobRequest::set_job_type(string job_type)$/;"	f	class:JobRequest
+set_mapper_ip	backup_files/MapperServer.cpp	/^void MapperServer::set_mapper_ip(string mapper_ip)$/;"	f	class:MapperServer
+set_reducer_info	backup_files/MapperServer.cpp	/^void MapperServer::set_reducer_info(vector<string> reducer_ips)$/;"	f	class:MapperServer
+slot_lock	backup_files/MapperServer.h	/^    std::mutex slot_lock;$/;"	m	class:MapperServer
+slots	backup_files/MapperServer.h	/^    int slots;$/;"	m	class:MapperServer
+sock_get	src/master_client.h	/^    int sock_get() { return m_sock; }$/;"	f	class:MasterClient
+split_string	backup_files/Utility.cpp	/^vector<string> split_string(string input_string, char delimiter)$/;"	f
+split_string	src/utilities.cpp	/^vector<string> split_string(string input_string, char delimiter)$/;"	f
+start_inverted_index_job	backup_files/DummyReducerClient.cpp	/^void DummyReducerClient::start_inverted_index_job(string file_path)$/;"	f	class:DummyReducerClient
+start_job	backup_files/InvertedIndex.cpp	/^string InvertedIndex::start_job()$/;"	f	class:InvertedIndex
+start_job	backup_files/WordCount.cpp	/^string WordCount::start_job()$/;"	f	class:WordCount
+start_job	src/InvertedIndex.cpp	/^string InvertedIndexMapper::start_job()$/;"	f	class:InvertedIndexMapper
+start_job	src/WordCount.cpp	/^string WordCountMapper::start_job()$/;"	f	class:WordCountMapper
+start_line	src/InvertedIndex.h	/^    int start_line;$/;"	m	struct:__anon1
+start_line	src/WordCount.h	/^    int start_line;$/;"	m	class:WordCountMapper
+start_mapper_node	src/MapperNode.cpp	/^void MapperNode::start_mapper_node(string master_ip_address, int master_port_number)$/;"	f	class:MapperNode
+start_mapper_server	backup_files/MapperServer.cpp	/^void MapperServer::start_mapper_server()$/;"	f	class:MapperServer
+start_reducer_node	src/ReducerNode.cpp	/^void ReducerNode::start_reducer_node(string master_ip_address, int master_port_number)$/;"	f	class:ReducerNode
+start_server	backup_files/DummyReducerServer.cpp	/^void DummyReducerServer::start_server()$/;"	f	class:DummyReducerServer
+start_word_count_job	backup_files/DummyReducerClient.cpp	/^void DummyReducerClient::start_word_count_job(string file_path)$/;"	f	class:DummyReducerClient
+take_slot	backup_files/MapperServer.cpp	/^bool MapperServer::take_slot()$/;"	f	class:MapperServer
+update_files_list	src/InvertedIndex.cpp	/^void InvertedIndexReducer::update_files_list(string word, vector<string> files_list)$/;"	f	class:InvertedIndexReducer
+update_word_count	src/WordCount.cpp	/^void WordCountReducer::update_word_count(string word, int count)$/;"	f	class:WordCountReducer
+util_connection_make	src/utilities.cpp	/^int util_connection_make(string ip, uint16_t port)$/;"	f
+util_data_read	src/utilities.cpp	/^void util_data_read(int sock, char* read_buffer, int size_to_read)$/;"	f
+util_ip_port_split	src/utilities.cpp	/^void util_ip_port_split(string addr, string &ip, int &port)$/;"	f
+util_socket_data_get	src/utilities.cpp	/^int util_socket_data_get(int sock, string& buffer_str, string& error_msg)$/;"	f
+util_write_to_sock	src/utilities.cpp	/^void util_write_to_sock(int sock, string data)$/;"	f
+wc_reducer_map	src/ReducerNode.h	/^    std::unordered_map<std::string, WordCountReducer*> wc_reducer_map;$/;"	m	class:ReducerNode
+word_count	src/MapperNode.cpp	/^void MapperNode::word_count(MasterClient dm, string request_string)$/;"	f	class:MapperNode
+word_count	src/ReducerNode.cpp	/^void ReducerNode::word_count(DummyMaster dm, string request_string)$/;"	f	class:ReducerNode
+word_count_request	src/Reducer.cpp	/^void Reducer::word_count_request(string job_id, int category, string file_path, int no_of_mappers)$/;"	f	class:Reducer
+words_count	src/WordCount.h	/^    std::unordered_map<std::string, int> words_count;$/;"	m	class:WordCountReducer
+words_count_map_lock	src/WordCount.h	/^    std::mutex words_count_map_lock;$/;"	m	class:WordCountReducer
+words_to_files_map	src/InvertedIndex.h	/^    std::unordered_map<std::string, std::unordered_set<std::string>> words_to_files_map;$/;"	m	class:InvertedIndexReducer
+words_to_files_map_lock	src/InvertedIndex.h	/^    std::mutex words_to_files_map_lock;$/;"	m	class:InvertedIndexReducer
