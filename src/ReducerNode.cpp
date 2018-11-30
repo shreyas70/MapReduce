@@ -2,13 +2,14 @@
 #include<string>
 #include<thread>
 #include<utility>
+#include <unistd.h>
 #include "utilities.h"
-#include "DummyMaster.h"
+#include "master_client.h"
 #include "ReducerNode.h"
 
 using namespace std;
 
-void ReducerNode::word_count(DummyMaster dm, string request_string)
+void ReducerNode::word_count(MasterClient dm, string request_string)
 {
     vector<string> req_split = split_string(request_string, '$');
     string job_id = req_split[0];
@@ -26,11 +27,11 @@ void ReducerNode::word_count(DummyMaster dm, string request_string)
     string status = wcr->reduce(category, file_path);
     if(status.compare("INCOMPLETE"))
     {
-        dm.job_completed_reducer(job_id, category, status);
+        dm.job_completed_reducer(stoi(job_id), category, status);
     }
 }
 
-void ReducerNode::inverted_index(DummyMaster dm, string request_string)
+void ReducerNode::inverted_index(MasterClient dm, string request_string)
 {
     vector<string> req_split = split_string(request_string, '$');
     string job_id = req_split[0];
@@ -48,19 +49,20 @@ void ReducerNode::inverted_index(DummyMaster dm, string request_string)
     string status = iir->reduce(category, file_path);
     if(status.compare("INCOMPLETE"))
     {
-        dm.job_completed_reducer(job_id, category, status);
+        dm.job_completed_reducer(stoi(job_id), category, status);
     }
 }
 
 void ReducerNode::start_reducer_node(string master_ip_address, int master_port_number)
 {
-    DummyMaster dm;
+    MasterClient dm;
+    cout <<"starting reducer" <<endl;
     while(true)
     {
         string request_string;
         while(!dm.connection_exists())
         {
-            if(FAILURE == dm.connect_as_mapper(master_ip_address, master_port_number))
+            if(FAILURE == dm.connect_as_reducer(master_ip_address, master_port_number))
             {
                 cout << "master Connection Failure\n";
                 sleep(2);

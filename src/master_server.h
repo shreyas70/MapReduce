@@ -6,22 +6,16 @@
 #include <set>
 #include <vector>
 
+#include "utilities.h"
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 #include <arpa/inet.h>
+#include <vector>
 
 #include "Mapper.h"
+#include "Reducer.h"
 
 #define MAX_CONNECTIONS 100
-
-enum class Opcode
-{
-    CLIENT_REQUEST,
-    MAPPER_CONNECTION,
-    REDUCER_CONNECTION,
-    MAPPER_SUCCESS,
-    MAPPER_FAILURE
-};
 
 
 struct Chunk
@@ -41,11 +35,13 @@ struct Job
 {
     static int job_count;
     int job_id;
+    Problem problem_id;
     int client_socket;
     int num_mappers;
     int num_reducers;
     int num_successful_reductions;
-    int* reducer_sock_of_category;
+    std::string input_file_path;
+    std::vector<Reducer*> reducer_of_category;
     Chunk** chunks;
     std::vector<std::vector<std::string>> category_files;
 
@@ -57,7 +53,7 @@ struct Job
             category_files.push_back(std::vector<std::string>());
 
         num_successful_reductions = 0;
-        reducer_sock_of_category = new int[num_reducers];
+        // reducer_of_category = new Reducer*[num_reducers];
         chunks = new Chunk*[num_mappers];
     }
 
@@ -75,13 +71,12 @@ class Master
     std::map<int, std::set<std::string>> m_job_files_map;
     std::string m_log_path;
     std::list<Mapper*> mapper_list;
-    //std::list<Reduce*> reducer_list;
+    std::list<Reducer*> reducer_list;
     std::map<int, Job*> jobs_map;
     std::map<int, std::set<std::pair<int, int>>> mapper_chunks_map;
     std::map<int, std::set<std::pair<int, int>>> reducer_category_map;
 
 public:
-
     int m_port;
     int m_sock;
     std::string m_ip_addr;

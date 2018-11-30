@@ -113,7 +113,7 @@ void MapperNode::word_count(MasterClient dm, string request_string)
         close(r_wd[i]);
     }
     
-    dm.job_completed(stoi(wc.get_job_id()), stoi(wc.get_chunk_id()) ,reducer_files);
+    dm.job_completed_mapper(stoi(wc.get_job_id()), stoi(wc.get_chunk_id()) ,reducer_files);
 }
 
 void MapperNode::inverted_index(MasterClient dm, string request_string)
@@ -226,7 +226,7 @@ void MapperNode::inverted_index(MasterClient dm, string request_string)
     {
         close(r_wd[i]);
     }
-    dm.job_completed(stoi(ii.get_job_id()),stoi(ii.get_chunk_id()), reducer_files);
+    dm.job_completed_mapper(stoi(ii.get_job_id()),stoi(ii.get_chunk_id()), reducer_files);
 }
 
 void MapperNode::start_mapper_node(string master_ip_address, int master_port_number)

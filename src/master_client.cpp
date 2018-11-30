@@ -39,6 +39,7 @@ int MasterClient::connect_as_reducer(string ip_address, int port_number)
     if (FAILURE == m_sock)
         return FAILURE;
     string req = to_string((int)Opcode::REDUCER_CONNECTION);
+    cout << "sending request from reducer :" << req << endl;
     util_write_to_sock(m_sock, req);
     return SUCCESS;
 }
@@ -71,7 +72,7 @@ int MasterClient::get_request(string &reply)
 }
 
 
-void MasterClient::job_completed(int job_id, int chunk_id, vector<string> reducer_files)
+void MasterClient::job_completed_mapper(int job_id, int chunk_id, vector<string> reducer_files)
 {
     // int socket_fd = *(this->sock);
     string reply_string = to_string((int)(Opcode::MAPPER_SUCCESS));
@@ -87,3 +88,20 @@ void MasterClient::job_completed(int job_id, int chunk_id, vector<string> reduce
     send(this->m_sock, &write_bytes, sizeof(write_bytes), 0);
     send(this->m_sock, reply_string.c_str(), reply_string.length(), 0);
 }
+
+
+
+void MasterClient::job_completed_reducer(int job_id, int category, string outputFile)
+{
+    // int socket_fd = *(this->sock);
+    
+    string reply_string = to_string((int)(Opcode::REDUCER_SUCCESS));
+   
+    reply_string += "$" + to_string(job_id) + "$" + to_string(category)+ "$" + outputFile;
+    cout << "Reducer completed. Sending reply :" << reply_string << endl;
+
+    int write_bytes = reply_string.length();
+    send(this->m_sock, &write_bytes, sizeof(write_bytes), 0);
+    send(this->m_sock, reply_string.c_str(), reply_string.length(), 0);
+}
+

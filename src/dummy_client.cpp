@@ -2,10 +2,12 @@
 #include <string>
 #include <cstring>
 #include <cstdint>
+#include <fstream>
 
 #include <sys/socket.h>
 #include <cstdlib>
 #include <netinet/in.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 
 #include "master_client.h"
@@ -17,6 +19,8 @@ string working_dir;
 int main(int argc, char* argv[])
 {
     string m_ip_addr;
+    string buffer;
+    string error;
     int m_port;
 
     working_dir = getenv("PWD");
@@ -34,10 +38,34 @@ int main(int argc, char* argv[])
     
     // master.request_send(Problem::WORD_COUNT, file_path);
     m.connect_as_client(m_ip_addr, m_port,Problem::WORD_COUNT, file_path);
+
+    
+    // m.get_request();
+
+    if (FAILURE == util_socket_data_get(m.sock_get(), buffer, error))
+    {
+        // log_print(error_msg);
+        close(m.sock_get());
+        cout << " read failed" << endl;
+       
+    }
+    else
+    {
+        cout << buffer << endl;
+
+    }
+
+    // response_handler(sock, buffer_str);
+
+    
+
+    
+
+    // cout << read()
     // master.connect_as_reducer();
     // master.connect_as_mapper();
 
-    while(1);
+    // while(1);
 
     return 0;
 }

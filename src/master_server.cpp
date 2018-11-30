@@ -70,6 +70,8 @@ void Master::log_print(string msg)
 /* return the opcode of the incoming request */
 int Master::request_handler(int sock, string req_str, Opcode& opcode)
 {
+    // cout << "Checking if new right is called" << endl;
+
     stringstream ss;
     ss << __func__ << ":" << __LINE__ << " : Handling request: " << req_str;
     log_print(ss.str());
@@ -97,9 +99,14 @@ int Master::request_handler(int sock, string req_str, Opcode& opcode)
         }
 
         case Opcode::REDUCER_CONNECTION:
-            //Reducer* new_reducer = new Reducer(sock);
-            //reducer_list.push_back(new_reducer);
+        {
+            Reducer* new_reducer = new Reducer();
+            new_reducer->init(sock);
+            reducer_list.push_back(new_reducer);
+            new_reducer->get_socket();
+            cout << "New reducer added. Socket : " << new_reducer->get_socket()<<endl;
             break;
+        }
 
         default:
             break;
@@ -129,6 +136,7 @@ int Master::client_request_handler(int client_sock, string req_str)
         {
             string file_path = tokens_vec[2];
 
+
             if(mapper_list.empty())
             {
                 cout << "No mapper objects in vector" << endl;
@@ -139,13 +147,32 @@ int Master::client_request_handler(int client_sock, string req_str)
                 cout << "File doesn't exists. Terminating request." << endl;
                 break;
             } 
-            //pendingJobs.push(file_path);
 
             int total_lines = num_lines_get(file_path);
             int chunk_num_lines = ceil((double) (total_lines / mapper_list.size()));
 
-            Job* new_job = new Job(client_sock, mapper_list.size(), 4); // TODO: use reducer_list.size()
+            Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size()); // TODO: use reducer_list.size()
             jobs_map[new_job->job_id] = new_job;
+
+            new_job->problem_id = Problem::WORD_COUNT;
+            new_job->input_file_path = file_path;
+
+            //updating reducer of category array
+            //initially, number of categories will be equal to number of reducers
+            
+            for(auto x:reducer_list)
+            {
+                new_job->reducer_of_category.push_back(x);
+            }
+
+            //testing. Printing reducer sockets
+            cout << "Printing alloted reducers" << endl;
+            for(int i=0;i<new_job->num_reducers;i++)
+            {
+                cout << " Category " << i << " | Reducer Socket " << new_job->reducer_of_category[i]->get_socket() << endl; 
+                // new_job->reducer_of_category.push_back(*reducer_iterator);
+                // reducer_iterator++;
+            }
 
             int curr_line_num = 1, end_line_num = 1, chunk_id = 0, num_lines;
             for(auto litr = mapper_list.begin(); litr != mapper_list.end(); ++litr, ++chunk_id)
@@ -173,7 +200,6 @@ int Master::client_request_handler(int client_sock, string req_str)
                                                      num_lines,
                                                      new_job->num_reducers);
 
-                
                 curr_line_num = end_line_num + 1;
 
                 stringstream ss;
@@ -184,6 +210,7 @@ int Master::client_request_handler(int client_sock, string req_str)
         }
 
         case Problem::INVERTED_INDEX:
+            //new_job->problem_id = Problem::WORD_COUNT;
             break;
 
         default:
@@ -221,49 +248,50 @@ void Master::response_handler(int sock, string response_str)
             int job_id = stoi(job_id_str);
             int chunk_id = stoi(tokens_vec[2]);
 
-            cout << "Mapper sock:" << sock << " response:\n";
-            for (unsigned int i = 3; i < tokens_vec.size(); ++i)
+            cout << "Mapper sock:" << sock << " replied\n";
+            Job* job = jobs_map[job_id];
+
+            cout << "Got reply from mapper. Sending files to reducers " << endl;    
+            for (unsigned int i = 3, catID=0; i < tokens_vec.size(); ++i,catID++)
             {
-                 cout << "Job ID : " <<  job_id << "| chunk ID :  " << chunk_id << "| " << tokens_vec[i] << endl <<flush ;
-
+                Reducer* r = job->reducer_of_category[catID];
+                
+                cout << "Job ID : " <<  job_id << "| chunk ID :  " << chunk_id << "| " << tokens_vec[i] << endl <<flush;
+                job->category_files[catID].push_back(tokens_vec[i]);
+                reducer_category_map[r->get_socket()].insert({job->job_id, catID});
+                r->word_count_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
+            
             }
-               
-#if 0
-            string file_path;
-            int i = 0;
-            while(1)
-            {
-                dollar_pos = response_str.find('$');
-                file_path = response_str.substr(0, dollar_pos);
-                if (dollor_pos == response_str.length())
-                {
-                    break;
-                }
-                response_str.erase(0, dollar_pos+1);
-
-                category[i].push_back(file_path);
-                send_to_reducer(reducer_sockets[reducer_of_category[i]], job_id
-            }
-
-            Problem problem = (Problem)(stoi(problem_str));
-            response_str.erase(0, dollar_pos+1);
-
-            case Problem::WORD_COUNT:
-            {
-                string input_file_path = response_str;
-                break;
-            }
-
-            case Problem::INVERTED_INDEX:
-            {
-                break;
-            }
-#endif
             break;
         }
 
         case Opcode::MAPPER_FAILURE:
         {
+            break;
+        }
+
+        case Opcode::REDUCER_SUCCESS:
+        {
+            
+            cout << "Reduced replied success" << endl;
+            string job_id_str = tokens_vec[1];
+            int job_id = stoi(job_id_str);
+            int cat_id = stoi(tokens_vec[2]);
+
+            cout << "Reducer sock:" << sock << " replied success" << endl;;
+            Job* job = jobs_map[job_id];
+
+            job->num_successful_reductions++;
+
+            if(job->num_successful_reductions == job->num_reducers)
+            {
+                //job done
+                util_write_to_sock(job->client_socket, "Your job for the file " + job->input_file_path +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                
+            }
+
+        
+
             break;
         }
 
@@ -367,7 +395,6 @@ void Master::run()
                     max_sd = sock;
             }
         }
-        #if 0
         for(Reducer* r : reducer_list)
         {
             int sock = r->get_socket();
@@ -378,7 +405,6 @@ void Master::run()
                     max_sd = sock;
             }
         }
-        #endif
 
         // wait for an activity on one of the sockets , timeout is NULL,
         // so wait indefinitely
@@ -445,7 +471,7 @@ void Master::run()
                 }
                 ++litr;
             }
-            #if 0
+
             for(Reducer* r : reducer_list)
             {
                 int sock = r->get_socket();
@@ -461,7 +487,6 @@ void Master::run()
                     response_handler(sock, buffer_str);
                 }
             }
-            #endif
 
             // else its some IO operation on some other socket
             for (int i = 0; i < MAX_CONNECTIONS; i++)

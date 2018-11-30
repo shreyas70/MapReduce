@@ -3,7 +3,7 @@
 
 #include<string>
 #include<unordered_map>
-#include "DummyMaster.h"
+#include "master_client.h"
 #include "WordCount.h"
 #include "InvertedIndex.h"
 
@@ -16,8 +16,8 @@ class ReducerNode
 
     public:
     void start_reducer_node(std::string master_ip_address, int master_port_number);
-    void word_count(DummyMaster dm, std::string request_string);
-    void inverted_index(DummyMaster dm, std::string request_string);
+    void word_count(MasterClient dm, std::string request_string);
+    void inverted_index(MasterClient dm, std::string request_string);
 };
 
 #endif

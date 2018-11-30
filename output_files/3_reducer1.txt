@@ -1,5 +1,16 @@
+Fri 1
 apple 2
 banana 1
+bind 1
 black 1
 blue 2
+failed 1
 go 1
+orange 1
+ready 1
+red 2
+run 1
+set 1
+startMaster 1
+white 1
+yellow 1
