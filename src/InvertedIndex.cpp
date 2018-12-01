@@ -119,6 +119,9 @@ string InvertedIndexMapper::start_job()
             write(wd, word.c_str(), word.length());
             write(wd, " ", 1);
             set<string> file_names = it->second;
+            string nf = to_string(file_names.size());
+            write(wd, nf.c_str(), nf.length());
+            write(wd, " ", 1);
             for(set<string>::iterator fit = file_names.begin(); fit!=file_names.end(); ++fit)
             {
                 string file_name = *fit;

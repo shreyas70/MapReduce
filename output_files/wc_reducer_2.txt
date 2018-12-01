@@ -1,0 +1,8 @@
+watermelon 1
+orange 1
+banana 1
+apple 2
+chikoo 1
+muskmelon 1
+grapes 1
+jackfruit 2

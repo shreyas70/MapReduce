@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 apple 3
 banana 2
 black 2
@@ -16,3 +17,13 @@ set 1
 watermelon 1
 white 2
 yellow 2
+=======
+apple 2
+banana 1
+chikoo 1
+grapes 1
+jackfruit 2
+muskmelon 1
+orange 1
+watermelon 1
+>>>>>>> 71843429bea48518ec55aca3040f796834ede4a3
