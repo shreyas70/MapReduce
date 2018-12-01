@@ -183,7 +183,6 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
 
 void util_write_to_sock(int sock, string data)
 {
-    cout <<"trying to write" << endl;
     int sz = data.length();
     send(sock, &sz, sizeof(sz), 0);
     send(sock, data.c_str(), data.length(), 0);
