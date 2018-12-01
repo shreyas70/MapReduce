@@ -1,8 +1,8 @@
-failed 2
-blue 4
-black 2
-Fri 2
-go 2
-apple 4
-banana 2
-bind 2
+watermelon 1
+orange 1
+banana 1
+apple 2
+chikoo 1
+muskmelon 1
+grapes 1
+jackfruit 2

@@ -1,5 +1,0 @@
-orange 1
-ready 1
-red 2
-set 1
-start 1

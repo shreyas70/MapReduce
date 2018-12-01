@@ -479,8 +479,90 @@ void Master::run()
                     {
                         log_print(error_msg);
 
-                        close(sock);
                         mapper_list.erase(litr++);
+
+                        // /*HANDLIING MAPPER NODE FAILURE*/
+                        int old_mapper_socket = sock;
+                        
+                        set<pair<int,int>> old_mapper_set = mapper_chunks_map[old_mapper_socket];
+                        mapper_chunks_map.erase(old_mapper_socket);
+
+                        int no_of_mappers = mapper_list.size();
+                        
+                        // cout << " Number of mappers left after mapper sock " <<  << " failure " << no_of_mappers <<endl;
+
+                        if(no_of_mappers <=0)
+                        {
+                            
+                            close(sock);
+                            continue;
+                        }
+                        // int index = (rand() % no_of_mappers);
+                       
+                        // auto mlitr = mapper_list.begin();
+                        // for(int sub_index = 0; sub_index<index; sub_index++)
+                        // {
+                        //     ++mlitr;
+                        // }
+                        // Mapper * current_mapper = *mlitr;
+                        // int current_socket = current_mapper->get_socket();
+                        // set<pair<int,int>> current_mapper_set = mapper_chunks_map[current_socket];
+                        // current_mapper_set.insert(old_mapper_set.begin(), old_mapper_set.end());
+                        // mapper_chunks_map[current_socket] = current_mapper_set;
+
+                        string debug_string = "Mapper on socket: "+to_string(old_mapper_socket)+" failed! "+to_string(no_of_mappers)+" mappers left";
+                        log_print(debug_string);
+
+                        for(set<pair<int,int>>::iterator jit = old_mapper_set.begin(); jit!=old_mapper_set.end(); ++jit)
+                        {
+                            int new_mapper_index = (rand() % no_of_mappers);
+
+                            auto mlitr = mapper_list.begin();
+                            for(int sub_index = 0; sub_index<new_mapper_index; sub_index++)
+                            {
+                                ++mlitr;
+                            }
+                            Mapper * current_mapper = *mlitr;
+                            int current_socket = current_mapper->get_socket();
+                            set<pair<int,int>> current_mapper_set = mapper_chunks_map[current_socket];
+                            pair<int,int> job_chunk_pair = *jit;
+                            current_mapper_set.insert(job_chunk_pair);
+                            mapper_chunks_map[current_socket] = current_mapper_set;
+                            
+                            int curr_job_id = jit->first;
+                            int curr_chunk_id = jit->second;
+
+                            Job * job_obj = jobs_map[curr_job_id];
+                            Chunk ** chunks = job_obj->chunks;
+                            Chunk * curr_chunk = chunks[curr_chunk_id];
+                            curr_chunk->mapper_sock = current_socket;
+
+                            string curr_file_path = job_obj->input_file_path;
+                            int curr_start_line = curr_chunk->start_line;
+                            int curr_no_of_lines = curr_chunk->num_lines;
+                            int curr_num_reducers = job_obj->num_reducers;
+
+                            debug_string = "Reassigning job "+to_string(curr_job_id)+" chunk "+to_string(curr_chunk_id)+" to mapper on socket : "+to_string(current_socket);
+                            log_print(debug_string);
+                            
+                            if(job_obj->problem_id == Problem::WORD_COUNT)
+                            {
+                                current_mapper->initiate_word_count_request(curr_job_id,
+                                                                            curr_chunk_id,
+                                                                            curr_file_path,
+                                                                            curr_start_line,
+                                                                            curr_no_of_lines,
+                                                                            curr_num_reducers);
+
+                            }
+                            
+                            // else if(job_obj->problem_id == INVERTED_INDEX)
+                            // {
+                            //     current_mapper->initiate_inverted_index_request();
+                            // }
+                        }
+
+                        close(sock);
                         continue;
                     }
 

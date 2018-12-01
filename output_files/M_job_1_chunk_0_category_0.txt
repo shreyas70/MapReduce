@@ -1,0 +1,11 @@
+apple 3
+banana 2
+black 2
+blue 3
+brown 1
+cyan 1
+go 1
+green 1
+grey 1
+jackfruit 2
+muskmelon 1

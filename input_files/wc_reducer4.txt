@@ -1,4 +1,0 @@
-apple 3
-orange 4
-banana 9
-catdance 8

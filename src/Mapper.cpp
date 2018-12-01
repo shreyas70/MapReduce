@@ -23,6 +23,7 @@ int Mapper::get_socket()
 
 void Mapper::initiate_word_count_request(int job_id, int chunk_id, string file_path, int start_line, int no_of_lines, int no_of_reducers)
 {
+    
     int sock = this->mapper_socket;
     string request_type = "initiate_word_count";
     string wc_details = to_string(job_id) +"$" + to_string(chunk_id)+"$"+file_path+"$"+to_string(start_line)+"$"+to_string(no_of_lines)+"$"+to_string(no_of_reducers);

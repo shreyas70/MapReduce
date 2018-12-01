@@ -1,6 +1,13 @@
 apple
 orange
 banana
+jackfruit
+muskmelon
+watermelon
+jackfruit
+apple
+orange
+banana
 apple
 yellow
 red
@@ -12,4 +19,13 @@ white
 ready
 set
 go
-start[Master] Fri Nov 30 23:53:31 2018 : "run (317): bind failed"
+red
+blue
+green
+white
+black
+orange
+yellow
+grey
+cyan
+brown

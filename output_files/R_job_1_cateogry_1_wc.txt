@@ -1,0 +1,7 @@
+white 4
+watermelon 2
+orange 6
+ready 2
+red 6
+yellow 4
+set 2

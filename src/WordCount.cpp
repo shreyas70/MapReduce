@@ -295,7 +295,7 @@ string WordCountReducer::reduce(int category,  string file_path)
         this->increment_files_in_category(category);
         if(get_file_count_in_category(category)==this->no_of_files)
         {
-            string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
+            string out_file_name = "output_files/R_job_"+this->job_id + "_cateogry_" + to_string(category) + "_wc.txt";
             int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
             for(unordered_map<string,int>::iterator it = words_count.begin(); it!=words_count.end(); ++it)
             {

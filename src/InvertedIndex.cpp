@@ -119,6 +119,9 @@ string InvertedIndexMapper::start_job()
             write(wd, word.c_str(), word.length());
             write(wd, " ", 1);
             set<string> file_names = it->second;
+            string nf = to_string(file_names.size());
+            write(wd, nf.c_str(), nf.length());
+            write(wd, " ", 1);
             for(set<string>::iterator fit = file_names.begin(); fit!=file_names.end(); ++fit)
             {
                 string file_name = *fit;
@@ -209,12 +212,12 @@ string InvertedIndexReducer::reduce(int category, string file_path)
         }
 
         fclose(file_ptr);
-        cout<<"\nDone with "<<file_path<<endl;
+        cout<<"\n Done with "<<file_path<<endl;
 
         this->increment_files_in_category(category);
         if(get_file_count_in_category(category)==this->no_of_files)
         {
-            string out_file_name = "output_files/wc_reducer_"+this->job_id+".txt";
+            string out_file_name = "output_files/R_job_"+this->job_id + "_category_" + to_string(category) + "_ii.txt";
             int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
             for(unordered_map<string,unordered_set<string>>::iterator it = words_to_files_map.begin(); it!=words_to_files_map.end(); ++it)
             {

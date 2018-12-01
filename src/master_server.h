@@ -66,13 +66,13 @@ int Job::job_count = 0;
 
 class Master
 {
-    std::map<int, std::set<std::string>> m_job_files_map;
+    // std::map<int, std::set<std::string>> m_job_files_map;
     std::string m_log_path;
     std::list<Mapper*> mapper_list;
     std::list<Reducer*> reducer_list;
-    std::map<int, Job*> jobs_map;
-    std::map<int, std::set<std::pair<int, int>>> mapper_chunks_map;
-    std::map<int, std::set<std::pair<int, int>>> reducer_category_map;
+    std::map<int, Job*> jobs_map; //job_id->job
+    std::map<int, std::set<std::pair<int, int>>> mapper_chunks_map; //socket -> (jobid, chunkid)
+    std::map<int, std::set<std::pair<int, int>>> reducer_category_map; //socket -> (jobid, categoryid)
 
 public:
     int m_port;
