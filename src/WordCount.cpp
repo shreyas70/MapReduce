@@ -40,7 +40,7 @@ WordCountMapper::WordCountMapper(string request_string)
     this->no_of_lines = stoi(req_vec[4]);
     cout << endl << " numberof lines assigned" << endl;
     this->no_of_reducers = stoi(req_vec[5]);
-    cout << "number of reducers" << endl;
+    cout << "Number of reducers" << endl;
 
 }
 

@@ -23,7 +23,7 @@ public:
 
     int connect_as_mapper(std::string ip_address, int port_number);
     int connect_as_reducer(std::string ip_address, int port_number);
-    int connect_as_client(std::string ip_address, int port_number, Problem problem, std::string file_path);
+    int connect_as_client(std::string ip_address, int port_number, Problem problem, std::vector<std::string> files);
 
     int get_request(std::string&);
     void job_completed_mapper(int job_id, int chunk_id, std::vector<std::string> reducer_files);

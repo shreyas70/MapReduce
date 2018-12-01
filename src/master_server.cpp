@@ -117,8 +117,18 @@ int Master::request_handler(int sock, string req_str, Opcode& opcode)
 
 int Master::client_request_handler(int client_sock, string req_str)
 {
-    // currently only taking "opcode$problem_id$file_path" in the request string
-    // opcode has to be ignored
+
+    if(mapper_list.empty())
+    {
+        cout << "[Error] No Mappers in the system!!" << endl;
+        return FAILURE;
+    }
+    if (reducer_list.empty())
+    {
+        cout << "[Error] No Reducers in the system!!" << endl;
+        return FAILURE;
+    }    
+
     vector <string> tokens_vec;
     stringstream ss(req_str);
     string intermediate;
@@ -131,31 +141,21 @@ int Master::client_request_handler(int client_sock, string req_str)
 
     Problem problem = (Problem)(stoi(tokens_vec[1]));
 
+
     switch(problem)
     {
         case Problem::WORD_COUNT:
         {
             string file_path = tokens_vec[2];
-
-            if(mapper_list.empty())
-            {
-                cout << "[Error] No Mappers in the system!!" << endl;
-                return FAILURE;
-            }
-            if (reducer_list.empty())
-            {
-                cout << "[Error] No Reducers in the system!!" << endl;
-                return FAILURE;
-            }
-
             // check if file is valid
-            if( access( file_path.c_str() , R_OK ) == -1) {
+            if( access( file_path.c_str() , R_OK ) == -1) 
+            {
                 cout << "File doesn't exists. Terminating request." << endl;
                 return FAILURE;
             }
 
             int total_lines = num_lines_get(file_path);
-            int chunk_num_lines = ceil((double) (total_lines / mapper_list.size()));
+            int chunk_num_lines = ceil(((double) total_lines / mapper_list.size()));
 
             Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
             jobs_map[new_job->job_id] = new_job;
@@ -182,6 +182,8 @@ int Master::client_request_handler(int client_sock, string req_str)
             }
             #endif
 
+            
+
             int curr_line_num = 1, end_line_num = 1, chunk_id = 0, num_lines;
             for(auto litr = mapper_list.begin(); litr != mapper_list.end(); ++litr, ++chunk_id)
             {
@@ -193,7 +195,7 @@ int Master::client_request_handler(int client_sock, string req_str)
                 }
                 else
                 {
-                    end_line_num = min(curr_line_num + chunk_num_lines, total_lines);
+                    end_line_num = min(curr_line_num + chunk_num_lines - 1, total_lines);
                 }
                 num_lines = end_line_num - curr_line_num + 1;
 
@@ -222,8 +224,105 @@ int Master::client_request_handler(int client_sock, string req_str)
         }
 
         case Problem::INVERTED_INDEX:
-            //new_job->problem_id = Problem::WORD_COUNT;
+        {
+            for(int i=2;i<tokens_vec.size();i++)
+            {
+                if(access(tokens_vec[i].c_str(), R_OK) == -1)
+                {
+                    cout << "Invalid files. Terminating request" << endl;
+                    return FAILURE;
+                }
+            }
+
+            Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
+            jobs_map[new_job->job_id] = new_job;
+
+            new_job->problem_id = Problem::INVERTED_INDEX;
+
+
+           
+
+            for(auto x:reducer_list)
+            {
+                new_job->reducer_of_category.push_back(x);
+            }
+
+            vector<int> total_lines(tokens_vec.size()-2);
+            vector<int> chunk_num_lines(tokens_vec.size()-2);
+            vector<int> curr_line_num(tokens_vec.size()-2,1);
+            vector<int> end_line_num(tokens_vec.size()-2,1);
+            vector<int> num_lines(tokens_vec.size()-2);
+
+            for(int i=2,j=0;i<tokens_vec.size();i++,j++)
+            {
+                new_job->input_filenames.push_back(tokens_vec[i]);
+                total_lines[j] = num_lines_get(tokens_vec[i]);
+                chunk_num_lines[j] = ceil( ((double)total_lines[j] / mapper_list.size())); 
+            }
+
+            int chunk_id = 0;
+            for(auto litr = mapper_list.begin(); litr != mapper_list.end(); ++litr, ++chunk_id)
+            {
+                Chunk* new_chunk;
+                int mapper_socket = (*litr)->get_socket();
+                new_chunk = new Chunk(chunk_id, new_job->job_id, mapper_socket);
+                for(int fileNumber=0;fileNumber<curr_line_num.size();fileNumber++)
+                {
+                    if (curr_line_num[fileNumber] > total_lines[fileNumber])
+                    {
+                        end_line_num[fileNumber] = curr_line_num[fileNumber] - 1;
+                    }
+                    else
+                    {
+                        end_line_num[fileNumber] = min(curr_line_num[fileNumber] + chunk_num_lines[fileNumber] - 1, total_lines[fileNumber]);
+                    }
+
+                    num_lines[fileNumber] = end_line_num[fileNumber] - curr_line_num[fileNumber] + 1;
+
+                    new_chunk->start_line_vec.push_back(curr_line_num[fileNumber]);
+                    new_chunk->num_lines_vec.push_back(num_lines[fileNumber]);
+
+                    curr_line_num[fileNumber] = end_line_num[fileNumber] + 1;
+                    //new_chunk = new Chunk(chunk_id, curr_line_num, num_lines, new_job->job_id, mapper_socket);
+                    
+                }
+                // tokens_vec.erase(tokens_vec.begin());
+                // tokens_vec.erase(tokens_vec.begin());
+
+                // vector<int> v = {1,2,3,4,5};
+                vector<string> filePathVector(tokens_vec.begin() + 2, tokens_vec.end());
+        
+                
+                new_job->chunks[chunk_id] = new_chunk;
+                mapper_chunks_map[mapper_socket].insert({new_job->job_id, chunk_id});
+
+                cout << "Printing allocation of inverted index for a mapper" << endl;
+                cout << "Job ID " << new_job->job_id << " | Chunk ID " << new_chunk->chunk_id<<endl;
+
+                for(int i=0;i<tokens_vec.size()-2;i++)
+                {
+                    cout << "File " <<i << " start_line "  << new_chunk->start_line_vec[i]  << " | Num of lines " << new_chunk->num_lines_vec[i] << endl;    
+                }
+
+                (*litr)->initiate_inverted_index_request(new_job->job_id,
+                                                     new_chunk->chunk_id,
+                                                     filePathVector,
+                                                     new_chunk->start_line_vec,
+                                                     new_chunk->num_lines_vec,
+                                                     new_job->num_reducers);
+
+                for(int i=0;i<curr_line_num.size();i++)
+                {
+                    curr_line_num[i] = end_line_num[i] + 1;
+                }
+               
+
+                stringstream ss;
+                ss << __func__ << " (" << __LINE__ << "): Inititate WC - mapper socket: " << mapper_socket;
+                log_print(ss.str());
+            }
             break;
+        }
 
         default:
             break;
@@ -267,11 +366,17 @@ void Master::response_handler(int sock, string response_str)
             for (unsigned int i = 3, catID=0; i < tokens_vec.size(); ++i,catID++)
             {
                 Reducer* r = job->reducer_of_category[catID];
-                
                 cout << "Job ID : " <<  job_id << "| chunk ID :  " << chunk_id << "| " << tokens_vec[i] << endl <<flush;
                 job->category_files[catID].push_back(tokens_vec[i]);
                 reducer_category_map[r->get_socket()].insert({job->job_id, catID});
-                r->word_count_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
+                if(job->problem_id == Problem::INVERTED_INDEX)
+                {
+                    r->inverted_index_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
+                }
+                else
+                {
+                    r->word_count_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
+                }
             }
 
             //removing from mapper map
@@ -305,16 +410,24 @@ void Master::response_handler(int sock, string response_str)
 
             if(job->num_successful_reductions == job->num_reducers)
             {
-
                 //job done
-                switch (job->problem_id)
+                switch(job->problem_id)
                 {
                     case Problem::WORD_COUNT:
                         util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
                         break;
 
                     case Problem::INVERTED_INDEX:
+                    {
+                        string files="";
+                        for(auto fileName:job->input_filenames)
+                        {
+                            files+= fileName +",";
+
+                        }
+                        util_write_to_sock(job->client_socket, "Your job for files :" +files  + " is done! Output file : " + to_string(job->job_id) + "_output.txt");
                         break;
+                    }
 
                     default:
                         break;

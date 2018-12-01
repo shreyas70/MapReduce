@@ -24,7 +24,6 @@ struct Chunk
     int mapper_sock;
     std::vector<int> start_line_vec;
     std::vector<int> num_lines_vec;
-
     Chunk (int id, int jid, int msock):
         chunk_id(id), job_id(jid), mapper_sock(msock) {}
 };

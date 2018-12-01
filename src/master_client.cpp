@@ -5,17 +5,38 @@
 #include "includes.h"
 #include "master_client.h"
 #include "utilities.h"
+#include <vector>
 
 using namespace std;
 
-int MasterClient::connect_as_client(string ip_address, int port_number, Problem problem, string file_path)
+int MasterClient::connect_as_client(string ip_address, int port_number, Problem problem, vector<string> files)
 {
+    
     m_sock = util_connection_make(ip_address, port_number);
     if (FAILURE == m_sock)
         return FAILURE;
     string client_opcode = to_string((int)Opcode::CLIENT_REQUEST);
     string problem_str = to_string((int)problem);
-    string req = client_opcode + "$" + problem_str + "$" + file_path;
+    string req = client_opcode + "$" + problem_str;
+
+    if(problem==Problem::WORD_COUNT)
+    {
+        if(files.size()!=1)
+        {
+            cout << "Give only one file for word count problem" << endl;
+            return FAILURE;
+        }
+        req+= files[0];
+    }
+    else
+    {
+        for(auto i:files)
+        {
+            req+="$"+i;
+        }
+    }
+
+
     util_write_to_sock(m_sock, req);
     return SUCCESS;
 }

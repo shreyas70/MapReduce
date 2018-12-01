@@ -7,6 +7,7 @@
 #include <netdb.h>
 #include <string>
 #include <string.h>
+#include <iostream>
 
 using namespace std;
 
@@ -38,6 +39,7 @@ void Reducer::inverted_index_request(int job_id, int category, string file_path,
     string wc_details = to_string(job_id)+"$"+to_string(category)+"$"+file_path+"$"+to_string(no_of_mappers);
     string request_string = request_type + "#" + wc_details;
     int write_bytes = request_string.length();
+    cout << endl << "sending to mapper " << request_string << endl;
     send(sock, &write_bytes, sizeof(write_bytes), 0);
     send(sock, request_string.c_str(), request_string.length(), 0);
 }

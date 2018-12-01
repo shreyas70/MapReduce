@@ -11,8 +11,8 @@ using namespace std;
 
 void ReducerNode::word_count(MasterClient dm, string request_string)
 {
-    cout << "Reducer sleeping for 10 seconds " << endl;
-    sleep(10);
+    // cout << "Reducer sleeping for 10 seconds " << endl;
+    // sleep(10);
 
     vector<string> req_split = split_string(request_string, '$');
     string job_id = req_split[0];

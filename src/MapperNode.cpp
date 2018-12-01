@@ -130,6 +130,7 @@ void MapperNode::word_count(MasterClient dm, string request_string)
 
 void MapperNode::inverted_index(MasterClient dm, string request_string)
 {
+    cout << endl<<"printing req string in mappernode"<< request_string << endl;
     InvertedIndexMapper ii = InvertedIndexMapper(request_string);
     string status = ii.start_job();
 
@@ -149,20 +150,14 @@ void MapperNode::inverted_index(MasterClient dm, string request_string)
         string file_name = file_dir + "M_job_" + job_id + "_chunk_" + ii.get_chunk_id() + "_category_" + to_string(i) + ".txt";
         reducer_files.push_back(file_name);
     }
-    // string reducer_file1 = file_dir+job_id+"_reducer1.txt";
-    // string reducer_file2 = file_dir+job_id+"_reducer2.txt";
-    // string reducer_file3 = file_dir+job_id+"_reducer3.txt";
-    // string reducer_file4 = file_dir+job_id+"_reducer4.txt";
+
     vector<int> r_wd;
     for(int i=0; i<no_of_reducers; i++)
     {
         int wd = open(reducer_files[i].c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         r_wd.push_back(wd);
     }
-    // int r_wd1 = open(reducer_file1.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    // int r_wd2 = open(reducer_file2.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    // int r_wd3 = open(reducer_file3.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
-    // int r_wd4 = open(reducer_file4.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
+
     int inc = 26/no_of_reducers;
     vector<pair<int,int>> small_ranges;
     vector<pair<int,int>> capital_ranges;
@@ -281,7 +276,7 @@ void MapperNode::start_mapper_node(string master_ip_address, int master_port_num
         }
         else if(!req_type.compare("initiate_inverted_index"))
         {
-            cout<<"\n\nReceived initiate word count request\n\n";
+            cout<<"\n\nReceived inverted index request\n\n";
             t = thread(&MapperNode::inverted_index, this, dm, req_split[1]);
             t.detach();
         }   

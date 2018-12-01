@@ -34,10 +34,14 @@ int main(int argc, char* argv[])
     // if(FAILURE == master.sock_get())
     //     return FAILURE;
 
-    string file_path = util_abs_path_get(argv[2]);
+    // string file_path = util_abs_path_get(argv[2]);
     
-    // master.request_send(Problem::WORD_COUNT, file_path);
-    m.connect_as_client(m_ip_addr, m_port,Problem::WORD_COUNT, file_path);
+    vector<string> filesList;
+    filesList.push_back("input_files/i_file1.txt");
+    filesList.push_back("input_files/i_file2.txt");
+    filesList.push_back("input_files/i_file3.txt");
+
+    m.connect_as_client(m_ip_addr, m_port,Problem::INVERTED_INDEX, filesList);
 
     
     // m.get_request();
