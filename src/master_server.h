@@ -61,6 +61,14 @@ struct Job
     {
         return ++job_count;
     }
+
+    ~Job()
+    {
+        for(int i=0;i<num_mappers;i++)
+        {
+            delete chunks[i];
+        }
+    }
 };
 
 int Job::job_count = 0;

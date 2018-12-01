@@ -51,6 +51,7 @@ int num_lines_get(string filePath)
 
 
 
+
 void Master::log_print(string msg)
 {
     ofstream out(m_log_path, ios_base::app);
@@ -262,6 +263,11 @@ void Master::response_handler(int sock, string response_str)
                 r->word_count_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
             
             }
+
+            //removing from mapper map
+            set<pair<int,int>> &chunks_set = mapper_chunks_map[sock];
+            chunks_set.erase({job_id,chunk_id});
+
             break;
         }
 
@@ -283,12 +289,20 @@ void Master::response_handler(int sock, string response_str)
 
             job->num_successful_reductions++;
 
+            //removing from reducer map
+            set<pair<int,int>> &cateogry_set = reducer_category_map[sock];
+            cateogry_set.erase({job_id,cat_id});
+
             if(job->num_successful_reductions == job->num_reducers)
             {
                 //job done
                 util_write_to_sock(job->client_socket, "Your job for the file " + job->input_file_path +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
                 
+                jobs_map.erase(job->job_id);
+                delete job;
             }
+
+            
 
         
 
