@@ -527,9 +527,9 @@ void Master::run()
                             Chunk * curr_chunk = chunks[curr_chunk_id];
                             curr_chunk->mapper_sock = current_socket;
 
-                            string curr_file_path = job_obj->input_file_path;
-                            int curr_start_line = curr_chunk->start_line;
-                            int curr_no_of_lines = curr_chunk->num_lines;
+                            string curr_file_path = job_obj->input_filenames[0];
+                            int curr_start_line = curr_chunk->start_line_vec[0];
+                            int curr_no_of_lines = curr_chunk->num_lines_vec[0];
                             int curr_num_reducers = job_obj->num_reducers;
 
                             debug_string = "Reassigning job "+to_string(curr_job_id)+" chunk "+to_string(curr_chunk_id)+" to mapper on socket : "+to_string(current_socket);
