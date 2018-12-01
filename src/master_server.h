@@ -37,8 +37,8 @@ struct Job
     int job_id;
     Problem problem_id;
     int client_socket;
-    int num_mappers;
-    int num_reducers;
+    int num_mappers; //initital number of mappers
+    int num_reducers; //initial number of reducers
     int num_successful_reductions;
     std::string input_file_path;
     std::vector<Reducer*> reducer_of_category;

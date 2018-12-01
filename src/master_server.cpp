@@ -480,18 +480,8 @@ void Master::run()
                             close(sock);
                             continue;
                         }
-                        // int index = (rand() % no_of_mappers);
-                       
-                        // auto mlitr = mapper_list.begin();
-                        // for(int sub_index = 0; sub_index<index; sub_index++)
-                        // {
-                        //     ++mlitr;
-                        // }
-                        // Mapper * current_mapper = *mlitr;
-                        // int current_socket = current_mapper->get_socket();
-                        // set<pair<int,int>> current_mapper_set = mapper_chunks_map[current_socket];
-                        // current_mapper_set.insert(old_mapper_set.begin(), old_mapper_set.end());
-                        // mapper_chunks_map[current_socket] = current_mapper_set;
+                        
+
 
                         string debug_string = "Mapper on socket: "+to_string(old_mapper_socket)+" failed! "+to_string(no_of_mappers)+" mappers left";
                         log_print(debug_string);
@@ -554,20 +544,112 @@ void Master::run()
                 ++litr;
             }
 
-            for(Reducer* r : reducer_list)
+            // for(Reducer* r : reducer_list)
+            // {
+            //     int sock = r->get_socket();
+            //     if (FD_ISSET(sock , &readfds))
+            //     {
+            //         string buffer_str, error_msg;
+            //         if (FAILURE == util_socket_data_get(sock, buffer_str, error_msg))
+            //         {
+            //             log_print(error_msg);
+
+                    
+
+
+            //             continue;
+            //         }
+
+            //         response_handler(sock, buffer_str);
+            //     }
+            // }
+
+            auto r_litr = reducer_list.begin();
+            while(r_litr != reducer_list.end())
             {
-                int sock = r->get_socket();
+                int sock = (*r_litr)->get_socket();
                 if (FD_ISSET(sock , &readfds))
                 {
                     string buffer_str, error_msg;
                     if (FAILURE == util_socket_data_get(sock, buffer_str, error_msg))
                     {
                         log_print(error_msg);
+
+                        reducer_list.erase(r_litr++);
+
+                        int old_reducer_socket = sock;
+                        
+                        set<pair<int,int>> old_reducer_set = reducer_category_map[old_reducer_socket];
+                        reducer_category_map.erase(old_reducer_socket);
+
+                        int no_of_reducers = reducer_list.size();
+                        
+                        if(no_of_reducers <=0)
+                        {
+                            close(sock);
+                            continue;
+                        }
+
+                        string debug_string = "Reducer on socket: "+to_string(old_reducer_socket)+" failed! "+to_string(no_of_reducers)+" mappers left";
+                        log_print(debug_string);
+
+                        for(set<pair<int,int>>::iterator jit = old_reducer_set.begin(); jit!=old_reducer_set.end(); ++jit)
+                        {
+                            int new_reducer_index = (rand() % no_of_reducers);
+
+                            auto rlitr = reducer_list.begin();
+                            for(int sub_index = 0; sub_index<new_reducer_index; sub_index++)
+                            {
+                                ++rlitr;
+                            }
+                            Reducer * current_reducer = *rlitr;
+                            int current_socket = current_reducer->get_socket();
+                            set<pair<int,int>> current_reducer_set = reducer_category_map[current_socket];
+                            pair<int,int> job_category_pair = *jit;
+                            current_reducer_set.insert(job_category_pair);
+                            reducer_category_map[current_socket] = current_reducer_set;
+                            
+                            int curr_job_id = jit->first;
+                            int curr_category_id = jit->second;
+
+                            Job * job_obj = jobs_map[curr_job_id];
+                            // Chunk ** chunks = job_obj->chunks;
+                            // Chunk * curr_chunk = chunks[curr_chunk_id];
+                            // curr_chunk->mapper_sock = current_socket;
+                            job_obj->reducer_of_category[curr_category_id] = current_reducer;
+
+                            // string curr_file_path = job_obj->input_file_path;
+                            // int curr_start_line = curr_chunk->start_line;
+                            // int curr_no_of_lines = curr_chunk->num_lines;
+                            // int curr_num_reducers = job_obj->num_reducers;
+
+                            vector<string> file_paths = job_obj->category_files[curr_category_id];
+                            int curr_num_mappers = job_obj->num_mappers;
+
+                            debug_string = "Reassigning job "+to_string(curr_job_id)+" category "+to_string(curr_category_id)+" to reducer on socket : "+to_string(current_socket);
+                            log_print(debug_string);
+                            
+                            if(job_obj->problem_id == Problem::WORD_COUNT)
+                            {
+                                 for(int fi = 0; fi<file_paths.size(); fi++)
+                                 {
+                                     current_reducer->word_count_request(curr_job_id, curr_category_id, file_paths[fi], curr_num_mappers);
+                                 }                              
+                            }
+                            
+                            // else if(job_obj->problem_id == INVERTED_INDEX)
+                            // {
+                            //     current_mapper->initiate_inverted_index_request();
+                            // }
+                        }
+
+                        close(sock);
                         continue;
                     }
 
                     response_handler(sock, buffer_str);
                 }
+                ++r_litr;
             }
 
             // else its some IO operation on some other socket
