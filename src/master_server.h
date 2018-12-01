@@ -17,17 +17,16 @@
 
 #define MAX_CONNECTIONS 100
 
-
 struct Chunk
 {
     int chunk_id;
-    int start_line;
-    int num_lines;
     int job_id;
     int mapper_sock;
+    std::vector<int> start_line_vec;
+    std::vector<int> num_lines_vec;
 
-    Chunk (int id, int sline, int nlines, int jid, int msock):
-        chunk_id(id), start_line(sline), num_lines(nlines), job_id(jid), mapper_sock(msock) {}
+    Chunk (int id, int jid, int msock):
+        chunk_id(id), job_id(jid), mapper_sock(msock) {}
 };
 
 
@@ -40,7 +39,7 @@ struct Job
     int num_mappers; //initital number of mappers
     int num_reducers; //initial number of reducers
     int num_successful_reductions;
-    std::string input_file_path;
+    std::vector<std::string> input_filenames;
     std::vector<Reducer*> reducer_of_category;
     Chunk** chunks;
     std::vector<std::vector<std::string>> category_files;
@@ -53,13 +52,12 @@ struct Job
             category_files.push_back(std::vector<std::string>());
 
         num_successful_reductions = 0;
-        // reducer_of_category = new Reducer*[num_reducers];
         chunks = new Chunk*[num_mappers];
     }
 
     static int GenerateJobId()
     {
-        return ++job_count;
+        return job_count++;
     }
 };
 
