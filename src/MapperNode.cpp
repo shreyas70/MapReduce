@@ -20,6 +20,11 @@ void MapperNode::word_count(MasterClient dm, string request_string)
 { 
     cout <<"Socket in thread : " << dm.sock_get() << endl;
     cout << request_string << endl;
+
+    cout << "Sleeping for 10 seconds" << endl;
+    sleep(10);
+    cout << "Wokeup after  10 seconds" << endl;
+
     WordCountMapper wc = WordCountMapper(request_string);
     cout << endl << " After word count mapper " << endl;
     string status = wc.start_job();
@@ -209,7 +214,9 @@ void MapperNode::inverted_index(MasterClient dm, string request_string)
             if(words_split[0][0]>=start && words_split[0][0]<=end)
             {
                 write(r_wd[i], words_split[0].c_str(), words_split[0].length());
-                for(int j=1; j<words_split.size(); j++)
+                write(r_wd[i], " ", 1);
+                write(r_wd[i], words_split[1].c_str(), words_split[1].length());
+                for(int j=2; j<words_split.size(); j++)
                 {
                     write(r_wd[i], " ", 1);
                     write(r_wd[i], words_split[j].c_str(), words_split[j].length());
@@ -222,7 +229,9 @@ void MapperNode::inverted_index(MasterClient dm, string request_string)
             if(words_split[0][0]>=start && words_split[0][0]<=end)
             {
                 write(r_wd[i], words_split[0].c_str(), words_split[0].length());
-                for(int j=1; j<words_split.size(); j++)
+                write(r_wd[i], " ", 1);
+                write(r_wd[i], words_split[1].c_str(), words_split[1].length());
+                for(int j=2; j<words_split.size(); j++)
                 {
                     write(r_wd[i], " ", 1);
                     write(r_wd[i], words_split[j].c_str(), words_split[j].length());
