@@ -136,26 +136,31 @@ int Master::client_request_handler(int client_sock, string req_str)
         {
             string file_path = tokens_vec[2];
 
-
             if(mapper_list.empty())
             {
-                cout << "No mapper objects in vector" << endl;
+                cout << "[Error] No Mappers in the system!!" << endl;
                 return FAILURE;
             }
-            //***check if file is valid***
+            if (reducer_list.empty())
+            {
+                cout << "[Error] No Reducers in the system!!" << endl;
+                return FAILURE;
+            }
+
+            // check if file is valid
             if( access( file_path.c_str() , R_OK ) == -1) {
                 cout << "File doesn't exists. Terminating request." << endl;
-                break;
-            } 
+                return FAILURE;
+            }
 
             int total_lines = num_lines_get(file_path);
             int chunk_num_lines = ceil((double) (total_lines / mapper_list.size()));
 
-            Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size()); // TODO: use reducer_list.size()
+            Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
             jobs_map[new_job->job_id] = new_job;
 
             new_job->problem_id = Problem::WORD_COUNT;
-            new_job->input_file_path = file_path;
+            new_job->input_filenames.push_back(file_path);
 
             //updating reducer of category array
             //initially, number of categories will be equal to number of reducers
@@ -166,6 +171,7 @@ int Master::client_request_handler(int client_sock, string req_str)
             }
 
             //testing. Printing reducer sockets
+            #if 0
             cout << "Printing alloted reducers" << endl;
             for(int i=0;i<new_job->num_reducers;i++)
             {
@@ -173,6 +179,7 @@ int Master::client_request_handler(int client_sock, string req_str)
                 // new_job->reducer_of_category.push_back(*reducer_iterator);
                 // reducer_iterator++;
             }
+            #endif
 
             int curr_line_num = 1, end_line_num = 1, chunk_id = 0, num_lines;
             for(auto litr = mapper_list.begin(); litr != mapper_list.end(); ++litr, ++chunk_id)
@@ -189,7 +196,11 @@ int Master::client_request_handler(int client_sock, string req_str)
                 }
                 num_lines = end_line_num - curr_line_num + 1;
 
-                new_chunk = new Chunk(chunk_id, curr_line_num, num_lines, new_job->job_id, mapper_socket);
+                //new_chunk = new Chunk(chunk_id, curr_line_num, num_lines, new_job->job_id, mapper_socket);
+                new_chunk = new Chunk(chunk_id, new_job->job_id, mapper_socket);
+                new_chunk->start_line_vec.push_back(curr_line_num);
+                new_chunk->num_lines_vec.push_back(num_lines);
+
                 new_job->chunks[chunk_id] = new_chunk;
                 mapper_chunks_map[mapper_socket].insert({new_job->job_id, chunk_id});
 
@@ -260,7 +271,6 @@ void Master::response_handler(int sock, string response_str)
                 job->category_files[catID].push_back(tokens_vec[i]);
                 reducer_category_map[r->get_socket()].insert({job->job_id, catID});
                 r->word_count_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
-            
             }
             break;
         }
@@ -286,12 +296,19 @@ void Master::response_handler(int sock, string response_str)
             if(job->num_successful_reductions == job->num_reducers)
             {
                 //job done
-                util_write_to_sock(job->client_socket, "Your job for the file " + job->input_file_path +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
-                
+                switch (job->problem_id)
+                {
+                    case Problem::WORD_COUNT:
+                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                        break;
+
+                    case Problem::INVERTED_INDEX:
+                        break;
+
+                    default:
+                        break;
+                }
             }
-
-        
-
             break;
         }
 
