@@ -19,7 +19,7 @@ all : mapper_node master_server dummy_client reducer_node fs_server
 
 
 dummy_client : $(C_OBJ_FILES)
-	$(CC) -o $@ $^ 
+	$(CC) -o $@ $^ -pthread
 
 master_server : $(S_OBJ_FILES)
 	$(CC) -o $@ $^ -pthread
