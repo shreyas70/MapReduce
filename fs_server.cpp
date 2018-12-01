@@ -18,13 +18,7 @@
 #include <mutex>
 #include "fs_server.h"
 
-#define MAX_CONNS           100
-#define PORT                4000
-#define IP                  "127.0.0.1"
-#define MAX_SIZE            (512*1024)
-
 using namespace std;
-
 
 /* Skips n lines and position the file pointer at the start of (n+1)th line */ 
 void FS_Server::skip(istream & is, int n , char delim)
@@ -39,6 +33,7 @@ void FS_Server::skip(istream & is, int n , char delim)
 /* split the input into tokens */
 void FS_Server::input_split(string input, vector<string>& tokens)
 {
+
     int len = input.length();
     char arr[len+1];
     strcpy(arr, input.c_str());
@@ -67,7 +62,6 @@ int FS_Server::get_byte_count(ifstream &inFile, int line_count)
     {
         getline(inFile, line);
         bytes += line.size() + 1;
-        // cout<<line<<":"<<bytes<<flush;
         itr++;
     }
 
@@ -79,15 +73,111 @@ void FS_Server::get_lines_count(int sock, string path)
 {
     int lines = 0;
 
+    mutex* file_mutex = file_mutex_get(path);
+    lock_guard<mutex> lg(*file_mutex);
     ifstream inFile(path); 
     lines = count(istreambuf_iterator<char>(inFile), istreambuf_iterator<char>(), '\n');
-    // cout<<lines<<endl;
     send(sock, &lines, sizeof(lines), 0);
 } 
+
+void FS_Server::download_file(string client_ip, int client_port, string src_filename, string dest_filename)
+{
+    // thread::id this_id = this_thread::get_id();
+    int client_socket = util_connection_make(client_ip, client_port); 
+    // cout << "[Thread: " << this_id << "] Connection created with client !! Trying file download\n" << flush;
+    /* TODO: check connection state */
+
+    string req_str = to_string(GET_FILE) + "$" + src_filename;
+    util_write_to_sock(client_socket, req_str);
+    // cout << "[Thread: " << this_id << "] Sent file download request to client " << src_filename <<", " <<dest_filename << "\n" << flush;
+
+    mutex* download_mtx = file_mutex_get(dest_filename);
+
+    lock_guard<mutex> lg(*download_mtx);
+    util_read_data_into_file(client_socket, dest_filename);
+    // cout << "[Thread: " << this_id << "] Downloaded file from client\n";          
+
+}
+
+
+mutex* FS_Server::create_mutex(std::string filename) 
+{
+    std::mutex* m = new std::mutex;
+    download_mtx_map[filename] = m;
+    return m;
+}
+
+mutex* FS_Server::file_mutex_get(std::string filename)
+{
+    std::lock_guard<std::mutex> lg(download_map_mutex);
+    auto itr = download_mtx_map.find(filename);
+    if(itr == download_mtx_map.end())
+    {
+        return create_mutex(filename);
+    }
+    else
+    {
+        return itr->second;
+    }
+}
+
+
+void FS_Server::client_upload_handler(int sock, string req_str)
+{
+    string client_ip;
+    int client_port;
+    vector<string> tokens = split_string(req_str, '$');
+
+    client_ip = tokens[0];
+    client_port = stoi(tokens[1]);
+    string filename = tokens[2];
+    
+    bool exists = util_file_exists(filename);
+    int file_exists;
+
+    if(exists)
+    {
+        file_exists = 1;
+        send(sock, &file_exists, sizeof(file_exists), 0);
+    }
+    else
+    {
+        file_exists = 0;
+        send(sock, &file_exists, sizeof(file_exists), 0);
+        thread th(&FS_Server::download_file, this, client_ip, client_port, filename, filename);
+        th.detach();
+    }
+}
+
+
+void FS_Server::client_append_handler(int sock, string req_str)
+{
+    vector<string> tokens;
+    string client_ip;
+    int client_port;
+
+    input_split(req_str, tokens);
+
+    client_ip = tokens[0];
+    client_port = stoi(tokens[1]);
+    string src_filename = tokens[2];
+    string dest_filename = tokens[3];
+
+    thread th(&FS_Server::download_file, this, client_ip, client_port, src_filename, dest_filename);
+    th.detach();
+}
+
+void FS_Server::file_data_send(int sock, string filename, int pos, int byte_count)
+{
+    mutex* download_mtx = file_mutex_get(filename);
+    lock_guard<mutex> lg(*download_mtx);
+    util_file_data_send(sock, filename, pos, byte_count);
+}
 
 /* Handles client requests */ 
 void FS_Server::client_request_handle(int sock, string req_str)
 {
+    cout << "\n" << req_str << endl;
     int dollar_pos = req_str.find_first_of('$'); 
     string cmd = req_str.substr(0, dollar_pos); // get the opcode
     req_str = req_str.erase(0, dollar_pos+1);   // remove the opcode part from input
@@ -120,29 +210,32 @@ void FS_Server::client_request_handle(int sock, string req_str)
             int byte_count = get_byte_count(inFile, line_count);
             inFile.close();
 
-            thread th(util_file_data_send, sock, filename, pos, byte_count);
+            thread th(&FS_Server::file_data_send, this, sock, filename, pos, byte_count);
             th.detach();
             break;
         }
 
         case UPLOAD_FILE:
         {
-            string filename = req_str;
-            bool exists = util_file_exists(filename);
-            int file_exists;
+            thread th(&FS_Server::client_upload_handler, this, sock, req_str);
+            th.detach();
+            break;
+        }
 
-            if(exists)
+        case APPEND_FILE:
+        {
+            thread th(&FS_Server::client_append_handler, this, sock, req_str);
+            th.detach();
+            break;
+        }
+
+        case REMOVE_FILE:
+        {
+            if (util_file_exists(req_str))
             {
-                file_exists = 1;
-                send(sock, &file_exists, sizeof(file_exists), 0);
+                remove(req_str.c_str());
             }
-            else
-            {
-                file_exists = 0;
-                send(sock, &file_exists, sizeof(file_exists), 0);
-                util_read_data_into_file(sock, filename);
-                // TODO: check if file opened or not      
-            }
+            break;
         }
 
         default:
@@ -291,7 +384,7 @@ void FS_Server::start_server()
                     string buffer_str, error_msg;
                     if (FAILURE == util_socket_data_get(sd, buffer_str, error_msg))
                     {
-			            cout << "FAILED READ" << endl;
+			            cout << error_msg << endl;
                         close(sd);
                         client_socket[i] = 0;
                         continue;

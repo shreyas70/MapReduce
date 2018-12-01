@@ -133,7 +133,7 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
     if(FAILURE == valread)
     {
         stringstream ss;
-        ss << __func__ << " (" << __LINE__ << "): read() failed!!";
+        ss << __func__ << " (" << __LINE__ << "): read() failed, errno: " << errno;
         error_msg = ss.str();
         return FAILURE;
     }
@@ -154,6 +154,26 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
     return SUCCESS;
 }
 
+vector<string> split_string(string input_string, char delimiter)
+{
+    vector<string> output_vector;
+    string curr_string = "";
+    for(int i=0; i<input_string.length(); i++)
+    {
+        char curr_char = input_string[i];
+        if(curr_char == delimiter)
+        {
+            output_vector.push_back(curr_string);
+            curr_string = "";
+        }
+        else
+        {
+            curr_string+=curr_char;
+        }
+    }
+    output_vector.push_back(curr_string);
+    return output_vector;
+}
 
 void util_write_to_sock(int sock, string data)
 {
@@ -184,6 +204,13 @@ void util_file_data_send(int sock, string filename, long pos, int remaining_byte
         remaining_bytes -= util_file_data_read(inFile, chunk_size, buffer_str);
         util_write_to_sock(sock, buffer_str);
     }
+}
+
+void util_complete_file_data_send(int sock, string filename)
+{   
+    int file_size = util_file_size_get(filename);
+    util_file_data_send(sock, filename, 0, file_size);
+    cout <<"Uploaded complete file on FS\n";
 }
 
 int util_file_data_read(ifstream &inFile, int chunk_size, string& buffer_str)
