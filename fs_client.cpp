@@ -26,9 +26,10 @@ int FS_Client::get_lines_count(string file_path)
     int num = 0;
     int size = 0;
     int status;
-    string opcode = "0$";
+    string opcode = to_string(TOTAL_COUNT) + "$";
 
     m_file_socket = util_connection_make(m_file_ip, m_file_port);
+    // TODO : CHECK for connection status
 
     opcode += file_path;
     util_write_to_sock(m_file_socket, opcode);
@@ -53,68 +54,41 @@ void FS_Client::get_chunk(string input_filename, string output_filename, int sta
     memset(buffer, 0, sizeof(char)*MAX_SIZE);
 
     m_file_socket = util_connection_make(m_file_ip, m_file_port);
+    // TODO : CHECK for connection status
 
-    ofstream outfile(output_filename, std::ios_base::app);
-
-    string opcode = "1$";
+    string opcode = to_string(GET_CHUNK) + "$";
     opcode += to_string(start_line) + "$";
     opcode += to_string(line_count) + "$";; 
     opcode += input_filename;
     util_write_to_sock(m_file_socket, opcode);
-
-    while(true)
-    {
-        string buffer_str, error_msg;
-        if (FAILURE == util_socket_data_get(m_file_socket, buffer_str, error_msg))
-        {
-            cout << error_msg << endl;
-            close(m_file_socket);
-            m_file_socket = INVALID_SOCK;
-            break;
-        }
-        outfile << buffer_str;
-        if (buffer_str.length() < MAX_SIZE)
-        {
-            close(m_file_socket);
-            m_file_socket = INVALID_SOCK;
-            break;
-        }
-        #if 0
-        status = read(m_file_socket, &bytes_to_read, sizeof(bytes_to_read));
-        cout<<bytes_to_read<<endl;
-        if(FAILURE == status || 0 == status)
-        {
-            /* Some error occurred */ 
-            cout<<"Error Occurred\n";
-            break ;
-        }
-
-        else
-        {
-            int itr = bytes_to_read/MAX_SIZE;
-            int last_iter_read = MAX_SIZE;
-            int to_read = MAX_SIZE;
-
-            if(bytes_to_read % MAX_SIZE != 0)
-            {
-                last_iter_read = bytes_to_read % MAX_SIZE;
-                itr++;
-            }
-
-            for(int  i = 0;i < itr; i++)
-            {
-                if(i == itr - 1)
-                    to_read = last_iter_read;
-
-                util_data_read(m_file_socket, buffer, to_read);
-                outfile << buffer;
-                memset(buffer, 0, sizeof(char)*MAX_SIZE);
-            }
-
-        }
-        #endif
-    }  
+    util_read_data_into_file(m_file_socket, output_filename);
 } 
+
+int FS_Client::upload_file(string input_filename)
+{
+    m_file_socket = util_connection_make(m_file_ip, m_file_port);
+    // TODO : CHECK for connection status
+
+    string req_str = to_string(UPLOAD_FILE) + "$" + input_filename;
+    util_write_to_sock(m_file_socket, req_str);
+    // TODO: check write status
+
+    int file_exists;
+    read(m_file_socket, &file_exists, sizeof(file_exists));
+    
+    if(file_exists)
+    {
+        cout << "File " << input_filename <<" Already Exists!!! Please specify a different name\n";
+        close(m_file_socket);
+        m_file_socket = INVALID_SOCK;
+        return FILE_EXISTS;
+    }
+
+    int file_size = util_file_size_get(input_filename);
+    util_file_data_send(m_file_socket, input_filename, 0, file_size);
+    close(m_file_socket);
+    m_file_socket = INVALID_SOCK;
+}
 
 int main()
 {
@@ -123,6 +97,8 @@ int main()
     FS_Client fs_client;
     // size_t cnt = 0;
     // cnt = f.get_lines_count("/home/kaushik/Coursework/OS/input.txt");
-    fs_client.get_chunk("../input.txt", "output.txt", start_line, line_count);
-    return 0 ;
+    // fs_client.get_chunk("input.txt", "output.txt", start_line, line_count);
+    int upload_state = fs_client.upload_file("file.cpp");
+    while(1);
+    return 0;
 }

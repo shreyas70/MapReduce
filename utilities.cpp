@@ -157,7 +157,93 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
 
 void util_write_to_sock(int sock, string data)
 {
+    //todo: check write status
     int sz = data.length();
     send(sock, &sz, sizeof(sz), 0);
     send(sock, data.c_str(), data.length(), 0);
+}
+
+/* Return chunk of a file  */ 
+void util_file_data_send(int sock, string filename, long pos, int remaining_bytes)
+{
+    ifstream inFile;
+    inFile.open(filename, ios::binary | ios::in);
+
+    if (!inFile)
+    {
+        cout << __func__ << ":" << __LINE__ << ": File open() failed!!\n ";
+        return;
+    }
+    inFile.seekg(pos);
+
+    int chunk_size = 0;
+    while (remaining_bytes > 0)
+    {
+        string buffer_str;
+        chunk_size = remaining_bytes <= MAX_CHUNK_SIZE ? remaining_bytes : MAX_CHUNK_SIZE;
+        remaining_bytes -= util_file_data_read(inFile, chunk_size, buffer_str);
+        util_write_to_sock(sock, buffer_str);
+    }
+}
+
+int util_file_data_read(ifstream &inFile, int chunk_size, string& buffer_str)
+{
+    int bytes_read = 0, total_bytes_read = 0;
+    char temp_buff[chunk_size + 1];
+    memset(temp_buff, 0, sizeof(temp_buff));
+
+    do{
+        cout << "To Read: " << chunk_size << ", Done Read: " << bytes_read << endl;
+        inFile.read(temp_buff + total_bytes_read, chunk_size);
+        bytes_read = inFile.gcount();
+        total_bytes_read += bytes_read;
+        chunk_size -= bytes_read;
+
+        if(inFile.fail() && !inFile.eof())
+        {
+            cout << "Error: (" << __func__ << ") (" << __LINE__ << "): " << strerror(errno);
+            return 0;
+        }
+    }while(chunk_size);
+
+    buffer_str = temp_buff;
+    return total_bytes_read;
+}
+
+size_t  util_file_size_get(string filename)
+{
+    ifstream in(filename, ios_base::binary);
+    in.seekg(0, ios_base::end);
+    return in.tellg();
+}
+
+bool util_file_exists(string filename)
+{
+    const char *fname = filename.c_str();
+    struct stat buffer;
+    return (stat (fname, &buffer) == 0);
+}
+
+void util_read_data_into_file(int m_file_socket, string filename)
+{
+    ofstream out(filename, ios_base::binary | ios_base::app);
+    // TODO: check file op
+    while(true)
+    {
+        string buffer_str, error_msg;
+        if (FAILURE == util_socket_data_get(m_file_socket, buffer_str, error_msg))
+        {
+            cout << error_msg << endl;
+            close(m_file_socket);
+            m_file_socket = INVALID_SOCK;
+            break;
+        }
+        out << buffer_str;
+        if (buffer_str.length() < MAX_CHUNK_SIZE)
+        {
+            close(m_file_socket);
+            m_file_socket = INVALID_SOCK;
+            break;
+        }
+    }  
 }

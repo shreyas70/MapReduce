@@ -6,6 +6,14 @@
 #define FAILURE   -1
 #define SUCCESS   0
 #define MAX_SIZE  (512*1024)
+#define FILE_EXISTS 1
+
+enum Request_Type
+{
+    TOTAL_COUNT,
+    GET_CHUNK,
+    UPLOAD_FILE
+};
 
 class FS_Client
 {
@@ -16,9 +24,9 @@ private:
 
 public:
 
-    /* Get nummber of lines from FS */ 
     int get_lines_count(std::string file_path);
     void get_chunk(std::string input_filename, std::string output_filename, int start_line, int line_count);
+    int upload_file(std::string input_filename);
 };
 
 #endif  // _FILE_SERVER_H_

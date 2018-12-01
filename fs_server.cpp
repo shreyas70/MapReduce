@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <thread>
 #include <mutex>
-
 #include "fs_server.h"
 
 #define MAX_CONNS           100
@@ -72,78 +71,8 @@ int FS_Server::get_byte_count(ifstream &inFile, int line_count)
         itr++;
     }
 
-#if 0
-    if(! getline(inFile, line))
-    {
-        bytes -= 1;
-    }
-#endif
-    // cout<<bytes<<flush;
     return bytes;
 }
-
-int FS_Server::util_file_data_read(ifstream &inFile, int sock, int bytes_to_read)
-{
-    int bytes_read = 0, total_bytes_read = 0;
-    char temp_buff[MAX_SIZE + 1];
-    memset(temp_buff, 0, sizeof(temp_buff));
-
-    do{
-        cout << "To Read: " << bytes_to_read << ", Done Read: " << bytes_read << endl;
-        inFile.read(temp_buff + total_bytes_read, bytes_to_read);
-        bytes_read = inFile.gcount();
-        total_bytes_read += bytes_read;
-        bytes_to_read -= bytes_read;
-
-        if(inFile.fail() && !inFile.eof())
-        {
-            cout << "Error: (" << __func__ << ") (" << __LINE__ << "): " << strerror(errno);
-            return 0;
-        }
-    }while(bytes_to_read);
-
-    util_write_to_sock(sock, temp_buff);
-    return total_bytes_read;
-}
-
-
-/* Return chunk of a file  */ 
-void FS_Server::file_chunks_upload(int sock, string input)
-{
-    vector<string> tokens;
-    input_split(input, tokens);
-
-    int start_line = stoi(tokens[0]); 
-    int line_count = stoi(tokens[1]);
-    string file_path = tokens[2];
-
-    ifstream inFile;
-    inFile.open(file_path, ios::binary | ios::in);
-
-    skip(inFile, start_line - 1,'\n');
-
-    long pos = inFile.tellg();
-    cout << "Pos: " << pos << endl;
-    int byte_count = get_byte_count(inFile, line_count);
-    // cout<<byte_count; // debug
-    inFile.clear();
-    inFile.seekg(pos);
-
-    if (!inFile)
-    {
-        cout << __func__ << ":" << __LINE__ << ": File open() failed!!\n ";
-        return;
-    }
-
-    // send(sock, &byte_count, sizeof(byte_count), 0);
-    int bytes_to_read = 0;
-    while (byte_count > 0)
-    {
-        bytes_to_read = byte_count <= MAX_SIZE ? byte_count : MAX_SIZE;
-        byte_count -= util_file_data_read(inFile, sock, bytes_to_read);
-    }
-}
-
 
 /* Count number of lines the specified file*/
 void FS_Server::get_lines_count(int sock, string path)
@@ -152,7 +81,7 @@ void FS_Server::get_lines_count(int sock, string path)
 
     ifstream inFile(path); 
     lines = count(istreambuf_iterator<char>(inFile), istreambuf_iterator<char>(), '\n');
-    cout<<lines<<endl;
+    // cout<<lines<<endl;
     send(sock, &lines, sizeof(lines), 0);
 } 
 
@@ -161,7 +90,7 @@ void FS_Server::client_request_handle(int sock, string req_str)
 {
     int dollar_pos = req_str.find_first_of('$'); 
     string cmd = req_str.substr(0, dollar_pos); // get the opcode
-    req_str = req_str.erase(0, dollar_pos+1); // remove the opcode part from input
+    req_str = req_str.erase(0, dollar_pos+1);   // remove the opcode part from input
     int req = stoi(cmd);
 
     switch(req)
@@ -175,9 +104,45 @@ void FS_Server::client_request_handle(int sock, string req_str)
 
         case GET_CHUNK:
         {
-            thread th(&FS_Server::file_chunks_upload, this, sock, req_str);
+            vector<string> tokens;
+            input_split(req_str, tokens);
+
+            int start_line = stoi(tokens[0]); 
+            int line_count = stoi(tokens[1]);
+            string filename = tokens[2];
+
+            ifstream inFile;
+            inFile.open(filename, ios::binary | ios::in);
+
+            skip(inFile, start_line - 1,'\n');
+
+            long pos = inFile.tellg();
+            int byte_count = get_byte_count(inFile, line_count);
+            inFile.close();
+
+            thread th(util_file_data_send, sock, filename, pos, byte_count);
             th.detach();
             break;
+        }
+
+        case UPLOAD_FILE:
+        {
+            string filename = req_str;
+            bool exists = util_file_exists(filename);
+            int file_exists;
+
+            if(exists)
+            {
+                file_exists = 1;
+                send(sock, &file_exists, sizeof(file_exists), 0);
+            }
+            else
+            {
+                file_exists = 0;
+                send(sock, &file_exists, sizeof(file_exists), 0);
+                util_read_data_into_file(sock, filename);
+                // TODO: check if file opened or not      
+            }
         }
 
         default:
