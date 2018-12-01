@@ -21,9 +21,9 @@ void MapperNode::word_count(MasterClient dm, string request_string)
     cout <<"Socket in thread : " << dm.sock_get() << endl;
     cout << request_string << endl;
 
-    cout << "Sleeping for 10 seconds" << endl;
-    sleep(10);
-    cout << "Wokeup after  10 seconds" << endl;
+    // cout << "Sleeping for 10 seconds" << endl;
+    // sleep(10);
+    // cout << "Wokeup after  10 seconds" << endl;
 
     WordCountMapper wc = WordCountMapper(request_string);
     cout << endl << " After word count mapper " << endl;

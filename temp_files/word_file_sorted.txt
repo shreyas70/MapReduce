@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 apple apple apple banana banana black black blue blue blue brown cyan go green grey jackfruit jackfruit muskmelon orange orange orange ready red red red set watermelon white white yellow yellow 
-=======
-apple apple banana chikoo grapes jackfruit jackfruit muskmelon orange watermelon 
->>>>>>> 71843429bea48518ec55aca3040f796834ede4a3

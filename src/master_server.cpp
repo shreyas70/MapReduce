@@ -137,26 +137,31 @@ int Master::client_request_handler(int client_sock, string req_str)
         {
             string file_path = tokens_vec[2];
 
-
             if(mapper_list.empty())
             {
-                cout << "No mapper objects in vector" << endl;
+                cout << "[Error] No Mappers in the system!!" << endl;
                 return FAILURE;
             }
-            //***check if file is valid***
+            if (reducer_list.empty())
+            {
+                cout << "[Error] No Reducers in the system!!" << endl;
+                return FAILURE;
+            }
+
+            // check if file is valid
             if( access( file_path.c_str() , R_OK ) == -1) {
                 cout << "File doesn't exists. Terminating request." << endl;
-                break;
-            } 
+                return FAILURE;
+            }
 
             int total_lines = num_lines_get(file_path);
             int chunk_num_lines = ceil((double) (total_lines / mapper_list.size()));
 
-            Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size()); // TODO: use reducer_list.size()
+            Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
             jobs_map[new_job->job_id] = new_job;
 
             new_job->problem_id = Problem::WORD_COUNT;
-            new_job->input_file_path = file_path;
+            new_job->input_filenames.push_back(file_path);
 
             //updating reducer of category array
             //initially, number of categories will be equal to number of reducers
@@ -167,6 +172,7 @@ int Master::client_request_handler(int client_sock, string req_str)
             }
 
             //testing. Printing reducer sockets
+            #if 0
             cout << "Printing alloted reducers" << endl;
             for(int i=0;i<new_job->num_reducers;i++)
             {
@@ -174,6 +180,7 @@ int Master::client_request_handler(int client_sock, string req_str)
                 // new_job->reducer_of_category.push_back(*reducer_iterator);
                 // reducer_iterator++;
             }
+            #endif
 
             int curr_line_num = 1, end_line_num = 1, chunk_id = 0, num_lines;
             for(auto litr = mapper_list.begin(); litr != mapper_list.end(); ++litr, ++chunk_id)
@@ -190,7 +197,11 @@ int Master::client_request_handler(int client_sock, string req_str)
                 }
                 num_lines = end_line_num - curr_line_num + 1;
 
-                new_chunk = new Chunk(chunk_id, curr_line_num, num_lines, new_job->job_id, mapper_socket);
+                //new_chunk = new Chunk(chunk_id, curr_line_num, num_lines, new_job->job_id, mapper_socket);
+                new_chunk = new Chunk(chunk_id, new_job->job_id, mapper_socket);
+                new_chunk->start_line_vec.push_back(curr_line_num);
+                new_chunk->num_lines_vec.push_back(num_lines);
+
                 new_job->chunks[chunk_id] = new_chunk;
                 mapper_chunks_map[mapper_socket].insert({new_job->job_id, chunk_id});
 
@@ -261,7 +272,6 @@ void Master::response_handler(int sock, string response_str)
                 job->category_files[catID].push_back(tokens_vec[i]);
                 reducer_category_map[r->get_socket()].insert({job->job_id, catID});
                 r->word_count_request(job->job_id,catID,tokens_vec[i],job->num_mappers);
-            
             }
 
             //removing from mapper map
@@ -295,17 +305,23 @@ void Master::response_handler(int sock, string response_str)
 
             if(job->num_successful_reductions == job->num_reducers)
             {
+
                 //job done
-                util_write_to_sock(job->client_socket, "Your job for the file " + job->input_file_path +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
-                
+                switch (job->problem_id)
+                {
+                    case Problem::WORD_COUNT:
+                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                        break;
+
+                    case Problem::INVERTED_INDEX:
+                        break;
+
+                    default:
+                        break;
+                }
                 jobs_map.erase(job->job_id);
                 delete job;
             }
-
-            
-
-        
-
             break;
         }
 
@@ -494,18 +510,8 @@ void Master::run()
                             close(sock);
                             continue;
                         }
-                        // int index = (rand() % no_of_mappers);
-                       
-                        // auto mlitr = mapper_list.begin();
-                        // for(int sub_index = 0; sub_index<index; sub_index++)
-                        // {
-                        //     ++mlitr;
-                        // }
-                        // Mapper * current_mapper = *mlitr;
-                        // int current_socket = current_mapper->get_socket();
-                        // set<pair<int,int>> current_mapper_set = mapper_chunks_map[current_socket];
-                        // current_mapper_set.insert(old_mapper_set.begin(), old_mapper_set.end());
-                        // mapper_chunks_map[current_socket] = current_mapper_set;
+                        
+
 
                         string debug_string = "Mapper on socket: "+to_string(old_mapper_socket)+" failed! "+to_string(no_of_mappers)+" mappers left";
                         log_print(debug_string);
@@ -534,9 +540,9 @@ void Master::run()
                             Chunk * curr_chunk = chunks[curr_chunk_id];
                             curr_chunk->mapper_sock = current_socket;
 
-                            string curr_file_path = job_obj->input_file_path;
-                            int curr_start_line = curr_chunk->start_line;
-                            int curr_no_of_lines = curr_chunk->num_lines;
+                            string curr_file_path = job_obj->input_filenames[0];
+                            int curr_start_line = curr_chunk->start_line_vec[0];
+                            int curr_no_of_lines = curr_chunk->num_lines_vec[0];
                             int curr_num_reducers = job_obj->num_reducers;
 
                             debug_string = "Reassigning job "+to_string(curr_job_id)+" chunk "+to_string(curr_chunk_id)+" to mapper on socket : "+to_string(current_socket);
@@ -568,20 +574,112 @@ void Master::run()
                 ++litr;
             }
 
-            for(Reducer* r : reducer_list)
+            // for(Reducer* r : reducer_list)
+            // {
+            //     int sock = r->get_socket();
+            //     if (FD_ISSET(sock , &readfds))
+            //     {
+            //         string buffer_str, error_msg;
+            //         if (FAILURE == util_socket_data_get(sock, buffer_str, error_msg))
+            //         {
+            //             log_print(error_msg);
+
+                    
+
+
+            //             continue;
+            //         }
+
+            //         response_handler(sock, buffer_str);
+            //     }
+            // }
+
+            auto r_litr = reducer_list.begin();
+            while(r_litr != reducer_list.end())
             {
-                int sock = r->get_socket();
+                int sock = (*r_litr)->get_socket();
                 if (FD_ISSET(sock , &readfds))
                 {
                     string buffer_str, error_msg;
                     if (FAILURE == util_socket_data_get(sock, buffer_str, error_msg))
                     {
                         log_print(error_msg);
+
+                        reducer_list.erase(r_litr++);
+
+                        int old_reducer_socket = sock;
+                        
+                        set<pair<int,int>> old_reducer_set = reducer_category_map[old_reducer_socket];
+                        reducer_category_map.erase(old_reducer_socket);
+
+                        int no_of_reducers = reducer_list.size();
+                        
+                        if(no_of_reducers <=0)
+                        {
+                            close(sock);
+                            continue;
+                        }
+
+                        string debug_string = "Reducer on socket: "+to_string(old_reducer_socket)+" failed! "+to_string(no_of_reducers)+" mappers left";
+                        log_print(debug_string);
+
+                        for(set<pair<int,int>>::iterator jit = old_reducer_set.begin(); jit!=old_reducer_set.end(); ++jit)
+                        {
+                            int new_reducer_index = (rand() % no_of_reducers);
+
+                            auto rlitr = reducer_list.begin();
+                            for(int sub_index = 0; sub_index<new_reducer_index; sub_index++)
+                            {
+                                ++rlitr;
+                            }
+                            Reducer * current_reducer = *rlitr;
+                            int current_socket = current_reducer->get_socket();
+                            set<pair<int,int>> current_reducer_set = reducer_category_map[current_socket];
+                            pair<int,int> job_category_pair = *jit;
+                            current_reducer_set.insert(job_category_pair);
+                            reducer_category_map[current_socket] = current_reducer_set;
+                            
+                            int curr_job_id = jit->first;
+                            int curr_category_id = jit->second;
+
+                            Job * job_obj = jobs_map[curr_job_id];
+                            // Chunk ** chunks = job_obj->chunks;
+                            // Chunk * curr_chunk = chunks[curr_chunk_id];
+                            // curr_chunk->mapper_sock = current_socket;
+                            job_obj->reducer_of_category[curr_category_id] = current_reducer;
+
+                            // string curr_file_path = job_obj->input_file_path;
+                            // int curr_start_line = curr_chunk->start_line;
+                            // int curr_no_of_lines = curr_chunk->num_lines;
+                            // int curr_num_reducers = job_obj->num_reducers;
+
+                            vector<string> file_paths = job_obj->category_files[curr_category_id];
+                            int curr_num_mappers = job_obj->num_mappers;
+
+                            debug_string = "Reassigning job "+to_string(curr_job_id)+" category "+to_string(curr_category_id)+" to reducer on socket : "+to_string(current_socket);
+                            log_print(debug_string);
+                            
+                            if(job_obj->problem_id == Problem::WORD_COUNT)
+                            {
+                                 for(int fi = 0; fi<file_paths.size(); fi++)
+                                 {
+                                     current_reducer->word_count_request(curr_job_id, curr_category_id, file_paths[fi], curr_num_mappers);
+                                 }                              
+                            }
+                            
+                            // else if(job_obj->problem_id == INVERTED_INDEX)
+                            // {
+                            //     current_mapper->initiate_inverted_index_request();
+                            // }
+                        }
+
+                        close(sock);
                         continue;
                     }
 
                     response_handler(sock, buffer_str);
                 }
+                ++r_litr;
             }
 
             // else its some IO operation on some other socket

@@ -29,4 +29,4 @@ reducer_node : $(R_OBJ_FILES)
 	$(CC) -o $@ $^ -pthread
 
 clean:
-	-rm $(OBJ_DIR)/*.o
+	-rm $(OBJ_DIR)/*.o mapper_node master_server dummy_client reducer_node
