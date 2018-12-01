@@ -1,8 +1,0 @@
-white 2
-startMaster 2
-yellow 2
-set 2
-orange 2
-ready 2
-run 2
-red 4

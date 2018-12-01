@@ -37,7 +37,7 @@ void MapperNode::word_count(MasterClient dm, string request_string)
     int no_of_reducers = wc.get_no_of_reducers();
     for(int i=0; i<no_of_reducers; i++)
     {
-        string file_name = file_dir+job_id+"_reducer"+to_string(i+1)+".txt";
+        string file_name = file_dir+ "M_job_" + job_id + "_chunk_" + wc.get_chunk_id() + "_category_" + to_string(i) + ".txt";
         reducer_files.push_back(file_name);
     }
     vector<int> r_wd;
@@ -141,7 +141,7 @@ void MapperNode::inverted_index(MasterClient dm, string request_string)
     vector<string> reducer_files;
     for(int i=0; i<no_of_reducers; i++)
     {
-        string file_name = file_dir+job_id+"_reducer"+to_string(i+1)+".txt";
+        string file_name = file_dir + "M_job_" + job_id + "_chunk_" + ii.get_chunk_id() + "_category_" + to_string(i) + ".txt";
         reducer_files.push_back(file_name);
     }
     // string reducer_file1 = file_dir+job_id+"_reducer1.txt";
@@ -251,7 +251,7 @@ void MapperNode::start_mapper_node(string master_ip_address, int master_port_num
         {
             if(FAILURE == dm.connect_as_mapper(master_ip_address, master_port_number))
             {
-                cout << "master Connection Failure\n";
+                cout << "Master Connection Failure\n";
                 sleep(2);
             }
         }

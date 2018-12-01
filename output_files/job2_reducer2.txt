@@ -1,3 +1,0 @@
-orange input_files/i_file1.txt input_files/i_file2.txt input_files/i_file3.txt 
-muskmelon input_files/i_file2.txt 
-jackfruit input_files/i_file2.txt 

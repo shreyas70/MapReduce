@@ -1,5 +1,0 @@
-word1 5
-word2 3
-word3 2
-word4 9
-listen 10
