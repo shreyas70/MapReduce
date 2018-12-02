@@ -231,7 +231,8 @@ int Master::client_request_handler(int client_sock, string req_str)
         {
             for(int i=2;i<tokens_vec.size();i++)
             {
-                if(access(tokens_vec[i].c_str(), R_OK) == -1)
+                
+                if(util_file_exists(tokens_vec[i]))
                 {
                     cout << "Invalid files. Terminating request" << endl;
                     return FAILURE;
@@ -418,16 +419,29 @@ void Master::response_handler(int sock, string response_str)
                 switch(job->problem_id)
                 {
                     case Problem::WORD_COUNT:
+                        for(auto v:job->category_files)
+                        {
+                            for(auto s:v)
+                            {
+                                fs_client.remove_file(s);
+                            }
+                        }
                         util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
                         break;
 
                     case Problem::INVERTED_INDEX:
                     {
+                        for(auto v:job->category_files)
+                        {
+                            for(auto s:v)
+                            {
+                                fs_client.remove_file(s);
+                            }
+                        }
                         string files="";
                         for(auto fileName:job->input_filenames)
                         {
                             files+= fileName +",";
-
                         }
                         util_write_to_sock(job->client_socket, "Your job for files :" +files  + " is done! Output file : " + to_string(job->job_id) + "_output.txt");
                         break;

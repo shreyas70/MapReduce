@@ -45,6 +45,10 @@ int main(int argc, char* argv[])
     filesList.push_back("input_files/i_file2.txt");
     filesList.push_back("input_files/i_file3.txt");
 
+    fs_client.upload_file("input_files/i_file1.txt");
+    fs_client.upload_file("input_files/i_file2.txt");
+    fs_client.upload_file("input_files/i_file3.txt");
+
     m.connect_as_client(m_ip_addr, m_port,Problem::INVERTED_INDEX, filesList);
 
     
