@@ -31,6 +31,7 @@ private:
     std::string m_client_ip;
     int      m_server_port;
     std::string m_server_ip;
+    std::string m_logfile_path;
 
 public:
     FS_Client(std::string client_ip_addr, std::string server_ip_addr);

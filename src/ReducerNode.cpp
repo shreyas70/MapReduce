@@ -99,9 +99,13 @@ void ReducerNode::start_reducer_node(string master_ip_address, int master_port_n
         {
             continue;
         }
+
+
         vector<string> req_split = split_string(request_string, '#');
         string req_type = req_split[0];
         thread t;
+        cout << "reducer sleeping for 10 seconds" << endl;
+        sleep(10);
         if(!req_type.compare("word_count"))
         {
             cout<<"\n\nReceived word count request\n\n";

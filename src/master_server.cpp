@@ -20,9 +20,11 @@
 
 #include "utilities.h"
 #include "master_server.h"
+#include "fs_client.h"
 
 using namespace std;
 
+FS_Client fs_client("127.0.0.1:3999", "127.0.0.1:6000");
 
 string current_timestamp_get()
 {
@@ -141,14 +143,14 @@ int Master::client_request_handler(int client_sock, string req_str)
 
     Problem problem = (Problem)(stoi(tokens_vec[1]));
 
-
     switch(problem)
     {
         case Problem::WORD_COUNT:
         {
             string file_path = tokens_vec[2];
 
-            int total_lines = num_lines_get(file_path);
+            int total_lines = fs_client.get_lines_count(file_path);
+            // int total_lines = num_lines_get(file_path);
             int chunk_num_lines = ceil(((double) total_lines / mapper_list.size()));
 
             Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
@@ -400,18 +402,31 @@ void Master::response_handler(int sock, string response_str)
                 switch(job->problem_id)
                 {
                     case Problem::WORD_COUNT:
-                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                        for(auto v:job->category_files)
+                        {
+                            for(auto s:v)
+                            {
+                                fs_client.remove_file(s);
+                            }
+                        }
+                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : word_count" + to_string(job->job_id) + "_output.txt");
                         break;
 
                     case Problem::INVERTED_INDEX:
                     {
+                        for(auto v:job->category_files)
+                        {
+                            for(auto s:v)
+                            {
+                                fs_client.remove_file(s);
+                            }
+                        }
                         string files="";
                         for(auto fileName:job->input_filenames)
                         {
                             files+= fileName +",";
-
                         }
-                        util_write_to_sock(job->client_socket, "Your job for files :" +files  + " is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                        util_write_to_sock(job->client_socket, "Your job for files :" +files  + " is done! Output file : inverted_index" + to_string(job->job_id) + "_output.txt");
                         break;
                     }
 
@@ -815,15 +830,15 @@ void Master::run()
 
 int main(int argc, char* argv[])
 {
+    
+    
+
     if(argc != 3)
     {
         //status_print(FAILURE, "Reducer Launch command : \"/master <MASTER_IP>:<PORT> <worker_log_file>\"");
         cout << endl;
         return 0;
     }
-
-    
-
     Master master;
     master.log_path_set(util_abs_path_get(argv[2]));         // USE NFS PATH HERE
     master.ip_addr_set(argv[1]);

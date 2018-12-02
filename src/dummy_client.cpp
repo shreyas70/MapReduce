@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "fs_client.h"
 #include <arpa/inet.h>
 
 #include "master_client.h"
@@ -32,10 +33,13 @@ int main(int argc, char* argv[])
 
     MasterClient m;
 
-    // if(FAILURE == master.sock_get())
-    //     return FAILURE;
+    FS_Client fs_client("127.0.0.1:3998", "127.0.0.1:6000");
+    size_t cnt = 0;
 
-    // string file_path = util_abs_path_get(argv[2]);
+    cout << util_file_exists("input_files/i_file1.txt") << endl;
+    cnt = fs_client.get_lines_count("input_files/i_file1.txt");
+    cout << cnt << endl;
+    
     
     vector<string> filesList;
     // filesList.push_back("input_files/i_file1.txt");

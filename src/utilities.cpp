@@ -183,7 +183,6 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
 
 void util_write_to_sock(int sock, string data)
 {
-    cout <<"trying to write" << endl;
     int sz = data.length();
     send(sock, &sz, sizeof(sz), 0);
     send(sock, data.c_str(), data.length(), 0);
@@ -198,7 +197,7 @@ void util_file_data_send(int sock, string filename, long pos, int remaining_byte
 
     if (!inFile)
     {
-        cout << __func__ << ":" << __LINE__ << ": File open() failed!!\n ";
+        // cout << __func__ << ":" << __LINE__ << ": File open() failed!!\n ";
         return;
     }
     inFile.seekg(pos);
@@ -217,7 +216,7 @@ void util_complete_file_data_send(int sock, string filename)
 {
     int file_size = util_file_size_get(filename);
     util_file_data_send(sock, filename, 0, file_size);
-    cout <<"Uploaded complete file on FS\n";
+    // cout << "Uploaded complete file on FS\n";
 }
 
 int util_file_data_read(ifstream &inFile, int chunk_size, string& buffer_str)
@@ -227,7 +226,7 @@ int util_file_data_read(ifstream &inFile, int chunk_size, string& buffer_str)
     memset(temp_buff, 0, sizeof(temp_buff));
 
     do{
-        cout << "To Read: " << chunk_size << ", Done Read: " << bytes_read << endl;
+        // cout << "To Read: " << chunk_size << ", Done Read: " << bytes_read << endl;
         inFile.read(temp_buff + total_bytes_read, chunk_size);
         bytes_read = inFile.gcount();
         total_bytes_read += bytes_read;
@@ -235,7 +234,7 @@ int util_file_data_read(ifstream &inFile, int chunk_size, string& buffer_str)
 
         if(inFile.fail() && !inFile.eof())
         {
-            cout << "Error: (" << __func__ << ") (" << __LINE__ << "): " << strerror(errno);
+            // cout << "Error: (" << __func__ << ") (" << __LINE__ << "): " << strerror(errno);
             return 0;
         }
     }while(chunk_size);
@@ -247,6 +246,8 @@ int util_file_data_read(ifstream &inFile, int chunk_size, string& buffer_str)
 size_t  util_file_size_get(string filename)
 {
     ifstream in(filename, ios_base::binary);
+    if(!in)
+        return 0;
     in.seekg(0, ios_base::end);
     return in.tellg();
 }
@@ -261,7 +262,9 @@ bool util_file_exists(string filename)
 void util_read_data_into_file(int m_file_socket, string filename)
 {
     ofstream out(filename, ios_base::binary | ios_base::app);
-    // TODO: check file op
+    if(!out)
+        return;
+
     while(true)
     {
         string buffer_str, error_msg;
@@ -280,4 +283,26 @@ void util_read_data_into_file(int m_file_socket, string filename)
             break;
         }
     }
+}
+
+void util_file_log_print(string msg, string logfile_path)
+{
+    ofstream out(logfile_path, ios_base::app);
+    if(!out)
+    {
+        return;
+    }
+    string curr_timestamp = util_timestamp_get();
+    curr_timestamp.pop_back();
+    out << curr_timestamp << " : " << "\"" << msg << "\"" << "\n";
+}
+
+string util_timestamp_get()
+{
+    time_t tt;
+    struct tm *ti;
+
+    time (&tt);
+    ti = localtime(&tt);
+    return asctime(ti);
 }
