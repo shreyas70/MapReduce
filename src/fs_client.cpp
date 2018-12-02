@@ -56,7 +56,6 @@ void FS_Client::server_request_handler(int sock, string req_str)
 
 void FS_Client::uploader()
 {
-    cout << "Listening for server requests\n";
     int opt = true;
     int fs_client_socket, addrlen, new_socket, fs_server_socket[MAX_CONNS], max_conns = MAX_CONNS, activity, i, valread, sd;
     int max_sd;
@@ -190,7 +189,7 @@ void FS_Client::uploader()
                     string buffer_str, error_msg;
                     if (FAILURE == util_socket_data_get(sd, buffer_str, error_msg))
                     {
-			            cout << "FAILED READ" << endl;
+			            util_file_log_print(m_logfile_path, error_msg);
                         close(sd);
                         fs_server_socket[i] = 0;
                         continue;
@@ -202,7 +201,7 @@ void FS_Client::uploader()
     }
 }
 
-/* Get nummber of lines from FS */ 
+/* Get nummber of lines from FS, Returns -1 if failed */ 
 int FS_Client::get_lines_count(string file_path)
 {
     int num = 0;
@@ -211,7 +210,10 @@ int FS_Client::get_lines_count(string file_path)
     string opcode = to_string(TOTAL_COUNT) + "$";
 
     int server_sock = util_connection_make(m_server_ip, m_server_port);
-    // TODO : CHECK for connection status
+    if(FAILURE == server_sock)
+    {
+        return FAILURE;
+    }
 
     opcode += file_path;
     util_write_to_sock(server_sock, opcode);
@@ -221,7 +223,10 @@ int FS_Client::get_lines_count(string file_path)
     if(FAILURE == status || 0 == status)
     {
         /* Some error occurred */ 
-        num = -1;
+        num = FAILURE;
+        stringstream ss;
+        ss << __func__ << ":" << __LINE__ << " : read() Failed";
+        util_file_log_print(m_logfile_path, ss.str());
     }
 
     close(server_sock);
@@ -236,7 +241,13 @@ void FS_Client::get_chunk(string input_filename, string output_filename, int sta
     memset(buffer, 0, sizeof(char)*MAX_SIZE);
 
     int server_sock = util_connection_make(m_server_ip, m_server_port);
-    // TODO : CHECK for connection status
+    if(server_sock == FAILURE)
+    {
+        stringstream ss;
+        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
+        util_file_log_print(m_logfile_path, ss.str());
+        return;
+    }
 
     string opcode = to_string(GET_CHUNK) + "$";
     opcode += to_string(start_line) + "$";
@@ -249,11 +260,15 @@ void FS_Client::get_chunk(string input_filename, string output_filename, int sta
 int FS_Client::upload_file(string input_filename)
 {
     int server_sock = util_connection_make(m_server_ip, m_server_port);
-    // TODO : CHECK for connection status
-
+    if(FAILURE == server_sock)
+    {
+        stringstream ss;
+        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
+        util_file_log_print(m_logfile_path, ss.str());
+        return FAILURE;
+    }
     string req_str = to_string(UPLOAD_FILE) + "$" + m_client_ip + "$" + to_string(m_client_port) + "$" + input_filename;
     util_write_to_sock(server_sock, req_str);
-    // TODO: check write status
 
     int file_exists;
     read(server_sock, &file_exists, sizeof(file_exists));
@@ -274,11 +289,16 @@ int FS_Client::upload_file(string input_filename)
 int FS_Client::append_file(string src_filename, string dest_filename)
 {
     int server_sock = util_connection_make(m_server_ip, m_server_port);
-    // TODO : CHECK for connection status
+    if(server_sock == FAILURE)
+    {
+        stringstream ss;
+        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
+        util_file_log_print(m_logfile_path, ss.str());
+        return FAILURE;
+    }
 
     string req_str = to_string(APPEND_FILE) + "$" + m_client_ip + "$" + to_string(m_client_port) + "$" + src_filename + "$" + dest_filename ;
     util_write_to_sock(server_sock, req_str);
-    // TODO: check write status
 
     close(server_sock);
     server_sock = INVALID_SOCK;
@@ -288,11 +308,16 @@ int FS_Client::append_file(string src_filename, string dest_filename)
 void FS_Client::remove_file(string filename)
 {
     int server_sock = util_connection_make(m_server_ip, m_server_port);
-    // TODO : CHECK for connection status
+    if(server_sock == FAILURE)
+    {
+        stringstream ss;
+        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
+        util_file_log_print(m_logfile_path, ss.str());
+        return;
+    }
 
     string req_str = to_string(REMOVE_FILE) + "$" + filename;
     util_write_to_sock(server_sock, req_str);
-    // TODO: check write status
 
     close(server_sock);
     server_sock = INVALID_SOCK;

@@ -26,26 +26,7 @@ void FS_Server::skip(istream & is, int n , char delim)
   int i = 0;
    while ( i++ < n)
       is.ignore(80, delim); 
-// ignores up to 80 chars but stops ignoring after delim
-// istream stream position var is changed. (we want that)
 }
-
-/* split the input into tokens */
-void FS_Server::input_split(string input, vector<string>& tokens)
-{
-
-    int len = input.length();
-    char arr[len+1];
-    strcpy(arr, input.c_str());
-
-    char* tok = strtok(arr, "$");
-    while(tok != NULL)
-    {
-        tokens.push_back(tok);
-        tok = strtok(NULL,"$");
-    }
-
-} 
 
 /* Get bytes count between two lines */ 
 int FS_Server::get_byte_count(ifstream &inFile, int line_count)
@@ -75,6 +56,12 @@ void FS_Server::get_lines_count(int sock, string path)
 
     mutex* file_mutex = file_mutex_get(path);
     lock_guard<mutex> lg(*file_mutex);
+    if(!util_file_exists(path))
+    {
+        send(sock, &lines, sizeof(lines), 0);
+        return;
+    }
+
     ifstream inFile(path); 
     lines = count(istreambuf_iterator<char>(inFile), istreambuf_iterator<char>(), '\n');
     send(sock, &lines, sizeof(lines), 0);
@@ -82,23 +69,19 @@ void FS_Server::get_lines_count(int sock, string path)
 
 void FS_Server::download_file(string client_ip, int client_port, string src_filename, string dest_filename)
 {
-    // thread::id this_id = this_thread::get_id();
-    int client_socket = util_connection_make(client_ip, client_port); 
-    // cout << "[Thread: " << this_id << "] Connection created with client !! Trying file download\n" << flush;
-    /* TODO: check connection state */
+    int client_socket = util_connection_make(client_ip, client_port);
+    if(client_socket == FAILURE) 
+        cout << "connection create failed, "<<  __func__ << ", Line: " << __LINE__ << "\n";
 
     string req_str = to_string(GET_FILE) + "$" + src_filename;
     util_write_to_sock(client_socket, req_str);
-    // cout << "[Thread: " << this_id << "] Sent file download request to client " << src_filename <<", " <<dest_filename << "\n" << flush;
 
     mutex* download_mtx = file_mutex_get(dest_filename);
 
     lock_guard<mutex> lg(*download_mtx);
     util_read_data_into_file(client_socket, dest_filename);
-    // cout << "[Thread: " << this_id << "] Downloaded file from client\n";          
 
 }
-
 
 mutex* FS_Server::create_mutex(std::string filename) 
 {
@@ -243,7 +226,6 @@ void FS_Server::client_request_handle(int sock, string req_str)
     }
 }
 
-
 /* Listens to requests in select loop */ 
 void FS_Server::start_server()
 {
@@ -251,10 +233,6 @@ void FS_Server::start_server()
     int server_socket, addrlen, new_socket, client_socket[MAX_CONNS], max_clients = MAX_CONNS, activity, i, valread, sd;
     int max_sd;
     struct sockaddr_in address;
-
-    // signal(SIGUSR1, sigusr1_handler);
-
-    // seeding_files_share();
 
     fd_set readfds;
 
@@ -271,8 +249,6 @@ void FS_Server::start_server()
         exit(EXIT_FAILURE);
     }
 
-    //set master socket to allow multiple connections ,
-    //this is just a good habit, it will work without this
     if( setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
     {
         stringstream ss;
