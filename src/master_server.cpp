@@ -150,12 +150,6 @@ int Master::client_request_handler(int client_sock, string req_str)
             string file_path = tokens_vec[2];
             // check if file is valid
             // if( access( file_path.c_str() , R_OK ) == -1) 
-            if(util_file_exists(file_path))
-            {
-                cout << "File doesn't exists. Terminating request." << endl;
-                return FAILURE;
-            }
-
 
             int total_lines = fs_client.get_lines_count(file_path);
             // int total_lines = num_lines_get(file_path);
@@ -229,15 +223,6 @@ int Master::client_request_handler(int client_sock, string req_str)
 
         case Problem::INVERTED_INDEX:
         {
-            for(int i=2;i<tokens_vec.size();i++)
-            {
-                
-                if(util_file_exists(tokens_vec[i]))
-                {
-                    cout << "Invalid files. Terminating request" << endl;
-                    return FAILURE;
-                }
-            }
 
             Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
             jobs_map[new_job->job_id] = new_job;
@@ -426,7 +411,7 @@ void Master::response_handler(int sock, string response_str)
                                 fs_client.remove_file(s);
                             }
                         }
-                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : word_count" + to_string(job->job_id) + "_output.txt");
                         break;
 
                     case Problem::INVERTED_INDEX:
@@ -443,7 +428,7 @@ void Master::response_handler(int sock, string response_str)
                         {
                             files+= fileName +",";
                         }
-                        util_write_to_sock(job->client_socket, "Your job for files :" +files  + " is done! Output file : " + to_string(job->job_id) + "_output.txt");
+                        util_write_to_sock(job->client_socket, "Your job for files :" +files  + " is done! Output file : inverted_index" + to_string(job->job_id) + "_output.txt");
                         break;
                     }
 

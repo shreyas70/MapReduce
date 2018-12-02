@@ -135,11 +135,13 @@ void FS_Server::client_upload_handler(int sock, string req_str)
 
 void FS_Server::client_append_handler(int sock, string req_str)
 {
-    vector<string> tokens;
+    vector<string> tokens = split_string(req_str,'$');
     string client_ip;
     int client_port;
 
-    input_split(req_str, tokens);
+
+
+    // input_split(req_str, tokens);
 
     client_ip = tokens[0];
     client_port = stoi(tokens[1]);
@@ -177,8 +179,8 @@ void FS_Server::client_request_handle(int sock, string req_str)
 
         case GET_CHUNK:
         {
-            vector<string> tokens;
-            input_split(req_str, tokens);
+            vector<string> tokens=split_string(req_str,'$');
+            
 
             int start_line = stoi(tokens[0]); 
             int line_count = stoi(tokens[1]);

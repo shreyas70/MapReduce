@@ -297,7 +297,7 @@ void util_file_log_print(string msg, string logfile_path)
     out << curr_timestamp << " : " << "\"" << msg << "\"" << "\n";
 }
 
-string current_timestamp_get()
+string util_timestamp_get()
 {
     time_t tt;
     struct tm *ti;
