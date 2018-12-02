@@ -12,7 +12,7 @@
 #define FAILURE             -1
 #define SUCCESS             0
 #define MAX_CONNS           100
-#define PORT                4000
+#define PORT                6000
 #define IP                  "127.0.0.1"
 #define MAX_SIZE            (512*1024)
 
