@@ -36,12 +36,9 @@ void ReducerNode::word_count(MasterClient dm, string request_string, FS_Client *
     }
     else if(status.compare("INCOMPLETE"))
     {
-        // string client_ip_address = "127.0.0.1:"+to_string(client_port_number);
-        // FS_Client fs = FS_Client("127.0.0.1:9004", FILE_SERVER_IP);
-        // FS_Client * fs = FileClient::get_file_client_object();
         string output_file_name = "word_count_"+job_id+"_output.txt";
         fs->append_file(status, output_file_name);
-        fs->remove_file(status);
+        // fs->remove_file(status);
         dm.job_completed_reducer(stoi(job_id), category, status);
     }
 }
@@ -69,13 +66,9 @@ void ReducerNode::inverted_index(MasterClient dm, string request_string, FS_Clie
     }
     else if(status.compare("INCOMPLETE"))
     {
-        // string client_ip_address = "127.0.0.1:"+to_string(client_port_number);
-        // FS_Client fs = FS_Client("127.0.0.1:9005", FILE_SERVER_IP);
-        // FS_Client * fs = FileClient::get_file_client_object();
-
-        string output_file_name = "word_count_"+job_id+"_output.txt";
+        string output_file_name = "inverted_index_"+job_id+"_output.txt";
         fs->append_file(status, output_file_name);
-        fs->remove_file(status);
+        // fs->remove_file(status);
         dm.job_completed_reducer(stoi(job_id), category, status);
     }
 }
@@ -104,8 +97,8 @@ void ReducerNode::start_reducer_node(string master_ip_address, int master_port_n
         vector<string> req_split = split_string(request_string, '#');
         string req_type = req_split[0];
         thread t;
-        cout << "reducer sleeping for 10 seconds" << endl;
-        sleep(10);
+        // cout << "reducer sleeping for 10 seconds" << endl;
+        // sleep(10);
         if(!req_type.compare("word_count"))
         {
             cout<<"\n\nReceived word count request\n\n";
@@ -114,7 +107,7 @@ void ReducerNode::start_reducer_node(string master_ip_address, int master_port_n
         }
         else if(!req_type.compare("inverted_index"))
         {
-            cout<<"\n\nReceived word count request\n\n";
+            cout<<"\n\nReceived inverted index request\n\n";
             t = thread(&ReducerNode::inverted_index, this, dm, req_split[1], fs);
             t.detach();
         }   

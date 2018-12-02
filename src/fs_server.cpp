@@ -58,6 +58,7 @@ void FS_Server::get_lines_count(int sock, string path)
     lock_guard<mutex> lg(*file_mutex);
     if(!util_file_exists(path))
     {
+        cout << __func__ << " " << path << " : File not found\n";
         send(sock, &lines, sizeof(lines), 0);
         return;
     }
@@ -204,6 +205,7 @@ void FS_Server::client_request_handle(int sock, string req_str)
         {
             thread th(&FS_Server::client_upload_handler, this, sock, req_str);
             th.detach();
+            usleep(200000);     // to take case of synchronization
             break;
         }
 

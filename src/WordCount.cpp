@@ -86,19 +86,14 @@ string WordCountMapper::start_job(FS_Client * fs)
         int sl = this->start_line;
         int nl = this->no_of_lines;
 
-        // string client_ip_address = "127.0.0.1:"+to_string(get_client_port_number());
-
-        // FS_Client fs = FS_Client(client_ip_address, FILE_SERVER_IP);
-
-        // FS_Client * fs = FileClient::get_file_client_object();
         string inp = file_name;
-        string out = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_"+file_name;
+        string out = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_"+file_name;
         fs->get_chunk(inp, out, sl, nl);
 
-        FILE * file_ptr = fopen(file_name.c_str(), "r");
+        FILE * file_ptr = fopen(out.c_str(), "r");
 
         int iteration = 0;
-        string out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
+        string out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
         int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         int count = 0;
         char word[100];
@@ -125,7 +120,7 @@ string WordCountMapper::start_job(FS_Client * fs)
             if(count > 100000)
             {
                 count = 1;
-                out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
+                out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
                 wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
                 sort(file_words.begin(), file_words.end());
                 for(int i=0; i<file_words.size(); i++)
@@ -145,7 +140,7 @@ string WordCountMapper::start_job(FS_Client * fs)
         }
         if(!file_words.empty())
         {
-            out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";;
+            out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";;
             wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
             sort(file_words.begin(), file_words.end());
             for(int i=0; i<file_words.size(); i++)
@@ -166,7 +161,7 @@ string WordCountMapper::start_job(FS_Client * fs)
         FILE * out_files[iteration];
         for(int i=0; i<iteration; i++)
         {
-            string out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_out_file"+to_string(i)+".txt";
+            string out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(i)+".txt";
             out_files[i] = fopen(out_file_name.c_str(), "r");
         }
 
@@ -186,7 +181,7 @@ string WordCountMapper::start_job(FS_Client * fs)
             }
         }
 
-        string output_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
+        string output_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
         int sorted_wd = open(output_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         bool start = true;
         while(!min_heap.empty())
@@ -210,18 +205,18 @@ string WordCountMapper::start_job(FS_Client * fs)
         close(sorted_wd);
         for(int i=0; i<iteration; i++)
         {
-            string out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_out_file"+to_string(i)+".txt";
+            // string out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_out_file"+to_string(i)+".txt";
             fclose(out_files[i]);
-            remove(out_file_name.c_str());
+            // remove(out_file_name.c_str());
         }
-        string sorted_output_file = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
+        string sorted_output_file = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
         FILE * sorted_file = fopen(sorted_output_file.c_str(), "r");
         char buff[255];
         bzero(buff, 255);
         int current_count = 1;
         string curr_word = "";
 
-        final_output_file = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_output.txt";
+        final_output_file = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_output.txt";
 
         int out_wd = open(final_output_file.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         if(fscanf(sorted_file, "%s", buff)!=EOF)
@@ -254,7 +249,7 @@ string WordCountMapper::start_job(FS_Client * fs)
         close(out_wd);
         fclose(sorted_file);
         
-        remove(sorted_output_file.c_str());
+        // remove(sorted_output_file.c_str());
     }
     catch(...)
     {
@@ -322,22 +317,16 @@ string WordCountReducer::reduce(int category,  string file_path, FS_Client * fs)
 {
     try
     {
-        cout<<"\n\nReducing "<<file_path<<endl;
-
-        // string client_ip_address = "127.0.0.1:"+to_string(get_client_port_number());
-
-        // FS_Client fs = FS_Client(client_ip_address, FILE_SERVER_IP);
-
-        // FS_Client * fs = FileClient::get_file_client_object();
+        cout << "\n\nReducing " << file_path << endl << flush;
 
         int no_of_lines = fs->get_lines_count(file_path);
 
         string inp = file_path;
-        string out = "temp_"+this->job_id+"_"+to_string(category)+"_"+file_path;
+        string temp_out = "temp_" + file_path;
 
-        fs->get_chunk(inp, out, 1, no_of_lines);
+        fs->get_chunk(inp, temp_out, 1, no_of_lines);
 
-        FILE * file_ptr = fopen(file_path.c_str(), "r");
+        FILE * file_ptr = fopen(temp_out.c_str(), "r");
         char buff[100];
         bzero(buff, 100);
         while( fscanf(file_ptr, "%s", buff)!=EOF )
@@ -349,10 +338,9 @@ string WordCountReducer::reduce(int category,  string file_path, FS_Client * fs)
             update_word_count(word, count);
         }
         fclose(file_ptr);
+        remove(temp_out.c_str());
 
-        // fs.remove_file(file_path);
-
-        cout<<"\nDone with "<<file_path<<endl;
+        cout << "\nDone with " << file_path << endl << flush;
         this->increment_files_in_category(category);
         if(get_file_count_in_category(category)==this->no_of_files)
         {

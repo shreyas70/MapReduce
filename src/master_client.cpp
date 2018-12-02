@@ -119,7 +119,7 @@ void MasterClient::job_completed_reducer(int job_id, int category, string output
     string reply_string = to_string((int)(Opcode::REDUCER_SUCCESS));
    
     reply_string += "$" + to_string(job_id) + "$" + to_string(category)+ "$" + outputFile;
-    cout << "Reducer completed. Sending reply :" << reply_string << endl;
+    // cout << "Reducer completed. Sending reply :" << reply_string << endl;
 
     int write_bytes = reply_string.length();
     send(this->m_sock, &write_bytes, sizeof(write_bytes), 0);

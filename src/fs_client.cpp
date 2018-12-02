@@ -189,7 +189,8 @@ void FS_Client::uploader()
                     string buffer_str, error_msg;
                     if (FAILURE == util_socket_data_get(sd, buffer_str, error_msg))
                     {
-			            util_file_log_print(m_logfile_path, error_msg);
+			            // util_file_log_print(m_logfile_path, error_msg);
+                        cout << error_msg << endl;
                         close(sd);
                         fs_server_socket[i] = 0;
                         continue;
@@ -224,9 +225,12 @@ int FS_Client::get_lines_count(string file_path)
     {
         /* Some error occurred */ 
         num = FAILURE;
-        stringstream ss;
-        ss << __func__ << ":" << __LINE__ << " : read() Failed";
-        util_file_log_print(m_logfile_path, ss.str());
+        // stringstream ss;
+        cout << __func__ << ":" << __LINE__ << " : read() Failed";
+        // util_file_log_print(m_logfile_path, ss.str());
+
+        close(server_sock);
+        return 0;
     }
 
     close(server_sock);
@@ -243,9 +247,9 @@ void FS_Client::get_chunk(string input_filename, string output_filename, int sta
     int server_sock = util_connection_make(m_server_ip, m_server_port);
     if(server_sock == FAILURE)
     {
-        stringstream ss;
-        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
-        util_file_log_print(m_logfile_path, ss.str());
+        // stringstream ss;
+        cout << __func__ << ":" << __LINE__ << " util_connection_make() :  Failed";
+        // util_file_log_print(m_logfile_path, ss.str());
         return;
     }
 
@@ -262,9 +266,9 @@ int FS_Client::upload_file(string input_filename)
     int server_sock = util_connection_make(m_server_ip, m_server_port);
     if(FAILURE == server_sock)
     {
-        stringstream ss;
-        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
-        util_file_log_print(m_logfile_path, ss.str());
+        // stringstream ss;
+        cout << __func__ << ":" << __LINE__ << " util_connection_make() :  Failed";
+        // util_file_log_print(m_logfile_path, ss.str());
         return FAILURE;
     }
     string req_str = to_string(UPLOAD_FILE) + "$" + m_client_ip + "$" + to_string(m_client_port) + "$" + input_filename;
@@ -291,9 +295,9 @@ int FS_Client::append_file(string src_filename, string dest_filename)
     int server_sock = util_connection_make(m_server_ip, m_server_port);
     if(server_sock == FAILURE)
     {
-        stringstream ss;
-        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
-        util_file_log_print(m_logfile_path, ss.str());
+        // stringstream ss;
+        cout << __func__ << ":" << __LINE__ << " util_connection_make() :  Failed";
+        // util_file_log_print(m_logfile_path, ss.str());
         return FAILURE;
     }
 
@@ -310,9 +314,9 @@ void FS_Client::remove_file(string filename)
     int server_sock = util_connection_make(m_server_ip, m_server_port);
     if(server_sock == FAILURE)
     {
-        stringstream ss;
-        ss << __func__ << ":" << __LINE__ << "util_connection_make() :  Failed";
-        util_file_log_print(m_logfile_path, ss.str());
+        // stringstream ss;
+        cout << __func__ << ":" << __LINE__ << " util_connection_make() :  Failed";
+        // util_file_log_print(m_logfile_path, ss.str());
         return;
     }
 

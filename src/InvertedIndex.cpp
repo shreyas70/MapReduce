@@ -102,22 +102,19 @@ string InvertedIndexMapper::start_job(FS_Client * fs)
     {
         cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
         unordered_map<string, set<string>> index;
-        for(int i=0; i<this->input_files.size(); i++)
+        for(int i=0; i < this->input_files.size(); i++)
         {
             FileInfo file_info = this->input_files[i];
             string file_path = file_info.file_path;
             int sl = file_info.start_line;
             int nl = file_info.no_of_lines;
 
-            // FS_Client fs = FS_Client("127.0.0.1:5000", FILE_SERVER_IP);
-
-            // FS_Client * fs = FileClient::get_file_client_object();
             string inp = file_path;
-            string out = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_"+file_path;
+            string out = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_"+file_path;
 
             fs->get_chunk(inp, out, sl, nl);
 
-            FILE * file_ptr = fopen(file_path.c_str(), "r");
+            FILE * file_ptr = fopen(out.c_str(), "r");
             char buff[100];
             bzero(buff, 100);
             while( fscanf(file_ptr, "%s", buff)!=EOF )
@@ -134,9 +131,9 @@ string InvertedIndexMapper::start_job(FS_Client * fs)
                 bzero(buff,100);
             }
             fclose(file_ptr);
-            remove(file_path.c_str());
+            // remove(file_path.c_str());
         }
-        out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_output_inverted.txt";
+        out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_output_inverted.txt";
         int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         for(unordered_map<string, set<string>>::iterator it = index.begin(); it!=index.end(); ++it)
         {
@@ -211,34 +208,24 @@ int InvertedIndexReducer::get_file_count_in_category(int category)
     return this->category_to_files_map[category];
 }
 
-// int InvertedIndexReducer::get_client_port_number()
-// {
-//     return this->client_port_number;
-// }
-
-// void InvertedIndexReducer::set_client_port_number(int client_port_number)
-// {
-//     this->client_port_number = client_port_number;
-// }
-
 string InvertedIndexReducer::reduce(int category, string file_path, FS_Client * fs)
 {
     try
     {
-        cout<<"\n\nReducing "<<file_path<<endl;
-
-        // string client_ip_address = "127.0.0.1:"+to_string(this->client_port_number);
-        // FS_Client fs = FS_Client("127.0.0.1:9001", FILE_SERVER_IP);
-
-        // FS_Client * fs = FileClient::get_file_client_object();
+        // cout<<"\n\nReducing "<<file_path<<endl;
 
         int nl = fs->get_lines_count(file_path);
         string inp = file_path;
-        string out = "temp_"+this->job_id+"_"+to_string(category)+"_"+file_path;
+        string out = "temp_" + file_path;
 
+        cout << "Get_chunk: " << file_path << " (1, " << nl << ") -> " << out << endl;
         fs->get_chunk(inp, out, 1, nl);
 
-        FILE * file_ptr = fopen(file_path.c_str(), "r");
+        FILE * file_ptr = fopen(out.c_str(), "r");
+        if (!file_ptr)
+        {
+            cout << "fopen() failed\n";
+        }
         char buff[100];
         bzero(buff, 100);
         while( fscanf(file_ptr, "%s", buff)!=EOF )
@@ -259,13 +246,13 @@ string InvertedIndexReducer::reduce(int category, string file_path, FS_Client * 
         }
 
         fclose(file_ptr);
-        remove(file_path.c_str());
+        // remove(file_path.c_str());
         cout<<"\n Done with "<<file_path<<endl;
 
         this->increment_files_in_category(category);
         if(get_file_count_in_category(category)==this->no_of_files)
         {
-            string out_file_name = "output_files/R_job_"+this->job_id + "_category_" + to_string(category) + "_ii.txt";
+            string out_file_name = "R_job_"+this->job_id + "_category_" + to_string(category) + "_ii.txt";
             int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
             for(unordered_map<string,unordered_set<string>>::iterator it = words_to_files_map.begin(); it!=words_to_files_map.end(); ++it)
             {
@@ -281,7 +268,7 @@ string InvertedIndexReducer::reduce(int category, string file_path, FS_Client * 
                 write(wd, "\n", 1);
             }
             close(wd);
-            cout<<this->job_id<<" COMPLETED\n";
+            cout << "Job " << this->job_id << " category " << category << " COMPLETED\n";
             return out_file_name;
         }
     }

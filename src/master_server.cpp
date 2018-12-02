@@ -37,22 +37,6 @@ string current_timestamp_get()
 }
 
 
-int num_lines_get(string filePath)
-{
-    int count = 0;
-    string line;
- 
-    /* Creating input filestream */ 
-    ifstream file(filePath);
-    while (getline(file, line))
-        count++;
- 
-    cout << "Numbers of lines in the file : " << count << endl;
-    return count;
-}
-
-
-
 
 void Master::log_print(string msg)
 {
@@ -98,6 +82,7 @@ int Master::request_handler(int sock, string req_str, Opcode& opcode)
             Mapper* new_mapper = new Mapper();
             new_mapper->init(sock);
             mapper_list.push_back(new_mapper);
+            cout << "New mapper added. Socket : " << new_mapper->get_socket()<<endl;
             break;
         }
 
@@ -150,7 +135,6 @@ int Master::client_request_handler(int client_sock, string req_str)
             string file_path = tokens_vec[2];
 
             int total_lines = fs_client.get_lines_count(file_path);
-            // int total_lines = num_lines_get(file_path);
             int chunk_num_lines = ceil(((double) total_lines / mapper_list.size()));
 
             Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
@@ -227,9 +211,6 @@ int Master::client_request_handler(int client_sock, string req_str)
 
             new_job->problem_id = Problem::INVERTED_INDEX;
 
-
-           
-
             for(auto x:reducer_list)
             {
                 new_job->reducer_of_category.push_back(x);
@@ -244,7 +225,7 @@ int Master::client_request_handler(int client_sock, string req_str)
             for(int i=2,j=0;i<tokens_vec.size();i++,j++)
             {
                 new_job->input_filenames.push_back(tokens_vec[i]);
-                total_lines[j] = num_lines_get(tokens_vec[i]);
+                total_lines[j] = fs_client.get_lines_count(tokens_vec[i]);
                 chunk_num_lines[j] = ceil( ((double)total_lines[j] / mapper_list.size())); 
             }
 
@@ -299,14 +280,14 @@ int Master::client_request_handler(int client_sock, string req_str)
                                                      new_chunk->num_lines_vec,
                                                      new_job->num_reducers);
 
-                for(int i=0;i<curr_line_num.size();i++)
-                {
-                    curr_line_num[i] = end_line_num[i] + 1;
-                }
+                // for(int i=0;i<curr_line_num.size();i++)
+                // {
+                //     curr_line_num[i] = end_line_num[i] + 1;
+                // }
                
 
                 stringstream ss;
-                ss << __func__ << " (" << __LINE__ << "): Inititate WC - mapper socket: " << mapper_socket;
+                ss << __func__ << " (" << __LINE__ << "): Inititate inverted index - mapper socket: " << mapper_socket;
                 log_print(ss.str());
             }
             break;
@@ -402,25 +383,25 @@ void Master::response_handler(int sock, string response_str)
                 switch(job->problem_id)
                 {
                     case Problem::WORD_COUNT:
-                        for(auto v:job->category_files)
-                        {
-                            for(auto s:v)
-                            {
-                                fs_client.remove_file(s);
-                            }
-                        }
+                        // for(auto v:job->category_files)
+                        // {
+                        //     for(auto s:v)
+                        //     {
+                        //         fs_client.remove_file(s);
+                        //     }
+                        // }
                         util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : word_count" + to_string(job->job_id) + "_output.txt");
                         break;
 
                     case Problem::INVERTED_INDEX:
                     {
-                        for(auto v:job->category_files)
-                        {
-                            for(auto s:v)
-                            {
-                                fs_client.remove_file(s);
-                            }
-                        }
+                        // for(auto v:job->category_files)
+                        // {
+                        //     for(auto s:v)
+                        //     {
+                        //         fs_client.remove_file(s);
+                        //     }
+                        // }
                         string files="";
                         for(auto fileName:job->input_filenames)
                         {
@@ -672,11 +653,15 @@ void Master::run()
                                                                             curr_num_reducers);
 
                             }
-                            
-                            // else if(job_obj->problem_id == INVERTED_INDEX)
-                            // {
-                            //     current_mapper->initiate_inverted_index_request();
-                            // }
+                            else if(job_obj->problem_id == Problem::INVERTED_INDEX)
+                            {
+                                current_mapper->initiate_inverted_index_request(curr_job_id,
+                                                                                curr_chunk_id,
+                                                                                job_obj->input_filenames,
+                                                                                curr_chunk->start_line_vec,
+                                                                                curr_chunk->num_lines_vec,
+                                                                                curr_num_reducers);
+                            }
                         }
 
                         close(sock);
@@ -687,26 +672,6 @@ void Master::run()
                 }
                 ++litr;
             }
-
-            // for(Reducer* r : reducer_list)
-            // {
-            //     int sock = r->get_socket();
-            //     if (FD_ISSET(sock , &readfds))
-            //     {
-            //         string buffer_str, error_msg;
-            //         if (FAILURE == util_socket_data_get(sock, buffer_str, error_msg))
-            //         {
-            //             log_print(error_msg);
-
-                    
-
-
-            //             continue;
-            //         }
-
-            //         response_handler(sock, buffer_str);
-            //     }
-            // }
 
             auto r_litr = reducer_list.begin();
             while(r_litr != reducer_list.end())
@@ -757,15 +722,7 @@ void Master::run()
                             int curr_category_id = jit->second;
 
                             Job * job_obj = jobs_map[curr_job_id];
-                            // Chunk ** chunks = job_obj->chunks;
-                            // Chunk * curr_chunk = chunks[curr_chunk_id];
-                            // curr_chunk->mapper_sock = current_socket;
                             job_obj->reducer_of_category[curr_category_id] = current_reducer;
-
-                            // string curr_file_path = job_obj->input_file_path;
-                            // int curr_start_line = curr_chunk->start_line;
-                            // int curr_no_of_lines = curr_chunk->num_lines;
-                            // int curr_num_reducers = job_obj->num_reducers;
 
                             vector<string> file_paths = job_obj->category_files[curr_category_id];
                             int curr_num_mappers = job_obj->num_mappers;
@@ -780,11 +737,16 @@ void Master::run()
                                      current_reducer->word_count_request(curr_job_id, curr_category_id, file_paths[fi], curr_num_mappers);
                                  }                              
                             }
-                            
-                            // else if(job_obj->problem_id == INVERTED_INDEX)
-                            // {
-                            //     current_mapper->initiate_inverted_index_request();
-                            // }
+                            else if(job_obj->problem_id == Problem::INVERTED_INDEX)
+                            {
+                                for(int fi = 0; fi<file_paths.size(); fi++)
+                                {
+                                    current_reducer->inverted_index_request(curr_job_id,
+                                                                            curr_category_id,
+                                                                            file_paths[fi],
+                                                                            curr_num_mappers);
+                                }
+                            }
                         }
 
                         close(sock);
