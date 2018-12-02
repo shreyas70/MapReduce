@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <vector>
-
+#include <time.h>
 #define pb        push_back
 #define INT_MAX  (std::numeric_limits<std::int32_t>::max())
 
@@ -45,5 +45,7 @@ bool                      util_file_exists(std::string filename);
 void                      util_read_data_into_file(int m_file_socket, std::string filename);
 void                      util_complete_file_data_send(int sock, std::string filename);
 std::vector<std::string>  split_string(std::string input_string, char delimiter);
+std::string    			  util_timestamp_get();
+void            		  util_file_log_print(std::string msg, std::string logfile_path);
 
 #endif
