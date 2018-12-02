@@ -170,7 +170,8 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
         error_msg = "Connection lost!!\n";
         return FAILURE;
     }
-    char buffer[read_size + 1] = {'\0'};
+    char buffer[read_size + 1];
+    memset(buffer, 0, sizeof(buffer));
     util_data_read(sock, buffer, read_size);
     buffer_str = buffer;
     return SUCCESS;
