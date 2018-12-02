@@ -7,6 +7,8 @@
 #include<unordered_map>
 #include<unordered_set>
 
+#include "fs_client.h"
+
 typedef struct
 {
     std::string file_path;
@@ -22,6 +24,8 @@ class InvertedIndexMapper
     std::vector<FileInfo> input_files;
     int no_of_reducers;
     int chunk_id;
+    
+    // int client_port_number;
 
     public:
 
@@ -30,7 +34,10 @@ class InvertedIndexMapper
     std::string get_job_id();
     std::string get_chunk_id();
     int get_no_of_reducers();
-    std::string start_job();
+    std::string start_job(FS_Client * fs);
+
+    // int get_client_port_number();
+    // void set_client_port_number(int client_port_number);
 };
 
 class InvertedIndexReducer
@@ -47,9 +54,14 @@ class InvertedIndexReducer
     std::unordered_map<std::string, std::unordered_set<std::string>> words_to_files_map;
     void update_files_list(std::string word, std::vector<std::string> files_list);
 
+    // int client_port_number;
+
     public:
     void init(std::string request_string);
-    std::string reduce(int category, std::string file_path);
+    std::string reduce(int category, std::string file_path, FS_Client * fs);
+
+    // int get_client_port_number();
+    // void set_client_port_number(int client_port_number);
 };
 
 

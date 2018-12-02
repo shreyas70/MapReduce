@@ -6,10 +6,11 @@
 #include "utilities.h"
 #include "master_client.h"
 #include "ReducerNode.h"
+#include "fs_client.h"
 
 using namespace std;
 
-void ReducerNode::word_count(MasterClient dm, string request_string)
+void ReducerNode::word_count(MasterClient dm, string request_string, FS_Client * fs)
 {
     // cout << "Reducer sleeping for 10 seconds " << endl;
     // sleep(10);
@@ -27,18 +28,25 @@ void ReducerNode::word_count(MasterClient dm, string request_string)
         this->wc_reducer_map.emplace(make_pair(job_id, wcr));
     }
     WordCountReducer * wcr = this->wc_reducer_map[job_id];
-    string status = wcr->reduce(category, file_path);
+    // wcr->set_client_port_number(client_port_number);
+    string status = wcr->reduce(category, file_path, fs);
     if(!status.compare("FAILURE"))
     {
         dm.job_failure_reducer(stoi(job_id), category);
     }
     else if(status.compare("INCOMPLETE"))
     {
+        // string client_ip_address = "127.0.0.1:"+to_string(client_port_number);
+        // FS_Client fs = FS_Client("127.0.0.1:9004", FILE_SERVER_IP);
+        // FS_Client * fs = FileClient::get_file_client_object();
+        string output_file_name = "word_count_"+job_id+"_output.txt";
+        fs->append_file(status, output_file_name);
+        fs->remove_file(status);
         dm.job_completed_reducer(stoi(job_id), category, status);
     }
 }
 
-void ReducerNode::inverted_index(MasterClient dm, string request_string)
+void ReducerNode::inverted_index(MasterClient dm, string request_string, FS_Client * fs)
 {
     vector<string> req_split = split_string(request_string, '$');
     string job_id = req_split[0];
@@ -53,7 +61,7 @@ void ReducerNode::inverted_index(MasterClient dm, string request_string)
         this->ii_reducer_map.emplace(make_pair(job_id, iir));
     }
     InvertedIndexReducer * iir = this->ii_reducer_map[job_id];
-    string status = iir->reduce(category, file_path);
+    string status = iir->reduce(category, file_path, fs);
 
     if(!status.compare("FAILURE"))
     {
@@ -61,11 +69,18 @@ void ReducerNode::inverted_index(MasterClient dm, string request_string)
     }
     else if(status.compare("INCOMPLETE"))
     {
+        // string client_ip_address = "127.0.0.1:"+to_string(client_port_number);
+        // FS_Client fs = FS_Client("127.0.0.1:9005", FILE_SERVER_IP);
+        // FS_Client * fs = FileClient::get_file_client_object();
+
+        string output_file_name = "word_count_"+job_id+"_output.txt";
+        fs->append_file(status, output_file_name);
+        fs->remove_file(status);
         dm.job_completed_reducer(stoi(job_id), category, status);
     }
 }
 
-void ReducerNode::start_reducer_node(string master_ip_address, int master_port_number)
+void ReducerNode::start_reducer_node(string master_ip_address, int master_port_number, FS_Client * fs)
 {
     MasterClient dm;
     cout <<"starting reducer" <<endl;
@@ -90,13 +105,13 @@ void ReducerNode::start_reducer_node(string master_ip_address, int master_port_n
         if(!req_type.compare("word_count"))
         {
             cout<<"\n\nReceived word count request\n\n";
-            t = thread(&ReducerNode::word_count, this, dm, req_split[1]);
+            t = thread(&ReducerNode::word_count, this, dm, req_split[1], fs);
             t.detach();
         }
         else if(!req_type.compare("inverted_index"))
         {
             cout<<"\n\nReceived word count request\n\n";
-            t = thread(&ReducerNode::inverted_index, this, dm, req_split[1]);
+            t = thread(&ReducerNode::inverted_index, this, dm, req_split[1], fs);
             t.detach();
         }   
     }

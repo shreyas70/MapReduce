@@ -1,0 +1,77 @@
+[Master] Sun Dec  2 06:21:41 2018 : "run (488): bind failed"
+[Master] Sun Dec  2 06:22:26 2018 : "run (488): bind failed"
+[Master] Sun Dec  2 06:22:46 2018 : "Master listening on 127.0.0.1:4001"
+[Master] Sun Dec  2 06:23:57 2018 : "New client with socket id 4 connected
+"
+[Master] Sun Dec  2 06:23:57 2018 : "request_handler:77 : Handling request: 1"
+[Master] Sun Dec  2 06:26:08 2018 : "New client with socket id 5 connected
+"
+[Master] Sun Dec  2 06:26:08 2018 : "request_handler:77 : Handling request: 2"
+[Master] Sun Dec  2 06:26:50 2018 : "New client with socket id 6 connected
+"
+[Master] Sun Dec  2 06:26:50 2018 : "request_handler:77 : Handling request: 0$1$input_files/i_file1.txt$input_files/i_file2.txt$input_files/i_file3.txt"
+[Master] Sun Dec  2 06:27:28 2018 : "Connection lost!!
+"
+[Master] Sun Dec  2 06:33:39 2018 : "Master listening on 127.0.0.1:4001"
+[Master] Sun Dec  2 06:33:42 2018 : "New client with socket id 4 connected
+"
+[Master] Sun Dec  2 06:33:42 2018 : "request_handler:77 : Handling request: 1"
+[Master] Sun Dec  2 06:33:44 2018 : "New client with socket id 5 connected
+"
+[Master] Sun Dec  2 06:33:44 2018 : "request_handler:77 : Handling request: 2"
+[Master] Sun Dec  2 06:33:47 2018 : "New client with socket id 6 connected
+"
+[Master] Sun Dec  2 06:33:47 2018 : "request_handler:77 : Handling request: 0$1$input_files/i_file1.txt$input_files/i_file2.txt$input_files/i_file3.txt"
+[Master] Sun Dec  2 06:33:47 2018 : "client_request_handler (321): Inititate WC - mapper socket: 4"
+[Master] Sun Dec  2 06:33:47 2018 : "Connection lost!!
+"
+[Master] Sun Dec  2 07:41:55 2018 : "Master listening on 127.0.0.1.:4000"
+[Master] Sun Dec  2 07:42:24 2018 : "New client with socket id 4 connected
+"
+[Master] Sun Dec  2 07:42:24 2018 : "request_handler:77 : Handling request: 1"
+[Master] Sun Dec  2 07:42:45 2018 : "New client with socket id 5 connected
+"
+[Master] Sun Dec  2 07:42:45 2018 : "request_handler:77 : Handling request: 2"
+[Master] Sun Dec  2 07:43:13 2018 : "New client with socket id 6 connected
+"
+[Master] Sun Dec  2 07:43:13 2018 : "request_handler:77 : Handling request: 0$1$input_files/i_file1.txt$input_files/i_file2.txt$input_files/i_file3.txt"
+[Master] Sun Dec  2 07:43:13 2018 : "client_request_handler (321): Inititate WC - mapper socket: 4"
+[Master] Sun Dec  2 07:45:27 2018 : "Connection lost!!
+"
+[Master] Sun Dec  2 07:48:06 2018 : "Master listening on 127.0.0.1.:4000"
+[Master] Sun Dec  2 07:48:09 2018 : "New client with socket id 4 connected
+"
+[Master] Sun Dec  2 07:48:09 2018 : "request_handler:77 : Handling request: 1"
+[Master] Sun Dec  2 07:48:12 2018 : "New client with socket id 5 connected
+"
+[Master] Sun Dec  2 07:48:12 2018 : "request_handler:77 : Handling request: 2"
+[Master] Sun Dec  2 07:48:31 2018 : "New client with socket id 6 connected
+"
+[Master] Sun Dec  2 07:48:31 2018 : "request_handler:77 : Handling request: 0$0input_files/i_file3.txt"
+[Master] Sun Dec  2 07:49:39 2018 : "Master listening on 127.0.0.1.:4000"
+[Master] Sun Dec  2 07:49:42 2018 : "New client with socket id 4 connected
+"
+[Master] Sun Dec  2 07:49:42 2018 : "request_handler:77 : Handling request: 1"
+[Master] Sun Dec  2 07:49:44 2018 : "New client with socket id 5 connected
+"
+[Master] Sun Dec  2 07:49:44 2018 : "request_handler:77 : Handling request: 2"
+[Master] Sun Dec  2 07:49:52 2018 : "New client with socket id 6 connected
+"
+[Master] Sun Dec  2 07:49:52 2018 : "request_handler:77 : Handling request: 0$0input_files/i_file3.txt"
+[Master] Sun Dec  2 07:53:33 2018 : "Master listening on 127.0.0.1.:4000"
+[Master] Sun Dec  2 07:53:36 2018 : "New client with socket id 4 connected
+"
+[Master] Sun Dec  2 07:53:36 2018 : "request_handler:77 : Handling request: 1"
+[Master] Sun Dec  2 07:53:38 2018 : "New client with socket id 5 connected
+"
+[Master] Sun Dec  2 07:53:38 2018 : "request_handler:77 : Handling request: 2"
+[Master] Sun Dec  2 07:53:42 2018 : "New client with socket id 6 connected
+"
+[Master] Sun Dec  2 07:53:42 2018 : "request_handler:77 : Handling request: 0$0$input_files/i_file3.txt"
+[Master] Sun Dec  2 07:53:42 2018 : "client_request_handler (214): Inititate WC - mapper socket: 4"
+[Master] Sun Dec  2 07:53:42 2018 : "Handling response: 3$0$0$M_job_0_chunk_0_category_0.txt
+"
+[Master] Sun Dec  2 07:55:48 2018 : "Connection lost!!
+"
+[Master] Sun Dec  2 07:55:49 2018 : "Handling response: 5$0$0$R_job_0_cateogry_0_wc.txt
+"

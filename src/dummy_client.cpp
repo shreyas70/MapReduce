@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 
 #include "master_client.h"
+#include "fs_client.h"
 
 using namespace std;
 
@@ -37,11 +38,19 @@ int main(int argc, char* argv[])
     // string file_path = util_abs_path_get(argv[2]);
     
     vector<string> filesList;
-    filesList.push_back("input_files/i_file1.txt");
-    filesList.push_back("input_files/i_file2.txt");
-    filesList.push_back("input_files/i_file3.txt");
+    // filesList.push_back("input_files/i_file1.txt");
+    // filesList.push_back("input_files/i_file2.txt");
+    filesList.push_back("i_file3.txt");
 
-    m.connect_as_client(m_ip_addr, m_port,Problem::INVERTED_INDEX, filesList);
+    FS_Client fs_client("127.0.0.1:3998", "127.0.0.1:6000");
+
+    // fs_client.upload_file("input_files/i_file1.txt");
+    // fs_client.upload_file("input_files/i_file2.txt");
+    fs_client.upload_file("i_file3.txt");
+
+
+
+    m.connect_as_client(m_ip_addr, m_port,Problem::WORD_COUNT, filesList);
 
     
     // m.get_request();

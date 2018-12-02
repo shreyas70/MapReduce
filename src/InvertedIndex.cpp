@@ -1,6 +1,7 @@
 #include<unistd.h>
 #include<fcntl.h>
 #include <iostream>
+#include <stdio.h>
 #include <vector>
 #include <mutex>
 #include <string.h>
@@ -11,6 +12,7 @@
 #include <utility>
 #include "InvertedIndex.h"
 #include "utilities.h"
+#include "fs_client.h"
 
 using namespace std;
 
@@ -83,8 +85,19 @@ int InvertedIndexMapper::get_no_of_reducers()
     return this->no_of_reducers;
 }
 
-string InvertedIndexMapper::start_job()
+// int InvertedIndexMapper::get_client_port_number()
+// {
+//     return this->client_port_number;
+// }
+
+// void InvertedIndexMapper::set_client_port_number(int client_port_number)
+// {
+//     this->client_port_number = client_port_number;
+// }
+
+string InvertedIndexMapper::start_job(FS_Client * fs)
 {
+    string out_file_name = "";
     try
     {
         cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
@@ -93,6 +106,17 @@ string InvertedIndexMapper::start_job()
         {
             FileInfo file_info = this->input_files[i];
             string file_path = file_info.file_path;
+            int sl = file_info.start_line;
+            int nl = file_info.no_of_lines;
+
+            // FS_Client fs = FS_Client("127.0.0.1:5000", FILE_SERVER_IP);
+
+            // FS_Client * fs = FileClient::get_file_client_object();
+            string inp = file_path;
+            string out = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_"+file_path;
+
+            fs->get_chunk(inp, out, sl, nl);
+
             FILE * file_ptr = fopen(file_path.c_str(), "r");
             char buff[100];
             bzero(buff, 100);
@@ -110,8 +134,9 @@ string InvertedIndexMapper::start_job()
                 bzero(buff,100);
             }
             fclose(file_ptr);
+            remove(file_path.c_str());
         }
-        string out_file_name = "output_files/output_inverted.txt";
+        out_file_name = "temp_"+this->job_id+"_"+to_string(this->chunk_id)+"_output_inverted.txt";
         int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         for(unordered_map<string, set<string>>::iterator it = index.begin(); it!=index.end(); ++it)
         {
@@ -138,7 +163,7 @@ string InvertedIndexMapper::start_job()
         return "FAILURE";
     }
     
-    return "output_files/output_inverted.txt";
+    return out_file_name;
 }
 
 void InvertedIndexReducer::init(string request_string)
@@ -186,11 +211,33 @@ int InvertedIndexReducer::get_file_count_in_category(int category)
     return this->category_to_files_map[category];
 }
 
-string InvertedIndexReducer::reduce(int category, string file_path)
+// int InvertedIndexReducer::get_client_port_number()
+// {
+//     return this->client_port_number;
+// }
+
+// void InvertedIndexReducer::set_client_port_number(int client_port_number)
+// {
+//     this->client_port_number = client_port_number;
+// }
+
+string InvertedIndexReducer::reduce(int category, string file_path, FS_Client * fs)
 {
     try
     {
         cout<<"\n\nReducing "<<file_path<<endl;
+
+        // string client_ip_address = "127.0.0.1:"+to_string(this->client_port_number);
+        // FS_Client fs = FS_Client("127.0.0.1:9001", FILE_SERVER_IP);
+
+        // FS_Client * fs = FileClient::get_file_client_object();
+
+        int nl = fs->get_lines_count(file_path);
+        string inp = file_path;
+        string out = "temp_"+this->job_id+"_"+to_string(category)+"_"+file_path;
+
+        fs->get_chunk(inp, out, 1, nl);
+
         FILE * file_ptr = fopen(file_path.c_str(), "r");
         char buff[100];
         bzero(buff, 100);
@@ -212,6 +259,7 @@ string InvertedIndexReducer::reduce(int category, string file_path)
         }
 
         fclose(file_ptr);
+        remove(file_path.c_str());
         cout<<"\n Done with "<<file_path<<endl;
 
         this->increment_files_in_category(category);

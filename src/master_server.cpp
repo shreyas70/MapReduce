@@ -147,12 +147,6 @@ int Master::client_request_handler(int client_sock, string req_str)
         case Problem::WORD_COUNT:
         {
             string file_path = tokens_vec[2];
-            // check if file is valid
-            if( access( file_path.c_str() , R_OK ) == -1) 
-            {
-                cout << "File doesn't exists. Terminating request." << endl;
-                return FAILURE;
-            }
 
             int total_lines = num_lines_get(file_path);
             int chunk_num_lines = ceil(((double) total_lines / mapper_list.size()));
@@ -225,15 +219,7 @@ int Master::client_request_handler(int client_sock, string req_str)
 
         case Problem::INVERTED_INDEX:
         {
-            for(int i=2;i<tokens_vec.size();i++)
-            {
-                if(access(tokens_vec[i].c_str(), R_OK) == -1)
-                {
-                    cout << "Invalid files. Terminating request" << endl;
-                    return FAILURE;
-                }
-            }
-
+          
             Job* new_job = new Job(client_sock, mapper_list.size(), reducer_list.size());
             jobs_map[new_job->job_id] = new_job;
 

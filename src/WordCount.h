@@ -4,6 +4,7 @@
 #include<string>
 #include<mutex>
 #include<unordered_map>
+#include "fs_client.h"
 
 typedef struct
 {
@@ -28,6 +29,8 @@ class WordCountMapper
     int no_of_lines;
     int no_of_reducers;
 
+    // int client_port_number;
+
     public:
 
     WordCountMapper(std::string job_id, int chunk_id, std::string file_path, int start_line, int no_of_lines, int no_of_reducers);
@@ -36,7 +39,10 @@ class WordCountMapper
     std::string get_chunk_id();
     std::string get_file_path();
     int get_no_of_reducers();
-    std::string start_job();
+    std::string start_job(FS_Client * fs);
+
+    // int get_client_port_number();
+    // void set_client_port_number(int client_port_number);
 };
 
 class WordCountReducer
@@ -53,9 +59,13 @@ class WordCountReducer
     std::unordered_map<std::string, int> words_count;
     void update_word_count(std::string word, int count);
 
+    // int client_port_number;
+
     public:
     void init(std::string request_string);
-    std::string reduce(int category, std::string file_path);
+    std::string reduce(int category, std::string file_path, FS_Client * fs);
+    // int get_client_port_number();
+    // void set_client_port_number(int client_port_number);
 };
 
 #endif

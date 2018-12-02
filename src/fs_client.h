@@ -3,12 +3,12 @@
 
 #include "utilities.h"
 
-#define FAILURE         -1
-#define SUCCESS         0
-#define MAX_SIZE        (512*1024)
-#define FILE_EXISTS     1
-#define MAX_CONNS       100
-
+#define FAILURE           -1
+#define SUCCESS           0
+#define MAX_SIZE          (512*1024)
+#define FILE_EXISTS       1
+#define MAX_CONNS         100
+#define FILE_SERVER_IP    "127.0.0.1:6000"
 
 enum Client_Request
 {

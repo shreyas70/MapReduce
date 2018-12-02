@@ -26,7 +26,7 @@ int MasterClient::connect_as_client(string ip_address, int port_number, Problem 
             cout << "Give only one file for word count problem" << endl;
             return FAILURE;
         }
-        req+= files[0];
+        req+= "$"+files[0];
     }
     else
     {
