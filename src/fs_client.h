@@ -36,7 +36,7 @@ private:
 public:
     FS_Client(std::string client_ip_addr, std::string server_ip_addr);
     int get_lines_count(std::string file_path);
-    void get_chunk(std::string input_filename, std::string output_filename, int start_line, int line_count);
+    int get_chunk(std::string input_filename, std::string output_filename, int start_line, int line_count);
     int upload_file(std::string input_filename);
     int append_file(std::string src_filename, std::string dest_filename);
     void uploader();

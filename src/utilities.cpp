@@ -146,11 +146,12 @@ int util_connection_make(string ip, uint16_t port)
 void util_data_read(int sock, char* read_buffer, int size_to_read)
 {
     int bytes_read = 0;
-    do
+    while(bytes_read < size_to_read)
     {
         // read in a loop
         bytes_read += read(sock, read_buffer + bytes_read, size_to_read);
-    }while(bytes_read < size_to_read);
+    }
+    // }while(bytes_read < size_to_read);
 }
 
 int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
@@ -166,11 +167,6 @@ int util_socket_data_get(int sock, string& buffer_str, string& error_msg)
     }
     if(0 == valread)
     {
-        // Somebody disconnected, get his details and print
-        //getpeername(sock , (struct sockaddr*)&m_sock_address, (socklen_t*)&addrlen);
-        //stringstream ss;
-        //ss << "Connection lost!! <ip_addr>:<port> -> " 
-        //   << inet_ntoa(m_sock_address.sin_addr) << ":" << ntohs(m_sock_address.sin_port);
         error_msg = "Connection lost!!\n";
         return FAILURE;
     }
@@ -259,7 +255,7 @@ bool util_file_exists(string filename)
     return (stat (fname, &buffer) == 0);
 }
 
-void util_read_data_into_file(int m_file_socket, string filename)
+void util_read_data_into_file(int file_socket, string filename)
 {
     ofstream out(filename, ios_base::binary | ios_base::app);
     if(!out)
@@ -268,18 +264,14 @@ void util_read_data_into_file(int m_file_socket, string filename)
     while(true)
     {
         string buffer_str, error_msg;
-        if (FAILURE == util_socket_data_get(m_file_socket, buffer_str, error_msg))
+        if (FAILURE == util_socket_data_get(file_socket, buffer_str, error_msg))
         {
             cout << error_msg << endl;
-            close(m_file_socket);
-            m_file_socket = INVALID_SOCK;
             break;
         }
         out << buffer_str;
         if (buffer_str.length() < MAX_CHUNK_SIZE)
         {
-            close(m_file_socket);
-            m_file_socket = INVALID_SOCK;
             break;
         }
     }

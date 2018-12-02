@@ -237,12 +237,15 @@ int FS_Client::get_lines_count(string file_path)
     return num;
 }
 
-void FS_Client::get_chunk(string input_filename, string output_filename, int start_line, int line_count)
+int FS_Client::get_chunk(string input_filename, string output_filename, int start_line, int line_count)
 {
     int status;
     int bytes_to_read = 0;
     char buffer[MAX_SIZE];        
     memset(buffer, 0, sizeof(char)*MAX_SIZE);
+
+    if (line_count <= 0)
+        return FAILURE;
 
     int server_sock = util_connection_make(m_server_ip, m_server_port);
     if(server_sock == FAILURE)
@@ -250,7 +253,7 @@ void FS_Client::get_chunk(string input_filename, string output_filename, int sta
         // stringstream ss;
         cout << __func__ << ":" << __LINE__ << " util_connection_make() :  Failed";
         // util_file_log_print(m_logfile_path, ss.str());
-        return;
+        return FAILURE;
     }
 
     string opcode = to_string(GET_CHUNK) + "$";
@@ -259,6 +262,9 @@ void FS_Client::get_chunk(string input_filename, string output_filename, int sta
     opcode += input_filename;
     util_write_to_sock(server_sock, opcode);
     util_read_data_into_file(server_sock, output_filename);
+    close(server_sock);
+    server_sock = INVALID_SOCK;
+    return SUCCESS;
 } 
 
 int FS_Client::upload_file(string input_filename)
@@ -292,6 +298,9 @@ int FS_Client::upload_file(string input_filename)
 
 int FS_Client::append_file(string src_filename, string dest_filename)
 {
+    if (util_file_size_get(src_filename) == 0)
+        return FAILURE;
+
     int server_sock = util_connection_make(m_server_ip, m_server_port);
     if(server_sock == FAILURE)
     {

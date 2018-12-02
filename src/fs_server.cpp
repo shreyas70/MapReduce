@@ -54,17 +54,18 @@ void FS_Server::get_lines_count(int sock, string path)
 {
     int lines = 0;
 
-    mutex* file_mutex = file_mutex_get(path);
-    lock_guard<mutex> lg(*file_mutex);
+    // mutex* file_mutex = file_mutex_get(path);
+    // lock_guard<mutex> lg(*file_mutex);
     if(!util_file_exists(path))
     {
         cout << __func__ << " " << path << " : File not found\n";
         send(sock, &lines, sizeof(lines), 0);
         return;
     }
-
-    ifstream inFile(path); 
+    cout << __func__ << ":" << __LINE__ << " " << path << "\n";
+    ifstream inFile(path);
     lines = count(istreambuf_iterator<char>(inFile), istreambuf_iterator<char>(), '\n');
+    cout << __func__ << ":" << __LINE__ << ": lines " << lines << " " << path << "\n";
     send(sock, &lines, sizeof(lines), 0);
 } 
 

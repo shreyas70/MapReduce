@@ -87,13 +87,13 @@ string WordCountMapper::start_job(FS_Client * fs)
         int nl = this->no_of_lines;
 
         string inp = file_name;
-        string out = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_"+file_name;
+        string out = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_"+file_name;
         fs->get_chunk(inp, out, sl, nl);
 
         FILE * file_ptr = fopen(out.c_str(), "r");
 
         int iteration = 0;
-        string out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
+        string out_file_name = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
         int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         int count = 0;
         char word[100];
@@ -101,17 +101,17 @@ string WordCountMapper::start_job(FS_Client * fs)
         vector<string> file_words;
         while( fscanf(file_ptr, "%s", word) != EOF )
         {
-            string temp_string = word;
-            string word_string = "";
-            for(int i=0; i<temp_string.length(); i++)
-            {
-                char curr_char = temp_string[i];
-                if((curr_char < 65) || (curr_char > 90 && curr_char < 97) || (curr_char > 122))
-                {
-                    continue;
-                }
-                word_string+=curr_char;
-            }
+            string word_string = word;
+            // string word_string = "";
+            // for(int i=0; i<temp_string.length(); i++)
+            // {
+            //     char curr_char = temp_string[i];
+            //     if((curr_char < 65) || (curr_char > 90 && curr_char < 97) || (curr_char > 122))
+            //     {
+            //         continue;
+            //     }
+            //     word_string+=curr_char;
+            // }
             if(word_string.empty())
             {
                 continue;
@@ -120,7 +120,7 @@ string WordCountMapper::start_job(FS_Client * fs)
             if(count > 100000)
             {
                 count = 1;
-                out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
+                out_file_name = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";
                 wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
                 sort(file_words.begin(), file_words.end());
                 for(int i=0; i<file_words.size(); i++)
@@ -140,7 +140,7 @@ string WordCountMapper::start_job(FS_Client * fs)
         }
         if(!file_words.empty())
         {
-            out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";;
+            out_file_name = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(iteration)+".txt";;
             wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
             sort(file_words.begin(), file_words.end());
             for(int i=0; i<file_words.size(); i++)
@@ -161,7 +161,7 @@ string WordCountMapper::start_job(FS_Client * fs)
         FILE * out_files[iteration];
         for(int i=0; i<iteration; i++)
         {
-            string out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(i)+".txt";
+            string out_file_name = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_out_file"+to_string(i)+".txt";
             out_files[i] = fopen(out_file_name.c_str(), "r");
         }
 
@@ -181,7 +181,7 @@ string WordCountMapper::start_job(FS_Client * fs)
             }
         }
 
-        string output_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
+        string output_file_name = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
         int sorted_wd = open(output_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         bool start = true;
         while(!min_heap.empty())
@@ -209,14 +209,14 @@ string WordCountMapper::start_job(FS_Client * fs)
             fclose(out_files[i]);
             // remove(out_file_name.c_str());
         }
-        string sorted_output_file = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
+        string sorted_output_file = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_word_file_sorted.txt";
         FILE * sorted_file = fopen(sorted_output_file.c_str(), "r");
         char buff[255];
         bzero(buff, 255);
         int current_count = 1;
         string curr_word = "";
 
-        final_output_file = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_output.txt";
+        final_output_file = "temp_wc_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_output.txt";
 
         int out_wd = open(final_output_file.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         if(fscanf(sorted_file, "%s", buff)!=EOF)
@@ -317,28 +317,31 @@ string WordCountReducer::reduce(int category,  string file_path, FS_Client * fs)
 {
     try
     {
-        cout << "\n\nReducing " << file_path << endl << flush;
+        cout << "Reducing " << file_path << endl << endl << flush;
 
         int no_of_lines = fs->get_lines_count(file_path);
 
         string inp = file_path;
-        string temp_out = "temp_" + file_path;
+        string temp_out = "temp_wc_" + file_path;
 
-        fs->get_chunk(inp, temp_out, 1, no_of_lines);
-
-        FILE * file_ptr = fopen(temp_out.c_str(), "r");
-        char buff[100];
-        bzero(buff, 100);
-        while( fscanf(file_ptr, "%s", buff)!=EOF )
+        if (SUCCESS == fs->get_chunk(inp, temp_out, 1, no_of_lines))
         {
-            string word = buff;
+            cout << "Get_chunk: " << file_path << " (1, " << no_of_lines << ") -> " << temp_out << endl << flush;
+
+            FILE * file_ptr = fopen(temp_out.c_str(), "r");
+            char buff[100];
             bzero(buff, 100);
-            fscanf(file_ptr, "%s", buff);
-            int count = stoi(buff);
-            update_word_count(word, count);
+            while( fscanf(file_ptr, "%s", buff)!=EOF )
+            {
+                string word = buff;
+                bzero(buff, 100);
+                fscanf(file_ptr, "%s", buff);
+                int count = stoi(buff);
+                update_word_count(word, count);
+            }
+            fclose(file_ptr);
+            remove(temp_out.c_str());
         }
-        fclose(file_ptr);
-        remove(temp_out.c_str());
 
         cout << "\nDone with " << file_path << endl << flush;
         this->increment_files_in_category(category);

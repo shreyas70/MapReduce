@@ -110,7 +110,7 @@ string InvertedIndexMapper::start_job(FS_Client * fs)
             int nl = file_info.no_of_lines;
 
             string inp = file_path;
-            string out = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_"+file_path;
+            string out = "temp_ii_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_"+file_path;
 
             fs->get_chunk(inp, out, sl, nl);
 
@@ -133,7 +133,7 @@ string InvertedIndexMapper::start_job(FS_Client * fs)
             fclose(file_ptr);
             // remove(file_path.c_str());
         }
-        out_file_name = "temp_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_output_inverted.txt";
+        out_file_name = "temp_ii_job_"+this->job_id+"_chunk_"+to_string(this->chunk_id)+"_output_inverted.txt";
         int wd = open(out_file_name.c_str(),(O_WRONLY | O_CREAT | O_TRUNC),(S_IRUSR | S_IWUSR));
         for(unordered_map<string, set<string>>::iterator it = index.begin(); it!=index.end(); ++it)
         {
@@ -216,36 +216,37 @@ string InvertedIndexReducer::reduce(int category, string file_path, FS_Client * 
 
         int nl = fs->get_lines_count(file_path);
         string inp = file_path;
-        string out = "temp_" + file_path;
+        string out = "temp_ii_" + file_path;
 
-        cout << "Get_chunk: " << file_path << " (1, " << nl << ") -> " << out << endl;
-        fs->get_chunk(inp, out, 1, nl);
-
-        FILE * file_ptr = fopen(out.c_str(), "r");
-        if (!file_ptr)
+        if (SUCCESS == fs->get_chunk(inp, out, 1, nl))
         {
-            cout << "fopen() failed\n";
-        }
-        char buff[100];
-        bzero(buff, 100);
-        while( fscanf(file_ptr, "%s", buff)!=EOF )
-        {
-            string word = buff;
-            bzero(buff, 100);
-            fscanf(file_ptr, "%s", buff);
-            int files_count = stoi(buff);
-            vector<string> file_list;
-            for(int i=0; i<files_count; i++)
+            cout << "Get_chunk: " << file_path << " (1, " << nl << ") -> " << out << endl;
+            FILE * file_ptr = fopen(out.c_str(), "r");
+            if (!file_ptr)
             {
+                cout << "fopen() failed\n";
+            }
+            char buff[100];
+            bzero(buff, 100);
+            while( fscanf(file_ptr, "%s", buff)!=EOF )
+            {
+                string word = buff;
                 bzero(buff, 100);
                 fscanf(file_ptr, "%s", buff);
-                string file_name = buff;
-                file_list.push_back(file_name);
+                int files_count = stoi(buff);
+                vector<string> file_list;
+                for(int i=0; i<files_count; i++)
+                {
+                    bzero(buff, 100);
+                    fscanf(file_ptr, "%s", buff);
+                    string file_name = buff;
+                    file_list.push_back(file_name);
+                }
+                this->update_files_list(word, file_list);
             }
-            this->update_files_list(word, file_list);
+            fclose(file_ptr);
+            remove(out.c_str());
         }
-
-        fclose(file_ptr);
         // remove(file_path.c_str());
         cout<<"\n Done with "<<file_path<<endl;
 
