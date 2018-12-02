@@ -1,7 +1,0 @@
-yellow 2
-ready 1
-red 3
-orange 3
-watermelon 1
-set 1
-white 2
