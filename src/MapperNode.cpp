@@ -71,7 +71,7 @@ void MapperNode::word_count(MasterClient dm, string request_string, FS_Client * 
         small_ranges.push_back(range);
         x++;
         y++;
-        cout << " cat " << i << " start - " << (char)start << "| end -" << (char) end <<endl;
+        cout << " cat " << i << " start - " << (char)start << "| end - " << (char) end <<endl;
     }
 
     x=0,y=1;
@@ -88,7 +88,7 @@ void MapperNode::word_count(MasterClient dm, string request_string, FS_Client * 
         capital_ranges.push_back(range);
         x++;
         y++;
-        cout << " cat " << i << " start - " << (char)start << "| end -" << (char) end <<endl;
+        // cout << " cat " << i << " start - " << (char)start << "| end -" << (char) end <<endl;
     }
 
     char buff[100];

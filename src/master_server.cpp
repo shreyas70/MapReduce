@@ -68,8 +68,8 @@ int Master::request_handler(int sock, string req_str, Opcode& opcode)
     
     string opcode_str;
     getline(ss, opcode_str, '$');
-
-    cout << opcode_str << endl;
+    // DebugCode
+    // cout << opcode_str << endl;
     opcode = (Opcode)(stoi(opcode_str));
 
     switch(opcode)
@@ -390,7 +390,7 @@ void Master::response_handler(int sock, string response_str)
                         //         fs_client.remove_file(s);
                         //     }
                         // }
-                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! Output file : word_count" + to_string(job->job_id) + "_output.txt");
+                        util_write_to_sock(job->client_socket, "Your job for the file " + job->input_filenames[0] +" is done! \n Output file name: word_count" + to_string(job->job_id) + "_output.txt");
                         break;
 
                     case Problem::INVERTED_INDEX:

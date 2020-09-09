@@ -40,9 +40,11 @@ WordCountMapper::WordCountMapper(string request_string)
     cout << endl << this->file_path << endl;
     this->start_line = stoi(req_vec[3]);
     this->no_of_lines = stoi(req_vec[4]);
-    cout << endl << " numberof lines assigned" << endl;
+    cout << endl << "Range of lines assigned : ";
+    cout << this->start_line << " to " << (this->start_line+this->no_of_lines) << endl;
     this->no_of_reducers = stoi(req_vec[5]);
-    cout << "Number of reducers" << endl;
+    cout << "Number of reducers : ";
+    cout << this->no_of_reducers << endl;
 
 }
 
@@ -81,7 +83,7 @@ string WordCountMapper::start_job(FS_Client * fs)
     string final_output_file = "";
     try
     {
-        cout<<"\n\nJOB "<<this->job_id<<" started!!"<<endl;
+        cout<<"\n\nJOB "<<this->job_id<<" started!"<<endl;
         string file_name = this->file_path;
         int sl = this->start_line;
         int nl = this->no_of_lines;

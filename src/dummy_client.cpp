@@ -36,11 +36,12 @@ int main(int argc, char* argv[])
     FS_Client fs_client("127.0.0.1:3998", "127.0.0.1:6000");
 
     vector<string> filesList;
-    filesList.push_back("i_file1.txt");
+    filesList.push_back("wc.txt");
+    //filesList.push_back("i_file1.txt");
     //filesList.push_back("i_file2.txt");
     //filesList.push_back("i_file3.txt");
 
-    fs_client.upload_file("i_file1.txt");
+    // fs_client.upload_file("i_file1.txt");
     //fs_client.upload_file("i_file2.txt");
     //fs_client.upload_file("i_file3.txt");
 

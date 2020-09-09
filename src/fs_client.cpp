@@ -99,9 +99,11 @@ void FS_Client::uploader()
         cout<<(ss.str());
         exit(EXIT_FAILURE);   
     }   
-    stringstream ss;
-    ss << "File Server Listening on port\n";
-    cout<<(ss.str());
+
+    // DebugCode
+    // stringstream ss;
+    // ss << "File Server Listening on port\n";
+    // cout<<(ss.str());
          
     //try to specify maximum of 100 pending connections for the master socket  
     if (listen(fs_client_socket, MAX_CONNS) < 0)   
@@ -285,7 +287,8 @@ int FS_Client::upload_file(string input_filename)
     
     if(file_exists)
     {
-        cout << "File " << input_filename <<" Already Exists!!! Please specify a different name\n";
+        // DebugCode
+        // cout << "File " << input_filename <<" Already Exists!!! Please specify a different name\n";
         close(server_sock);
         server_sock = INVALID_SOCK;
         return FILE_EXISTS;

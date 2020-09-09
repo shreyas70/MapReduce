@@ -62,10 +62,13 @@ void FS_Server::get_lines_count(int sock, string path)
         send(sock, &lines, sizeof(lines), 0);
         return;
     }
-    cout << __func__ << ":" << __LINE__ << " " << path << "\n";
+    
+    // DebugCode
+    // cout << __func__ << ":" << __LINE__ << " " << path << "\n";
     ifstream inFile(path);
     lines = count(istreambuf_iterator<char>(inFile), istreambuf_iterator<char>(), '\n');
-    cout << __func__ << ":" << __LINE__ << ": lines " << lines << " " << path << "\n";
+    // DebugCode
+    // cout << __func__ << ":" << __LINE__ << ": lines " << lines << " " << path << "\n";
     send(sock, &lines, sizeof(lines), 0);
 } 
 
@@ -275,9 +278,11 @@ void FS_Server::start_server()
         cout<<(ss.str());
         exit(EXIT_FAILURE);   
     }   
-    stringstream ss;
-    ss << "File Server Listening on port\n";
-    cout<<(ss.str());
+
+    // DebugCode
+    // stringstream ss;
+    // ss << "File Server Listening on port\n";
+    // cout<<(ss.str());
          
     //try to specify maximum of 100 pending connections for the master socket  
     if (listen(server_socket, MAX_CONNS) < 0)   
@@ -365,7 +370,8 @@ void FS_Server::start_server()
                     string buffer_str, error_msg;
                     if (FAILURE == util_socket_data_get(sd, buffer_str, error_msg))
                     {
-			            cout << error_msg << endl;
+                        // DebugCode
+			            // cout << error_msg << endl;
                         close(sd);
                         client_socket[i] = 0;
                         continue;
