@@ -8,11 +8,13 @@ If you want to briefy understand the underlying concepts of this framework, you 
 ## Demo videos
 
 ### Demo1: Running WordCount task on a simple file
-[![](http://i3.ytimg.com/vi/cBLWVu1wu-E/maxresdefault.jpg)](https://youtu.be/cBLWVu1wu-E "Demo1")
+
+[![](http://img.youtube.com/vi/cBLWVu1wu-E/0.jpg)](http://www.youtube.com/watch?v=cBLWVu1wu-E "Demo1")
 
 ### Demo2: Demonstrating the Fault Tolerance feature
 
-[![](http://i3.ytimg.com/vi/mNZ8mWs5Cg0/maxresdefault.jpg)](https://youtu.be/mNZ8mWs5Cg0 "Demo2")
+[![](http://img.youtube.com/vi/mNZ8mWs5Cg0/0.jpg)](http://www.youtube.com/watch?v=mNZ8mWs5Cg0 "Demo2")
+
 
 ## High Level Design  
 
