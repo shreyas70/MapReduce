@@ -5,7 +5,14 @@ If your task was to count the frequency of each unique node in a file of 5GB usi
 
 If you want to briefy understand the underlying concepts of this framework, you may go through [this](https://www.guru99.com/introduction-to-mapreduce.html) article.
 
+## Demo videos
 
+### Demo1: Running WordCount task on a simple file
+[![](http://i3.ytimg.com/vi/cBLWVu1wu-E/maxresdefault.jpg)](https://youtu.be/cBLWVu1wu-E "Demo1")
+
+### Demo2: Demonstrating the Fault Tolerance feature
+
+[![](http://i3.ytimg.com/vi/mNZ8mWs5Cg0/maxresdefault.jpg)](https://youtu.be/mNZ8mWs5Cg0 "Demo2")
 
 ## High Level Design  
 
