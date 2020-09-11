@@ -16,9 +16,29 @@ If you want to briefy understand the underlying concepts of this framework, you 
 [![](http://img.youtube.com/vi/mNZ8mWs5Cg0/0.jpg)](http://www.youtube.com/watch?v=mNZ8mWs5Cg0 "Demo2")
 
 
-## High Level Design  
+## Architecture
 
-![GitHub](./standalone_scripts/HighLevelDesign.png)
+![GitHub](./standalone_scripts/Architecture_img.jpg)
+
+## Sequence of operations
+
+![GitHub](./standalone_scripts/Steps.jpg)
+
+
+(0) Client uploads input file(s) to FileServer <br>
+(1) Client initiates task request to Master<br>
+(2) Master accesses meta data of the input file from the FileServer<br>
+(3) Master assigns chunks of input file(s) to Mapper Nodes<br>
+(4) Mapper Node(s) download only the part(s) of input file(s) assigned to it<br>
+(5) Mapper Nodes finish processing and upload their resulting files to FileServer<br>
+(6) Mapper Node(s) inform Master that its task is done and the resulting files are uploaded to the FileServer<br>
+(7) Master assigns tasks to Reducer Node(s)<br>
+(8) Reducer Node(s) download files relevant to the assigned task<br>
+(9) Reducer Node(s) uploads resulting file to FileServer<br>
+(10) Reducer Node(s) inform master that task is done<br>
+(At this point Master assigns the task of aggregating the resulting files of all Reducer Nodes to one Reducer Node)<br>
+(11) Master informs the client that processing is done and the output file is present on the FileServer<br>
+(12) Client downloads output file from the FileServer<br>
 
 
 ## How to run
