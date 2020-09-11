@@ -19,7 +19,7 @@ If you want to briefy understand the underlying concepts of this framework, you 
 ## Architecture
 
 <!-- <center> -->
-<img src="./standalone_scripts/Architecture_img.jpg" width="300" style="display:block; margin-left: auto; margin-right: auto;"/>
+<img src="./standalone_scripts/Architecture_img.jpg" width="350" style="display:block; margin-left: auto; margin-right: auto;"/>
 <!-- </center> -->
 
 <!-- ![GitHub](./standalone_scripts/Architecture_img.jpg) -->
@@ -28,7 +28,7 @@ If you want to briefy understand the underlying concepts of this framework, you 
 
 ## Sequence of operations
 
-<img src="./standalone_scripts/Steps.jpg" width="300"
+<img src="./standalone_scripts/Steps.jpg" width="350"
 style="display:block; margin-left: auto; margin-right: auto;"
 />
 
