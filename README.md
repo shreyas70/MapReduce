@@ -18,11 +18,21 @@ If you want to briefy understand the underlying concepts of this framework, you 
 
 ## Architecture
 
-![GitHub](./standalone_scripts/Architecture_img.jpg)
+<!-- <center> -->
+<img src="./standalone_scripts/Architecture_img.jpg" width="500" style="display:block; margin-left: auto; margin-right: auto;"/>
+<!-- </center> -->
+
+<!-- ![GitHub](./standalone_scripts/Architecture_img.jpg) -->
+
+<br>
 
 ## Sequence of operations
 
-![GitHub](./standalone_scripts/Steps.jpg)
+<img src="./standalone_scripts/Steps.jpg" width="500"
+style="display:block; margin-left: auto; margin-right: auto;"
+/>
+
+<!-- ![GitHub](./standalone_scripts/Steps.jpg) -->
 
 
 (0) Client uploads input file(s) to FileServer <br>
